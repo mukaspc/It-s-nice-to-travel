@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { PlanDTO, CreatePlanCommandDTO } from "../../types";
 import { BasicInfoSection } from "./form/BasicInfoSection";
 import { TravelPreferencesSection } from "./form/TravelPreferencesSection";
+import { PlacesSection } from "./form/PlacesSection";
 import { Button } from "../ui/button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -55,13 +56,20 @@ export function PlanForm({ initialData, onSubmit, onCancel }: PlanFormProps) {
     <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
       <BasicInfoSection form={form} />
       <TravelPreferencesSection form={form} />
+      {initialData && (
+        <PlacesSection
+          planId={initialData.id}
+          planStartDate={form.watch("start_date")}
+          planEndDate={form.watch("end_date")}
+        />
+      )}
 
       <div className="flex justify-end gap-4">
         <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
           Cancel
         </Button>
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving..." : "Save Plan"}
+          {isSubmitting ? "Saving..." : initialData ? "Save Changes" : "Create Plan"}
         </Button>
       </div>
     </form>
