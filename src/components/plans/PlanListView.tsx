@@ -10,6 +10,7 @@ import { ErrorBoundary } from "../ErrorBoundary";
 export function PlanListView() {
   const [selectedPlanId, setSelectedPlanId] = useState<string>();
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { plans, isLoading, error, sort, filters, handleSortChange, handleFilterChange, handleRetry, handleDelete } =
     usePlanList();
@@ -21,9 +22,14 @@ export function PlanListView() {
 
   const handleDeleteConfirm = async () => {
     if (selectedPlanId) {
-      await handleDelete(selectedPlanId);
-      setDeleteDialogOpen(false);
-      setSelectedPlanId(undefined);
+      try {
+        setIsDeleting(true);
+        await handleDelete(selectedPlanId);
+        setDeleteDialogOpen(false);
+        setSelectedPlanId(undefined);
+      } finally {
+        setIsDeleting(false);
+      }
     }
   };
 
@@ -67,7 +73,7 @@ export function PlanListView() {
           onConfirm={handleDeleteConfirm}
           onCancel={handleDeleteCancel}
           planName={plans.find((p) => p.id === selectedPlanId)?.name || ""}
-          isDeleting={false}
+          isDeleting={isDeleting}
         />
       </div>
     </ErrorBoundary>

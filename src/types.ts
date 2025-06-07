@@ -3,7 +3,7 @@ import type { Database } from "./db/database.types";
 /**
  * Plan status type
  */
-export type PlanStatus = "draft" | "in_progress" | "completed" | "generated";
+export type PlanStatus = "draft" | "generated";
 
 // ===== Plan DTOs =====
 

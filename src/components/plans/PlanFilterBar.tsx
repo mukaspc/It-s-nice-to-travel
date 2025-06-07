@@ -11,12 +11,10 @@ const SORT_OPTIONS: SortOption[] = [
   { value: "name.desc", label: "Name Z-A" },
 ];
 
-const STATUS_OPTIONS: PlanStatus[] = ["draft", "in_progress", "completed", "generated"];
+const STATUS_OPTIONS: PlanStatus[] = ["draft", "generated"];
 
 const STATUS_LABELS: Record<PlanStatus, string> = {
   draft: "Draft",
-  in_progress: "In Progress",
-  completed: "Completed",
   generated: "Generated",
 };
 

@@ -14,8 +14,6 @@ interface PlanCardProps {
 
 const STATUS_COLORS: Record<PlanListItemDTO["status"], "default" | "secondary" | "destructive" | "outline"> = {
   draft: "outline",
-  in_progress: "secondary",
-  completed: "default",
   generated: "default",
 };
 

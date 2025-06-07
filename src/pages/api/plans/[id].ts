@@ -13,18 +13,9 @@ const updatePlanSchema = z.object({
   travel_preferences: z.string().max(2500, "Travel preferences must be at most 2500 characters").nullable(),
 });
 
-export const PUT: APIRoute = async ({ params, request, locals }) => {
+export const PUT: APIRoute = async ({ params, request }) => {
   try {
-    // 1. Authentication check
-    const { supabase, user } = locals;
-    if (!user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    // 2. Validate plan ID
+    // 1. Validate plan ID
     const { id } = params;
     if (!id) {
       return new Response(JSON.stringify({ error: "Plan ID is required" }), {
@@ -33,11 +24,12 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       });
     }
 
-    // 3. Check if plan exists and belongs to user
+    // 2. Check if plan exists and belongs to user
     const { data: existingPlan, error: fetchError } = await supabase
       .from("generated_user_plans")
-      .select("user_id")
+      .select("id")
       .eq("id", id)
+      .eq("user_id", DEFAULT_USER_ID)
       .single();
 
     if (fetchError || !existingPlan) {
@@ -47,14 +39,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       });
     }
 
-    if (existingPlan.user_id !== user.id) {
-      return new Response(JSON.stringify({ error: "Forbidden" }), {
-        status: 403,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    // 4. Validate request body
+    // 3. Validate request body
     const body = await request.json();
     const validationResult = updatePlanSchema.safeParse(body);
 
@@ -67,7 +52,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
 
     const data = validationResult.data;
 
-    // 5. Validate date range
+    // 4. Validate date range
     const startDate = new Date(data.start_date);
     const endDate = new Date(data.end_date);
     if (endDate < startDate) {
@@ -77,7 +62,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       });
     }
 
-    // 6. Update plan
+    // 5. Update plan
     const { data: plan, error: updateError } = await supabase
       .from("generated_user_plans")
       .update({
@@ -91,7 +76,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
         updated_at: new Date().toISOString(),
       })
       .eq("id", id)
-      .eq("user_id", user.id) // Additional security check
+      .eq("user_id", DEFAULT_USER_ID)
       .select()
       .single();
 
@@ -164,6 +149,58 @@ export const GET: APIRoute = async ({ params }) => {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+};
+
+export const DELETE: APIRoute = async ({ params }) => {
+  try {
+    const { id } = params;
+    if (!id) {
+      return new Response(JSON.stringify({ error: "Plan ID is required" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // First check if the plan exists and belongs to the user
+    const { data: plan, error: fetchError } = await supabase
+      .from("generated_user_plans")
+      .select("id")
+      .eq("id", id)
+      .eq("user_id", DEFAULT_USER_ID)
+      .is("deleted_at", null)
+      .single();
+
+    if (fetchError || !plan) {
+      return new Response(JSON.stringify({ error: "Plan not found" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Perform soft delete by setting deleted_at timestamp
+    const { error: deleteError } = await supabase
+      .from("generated_user_plans")
+      .update({ deleted_at: new Date().toISOString() })
+      .eq("id", id)
+      .eq("user_id", DEFAULT_USER_ID);
+
+    if (deleteError) {
+      console.error("Database error:", deleteError);
+      return new Response(JSON.stringify({ error: "Failed to delete plan" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Return 204 No Content as specified in the API plan
+    return new Response(null, { status: 204 });
   } catch (error) {
     console.error("Unexpected error:", error);
     return new Response(JSON.stringify({ error: "Internal server error" }), {

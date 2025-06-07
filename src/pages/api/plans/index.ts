@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { APIRoute } from "astro";
-import type { PlanListItemDTO, PlanListResponseDTO, PlanDTO } from "../../../types";
+import type { PlanListItemDTO, PlanListResponseDTO, PlanStatus } from "../../../types";
 import { DEFAULT_USER_ID } from "../../../db/supabase.client";
 import { supabase } from "../../../db/supabase.client";
 
@@ -24,6 +24,10 @@ const queryParamsSchema = z.object({
       return isNaN(parsed) || parsed < 0 ? 0 : parsed;
     }),
   search: z.string().optional(),
+  status: z
+    .string()
+    .optional()
+    .transform((val) => (val ? (val.split(",") as PlanStatus[]) : undefined)),
 });
 
 // Typ dla dozwolonych pól sortowania
@@ -86,6 +90,11 @@ export const GET: APIRoute = async ({ request, locals }) => {
     // Dodanie wyszukiwania jeśli podano parametr search
     if (queryParams.search) {
       query = query.ilike("name", `%${queryParams.search}%`);
+    }
+
+    // Dodanie filtrowania po statusie
+    if (queryParams.status && queryParams.status.length > 0) {
+      query = query.in("status", queryParams.status);
     }
 
     // Dodanie sortowania
