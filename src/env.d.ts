@@ -1,3 +1,4 @@
+/// <reference path="../.astro/types.d.ts" />
 /// <reference types="astro/client" />
 
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -10,6 +11,19 @@ declare global {
     }
   }
 }
+
+declare module "react" {
+  interface Attributes {
+    "client:load"?: boolean;
+    "client:idle"?: boolean;
+    "client:visible"?: boolean;
+    "client:media"?: string;
+    "client:only"?: boolean | string;
+  }
+}
+
+type HTMLAttributes = astroHTML.JSX.HTMLAttributes;
+type AstroBuiltinAttributes = astroHTML.JSX.AstroBuiltinAttributes;
 
 interface ImportMetaEnv {
   readonly SUPABASE_URL: string;

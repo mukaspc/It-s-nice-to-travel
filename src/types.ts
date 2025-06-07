@@ -1,7 +1,9 @@
 import type { Database } from "./db/database.types";
 
-// Plan Status type from database definition
-export type PlanStatus = Database["public"]["Enums"]["plan_status"];
+/**
+ * Plan status type
+ */
+export type PlanStatus = "draft" | "in_progress" | "completed" | "generated";
 
 // ===== Plan DTOs =====
 
@@ -226,4 +228,36 @@ export interface DatabaseToDTO {
 export interface EntityToCommandDTO {
   plan: CreatePlanCommandDTO;
   place: CreatePlaceCommandDTO;
+}
+
+/**
+ * Sort option for plan list
+ */
+export interface SortOption {
+  value: "created_at.desc" | "created_at.asc" | "name.asc" | "name.desc";
+  label: string;
+}
+
+/**
+ * Filter state for plan list
+ */
+export interface FilterState {
+  status?: PlanStatus[];
+  search?: string;
+}
+
+/**
+ * View model for plan list
+ */
+export interface PlanListViewModel {
+  plans: PlanListItemDTO[];
+  isLoading: boolean;
+  error?: string;
+  sort: SortOption;
+  filters: FilterState;
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+  };
 }

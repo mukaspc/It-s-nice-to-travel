@@ -1,0 +1,11 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { PlanListView } from "../../components/plans/PlanListView";
+import PlansContainer from "../../components/plans/PlansContainer.astro";
+---
+
+<Layout title="Travel Plans">
+  <PlansContainer>
+    <PlanListView client:load />
+  </PlansContainer>
+</Layout>
