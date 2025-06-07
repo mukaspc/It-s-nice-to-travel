@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { APIRoute } from "astro";
 import type { PlanListItemDTO, PlanListResponseDTO, PlanDTO } from "../../../types";
 import { DEFAULT_USER_ID } from "../../../db/supabase.client";
+import { supabase } from "../../../db/supabase.client";
 
 // Walidacja parametrów zapytania
 const queryParamsSchema = z.object({
@@ -29,33 +30,14 @@ const queryParamsSchema = z.object({
 type SortableField = "created_at" | "name";
 
 // Schemat walidacji dla tworzenia nowego planu
-const createPlanSchema = z
-  .object({
-    name: z.string().min(1).max(100, "Nazwa planu nie może przekraczać 100 znaków"),
-    start_date: z.string().refine((date) => {
-      // Weryfikacja czy to poprawna data
-      return !isNaN(Date.parse(date));
-    }, "Data rozpoczęcia musi być prawidłową datą"),
-    end_date: z.string().refine((date) => {
-      // Weryfikacja czy to poprawna data
-      return !isNaN(Date.parse(date));
-    }, "Data zakończenia musi być prawidłową datą"),
-    people_count: z.number().int().min(1).max(99, "Liczba osób musi być między 1 a 99"),
-    note: z.string().max(2500, "Notatka nie może przekraczać 2500 znaków").nullable().optional(),
-    travel_preferences: z.string().nullable().optional(),
-  })
-  .refine(
-    (data) => {
-      // Weryfikacja relacji dat: data zakończenia musi być równa lub późniejsza niż data rozpoczęcia
-      const startDate = new Date(data.start_date);
-      const endDate = new Date(data.end_date);
-      return endDate >= startDate;
-    },
-    {
-      message: "Data zakończenia musi być równa lub późniejsza niż data rozpoczęcia",
-      path: ["end_date"],
-    }
-  );
+const createPlanSchema = z.object({
+  name: z.string().min(1, "Name is required").max(100, "Name must be at most 100 characters"),
+  start_date: z.string().min(1, "Start date is required"),
+  end_date: z.string().min(1, "End date is required"),
+  people_count: z.number().min(1, "At least 1 person is required").max(99, "Maximum 99 people allowed"),
+  note: z.string().max(2500, "Note must be at most 2500 characters").nullable(),
+  travel_preferences: z.string().max(2500, "Travel preferences must be at most 2500 characters").nullable(),
+});
 
 export const prerender = false;
 
@@ -82,10 +64,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
     const queryParams = queryParamsResult.data;
 
-    // 2. Wykorzystanie klienta Supabase z lokalnego kontekstu
-    const { supabase } = locals;
-
-    // Używamy DEFAULT_USER_ID zamiast pobierania ID z sesji
+    // Using the imported supabase client instead of locals
     const userId = DEFAULT_USER_ID;
 
     // 3. Przygotowanie zapytania do bazy danych
@@ -187,155 +166,60 @@ export const GET: APIRoute = async ({ request, locals }) => {
  * @param {Object} locals - Lokalny kontekst zawierający klienta Supabase
  * @returns {Response} Odpowiedź HTTP z kodem 201 i utworzonym planem lub odpowiednim kodem błędu
  */
-export const POST: APIRoute = async ({ request, locals }) => {
+export const POST: APIRoute = async ({ request }) => {
   try {
-    // 1. Wykorzystanie klienta Supabase z lokalnego kontekstu
-    const { supabase } = locals;
+    const body = await request.json();
+    const validationResult = createPlanSchema.safeParse(body);
 
-    // Używamy DEFAULT_USER_ID zamiast pobierania ID z sesji
-    const userId = DEFAULT_USER_ID;
-
-    // 2. Parsowanie danych wejściowych
-    let requestData;
-    try {
-      requestData = await request.json();
-    } catch {
-      return new Response(JSON.stringify({ error: "Invalid JSON in request body" }), {
-        status: 400,
-        headers: {
-          "Content-Type": "application/json",
-        },
+    if (!validationResult.success) {
+      return new Response(JSON.stringify({ error: "Invalid data", details: validationResult.error.issues }), {
+        status: 422,
+        headers: { "Content-Type": "application/json" },
       });
     }
 
-    // 3. Walidacja danych wejściowych
-    const validationResult = createPlanSchema.safeParse(requestData);
+    const data = validationResult.data;
 
-    if (!validationResult.success) {
-      // Przygotowanie czytelnych komunikatów błędów
-      const formattedErrors = validationResult.error.flatten();
-
-      // Utwórz obiekt, który zawiera błędy dla wszystkich pól
-      const errorDetails = {
-        ...formattedErrors.fieldErrors,
-        ...(formattedErrors.formErrors.length > 0 ? { general: formattedErrors.formErrors[0] } : {}),
-      };
-
-      return new Response(
-        JSON.stringify({
-          error: "Validation error",
-          details: errorDetails,
-        }),
-        {
-          status: 422,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+    // Validate date range
+    const startDate = new Date(data.start_date);
+    const endDate = new Date(data.end_date);
+    if (endDate < startDate) {
+      return new Response(JSON.stringify({ error: "End date must be after start date" }), {
+        status: 422,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
-    const validatedData = validationResult.data;
-
-    // 4. Przygotowanie danych do zapisu w bazie
-    const planData = {
-      name: validatedData.name,
-      start_date: validatedData.start_date,
-      end_date: validatedData.end_date,
-      people_count: validatedData.people_count,
-      note: validatedData.note,
-      travel_preferences: validatedData.travel_preferences,
-      user_id: userId,
-      status: "draft" as const, // Ustawienie statusu na 'draft'
-    };
-
-    // 5. Zapis nowego planu do bazy danych
-    const { data: newPlan, error: dbError } = await supabase
+    const now = new Date().toISOString();
+    const { data: plan, error } = await supabase
       .from("generated_user_plans")
-      .insert(planData)
+      .insert({
+        ...data,
+        user_id: DEFAULT_USER_ID,
+        status: "draft",
+        created_at: now,
+        updated_at: now,
+      })
       .select()
       .single();
 
-    if (dbError) {
-      console.error("Database error:", dbError);
-
-      // Obsługa różnych rodzajów błędów bazy danych
-      if (dbError.code === "23505") {
-        // Violation of unique constraint
-        return new Response(
-          JSON.stringify({
-            error: "Plan with this name already exists",
-            details: dbError.message,
-          }),
-          {
-            status: 409, // Conflict
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-      } else if (dbError.code === "23503") {
-        // Foreign key violation
-        return new Response(
-          JSON.stringify({
-            error: "Referenced entity does not exist",
-            details: dbError.message,
-          }),
-          {
-            status: 422, // Unprocessable Entity
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-      } else if (dbError.code === "42P01") {
-        // Undefined table
-        console.error("Critical database error: Table does not exist", dbError);
-      }
-
-      // Ogólny błąd bazy danych
-      return new Response(
-        JSON.stringify({
-          error: "Failed to create plan",
-          code: dbError.code,
-          message: "An error occurred while saving the plan",
-        }),
-        {
-          status: 500,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+    if (error) {
+      console.error("Database error:", error);
+      return new Response(JSON.stringify({ error: "Failed to create plan" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
-    // 6. Zwrócenie utworzonego planu jako PlanDTO
-    const planResponse: PlanDTO = {
-      id: newPlan.id,
-      name: newPlan.name,
-      start_date: newPlan.start_date,
-      end_date: newPlan.end_date,
-      people_count: newPlan.people_count,
-      note: newPlan.note,
-      travel_preferences: newPlan.travel_preferences,
-      status: newPlan.status,
-      created_at: newPlan.created_at,
-      updated_at: newPlan.updated_at,
-    };
-
-    return new Response(JSON.stringify(planResponse), {
+    return new Response(JSON.stringify(plan), {
       status: 201,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
     console.error("Unexpected error:", error);
     return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
     });
   }
 };

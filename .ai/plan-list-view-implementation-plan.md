@@ -184,6 +184,39 @@ const usePlanList = () => {
   - 401: Przekierowanie do logowania
   - Inne: Wyświetlenie komunikatu błędu
 
+- Endpoint: POST /api/plans
+- Request Body:
+  ```typescript
+  {
+    name: string;
+    start_date: string;
+    end_date: string;
+    people_count: number;
+    note?: string | null;
+    travel_preferences?: string | null;
+  }
+  ```
+- Response Body:
+  ```typescript
+  {
+    id: string;
+    name: string;
+    start_date: string;
+    end_date: string;
+    people_count: number;
+    note: string | null;
+    travel_preferences: string | null;
+    status: "draft";
+    created_at: string;
+    updated_at: string;
+  }
+  ```
+- Obsługa błędów:
+  - 400: Nieprawidłowe dane
+  - 401: Przekierowanie do logowania
+  - 422: Błędy walidacji
+  - 500: Błąd serwera
+
 ## 8. Interakcje użytkownika
 1. Sortowanie:
    - Kliknięcie w select sortowania
@@ -289,3 +322,56 @@ const usePlanList = () => {
     - Dokumentacja komponentów
     - Przykłady użycia
     - Opis API 
+
+## 12. Widok tworzenia/edycji planu
+### PlanForm
+- Opis: Komponent formularza do tworzenia i edycji planu
+- Główne elementy:
+  - BasicInfoSection:
+    - Nazwa planu
+    - Data rozpoczęcia
+    - Data zakończenia
+    - Liczba osób
+    - Notatka
+  - TravelPreferencesSection:
+    - Preferencje podróży (tekst)
+  - PlacesSection:
+    - Lista miejsc
+    - Formularz dodawania/edycji miejsca
+- Obsługiwane interakcje:
+  - Walidacja pól
+  - Zapisywanie formularza
+  - Anulowanie edycji
+  - Zarządzanie miejscami
+- Typy:
+  ```typescript
+  interface PlanFormProps {
+    initialData?: PlanDTO;
+    onSubmit: (data: CreatePlanCommandDTO) => Promise<void>;
+    onCancel: () => void;
+  }
+  ```
+- Walidacja:
+  - Nazwa: wymagana, max 100 znaków
+  - Daty: wymagane, data końcowa >= data początkowa
+  - Liczba osób: 1-99
+  - Notatka: max 2500 znaków
+  - Preferencje: opcjonalne
+
+### Routing
+- Tworzenie: `/plans/new`
+- Edycja: `/plans/[id]/edit`
+- Wspólny komponent: `PlanForm`
+- Różnice:
+  - Tworzenie: pusty formularz
+  - Edycja: formularz wypełniony danymi planu
+
+### Obsługa błędów
+- Walidacja formularza:
+  - Wyświetlanie błędów pod polami
+  - Blokada przycisku zapisu
+- Błędy API:
+  - Wyświetlanie komunikatu błędu
+  - Możliwość ponowienia próby
+- Anulowanie:
+  - Potwierdzenie przy niezapisanych zmianach 
