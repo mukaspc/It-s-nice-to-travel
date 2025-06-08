@@ -207,6 +207,7 @@ export interface GeneratedPlanDTO {
 export interface TravelPreferenceDTO {
   id: string;
   name: string;
+  description: string;
   created_at: string;
 }
 
