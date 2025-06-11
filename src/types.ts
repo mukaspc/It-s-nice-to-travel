@@ -85,6 +85,14 @@ export interface UpdatePlanCommandDTO {
   travel_preferences?: string | null;
 }
 
+/**
+ * Command for generating an AI plan
+ */
+export interface GeneratePlanCommand {
+  planId: string;
+  userId: string;
+}
+
 // ===== Place DTOs =====
 
 /**
