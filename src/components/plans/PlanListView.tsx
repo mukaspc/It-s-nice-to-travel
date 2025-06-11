@@ -66,6 +66,7 @@ export function PlanListView() {
           onEdit={(id) => (window.location.href = `/plans/${id}/edit`)}
           onDelete={handleDeleteClick}
           onGenerate={(id) => (window.location.href = `/plans/${id}/generate`)}
+          onExplore={(id) => (window.location.href = `/plans/${id}/view`)}
         />
 
         <DeleteConfirmDialog

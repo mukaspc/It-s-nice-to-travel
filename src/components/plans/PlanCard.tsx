@@ -2,7 +2,7 @@ import type { PlanListItemDTO } from "../../types";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "../ui/card";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import { CalendarDays, Users, Edit, Trash2, Wand2 } from "lucide-react";
+import { CalendarDays, Users, Edit, Trash2, Wand2, Map } from "lucide-react";
 import { format } from "date-fns";
 
 interface PlanCardProps {
@@ -10,6 +10,7 @@ interface PlanCardProps {
   onEdit: () => void;
   onDelete: () => void;
   onGenerate: () => void;
+  onExplore: () => void;
 }
 
 const STATUS_COLORS: Record<PlanListItemDTO["status"], "default" | "secondary" | "destructive" | "outline"> = {
@@ -17,7 +18,7 @@ const STATUS_COLORS: Record<PlanListItemDTO["status"], "default" | "secondary" |
   generated: "default",
 };
 
-export function PlanCard({ plan, onEdit, onDelete, onGenerate }: PlanCardProps) {
+export function PlanCard({ plan, onEdit, onDelete, onGenerate, onExplore }: PlanCardProps) {
   return (
     <Card className="relative">
       <CardHeader>
@@ -52,7 +53,12 @@ export function PlanCard({ plan, onEdit, onDelete, onGenerate }: PlanCardProps) 
           <Trash2 className="h-4 w-4" />
           Delete
         </Button>
-        {plan.status !== "generated" && (
+        {plan.status === "generated" ? (
+          <Button variant="default" size="sm" className="gap-1 bg-green-600 hover:bg-green-700" onClick={onExplore}>
+            <Map className="h-4 w-4" />
+            Explore plan
+          </Button>
+        ) : (
           <Button variant="default" size="sm" className="gap-1" onClick={onGenerate}>
             <Wand2 className="h-4 w-4" />
             Generate

@@ -9,10 +9,11 @@ interface PlanGridProps {
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   onGenerate: (id: string) => void;
+  onExplore: (id: string) => void;
   onRetry?: () => void;
 }
 
-export function PlanGrid({ plans, isLoading, error, onEdit, onDelete, onGenerate, onRetry }: PlanGridProps) {
+export function PlanGrid({ plans, isLoading, error, onEdit, onDelete, onGenerate, onExplore, onRetry }: PlanGridProps) {
   if (error) {
     return (
       <div className="text-center py-8">
@@ -53,6 +54,7 @@ export function PlanGrid({ plans, isLoading, error, onEdit, onDelete, onGenerate
           onEdit={() => onEdit(plan.id)}
           onDelete={() => onDelete(plan.id)}
           onGenerate={() => onGenerate(plan.id)}
+          onExplore={() => onExplore(plan.id)}
         />
       ))}
     </div>
