@@ -92,6 +92,20 @@ export class AIPlanGenerationService {
       })
       .eq('id', generationRecord.id);
 
+    // Update user plan status to 'generated'
+    const { error: updatePlanError } = await supabase
+      .from('generated_user_plans')
+      .update({ status: 'generated' })
+      .eq('id', command.planId);
+
+    if (updatePlanError) {
+      logger.error('Failed to update plan status', { 
+        planId: command.planId, 
+        error: updatePlanError.message 
+      });
+      throw new Error('Failed to update plan status');
+    }
+
     logger.info('Generation initialized successfully', { 
       planId: command.planId,
       generationId: generationRecord.id 
