@@ -8,7 +8,8 @@ import type { ForgotPasswordFormData, ResetPasswordFormData } from '../types/aut
 // Funkcja do pobrania tokenu z URL
 const getTokenFromUrl = (): string | null => {
   const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get('token');
+  // Sprawdzamy różne parametry tokenów zgodnie ze specyfikacją
+  return urlParams.get('access_token') || urlParams.get('token');
 };
 
 // Mock funkcje - w przyszłości będą zastąpione prawdziwymi wywołaniami API
@@ -18,12 +19,7 @@ const handleForgotPassword = async (data: ForgotPasswordFormData): Promise<void>
   // Symulacja opóźnienia API
   await new Promise(resolve => setTimeout(resolve, 1000));
   
-  // Symulacja błędu dla demonstracji
-  if (data.email === 'notfound@example.com') {
-    throw new Error('No account found with this email address');
-  }
-  
-  // Symulacja sukcesu
+  // Nie symulujemy błędów dla bezpieczeństwa - zawsze sukces zgodnie ze specyfikacją
   console.log('Password reset email sent successfully');
 };
 

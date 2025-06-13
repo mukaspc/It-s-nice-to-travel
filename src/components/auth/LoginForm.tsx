@@ -24,7 +24,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     markAsTouched,
     validate
   } = useForm<LoginFormData>(
-    { email: '', password: '' },
+    { email: '', password: '', rememberMe: false },
     {
       email: validationRules.email,
       password: validationRules.password
@@ -101,8 +101,23 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         disabled={formState.isLoading}
       />
 
-      {/* Link do resetu hasła */}
-      <div className="flex items-center justify-end">
+      {/* Remember me checkbox i link do resetu hasła */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center">
+          <input
+            id="remember-me"
+            name="remember-me"
+            type="checkbox"
+            checked={values.rememberMe || false}
+            onChange={(e) => setValue('rememberMe', e.target.checked)}
+            disabled={formState.isLoading}
+            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+          />
+          <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+            Remember me
+          </label>
+        </div>
+
         <button
           type="button"
           onClick={handleForgotPasswordClick}

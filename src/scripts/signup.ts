@@ -18,7 +18,7 @@ const handleSignup = async (data: SignupFormData): Promise<void> => {
   
   // Symulacja sukcesu - przekierowanie do logowania
   setTimeout(() => {
-    window.location.href = '/login?message=registration-success';
+    window.location.href = '/plans';
   }, 2000);
 };
 

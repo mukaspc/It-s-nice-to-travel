@@ -1,22 +1,25 @@
 import React, { useState } from 'react';
-import type { SignupFormProps, SignupFormData, FormState } from '../../types/auth';
+import type { ProfileFormProps, ProfileFormData, FormState } from '../../types/auth';
 import { useForm, validationRules } from '../../hooks/useForm';
 import { FormField } from './FormField';
 import { ErrorMessage } from './ErrorMessage';
 import { SuccessMessage } from './SuccessMessage';
 
 /**
- * Formularz rejestracji
+ * Formularz edycji profilu użytkownika
  */
-export const SignupForm: React.FC<SignupFormProps> = ({
-  onSubmit,
-  onLoginRedirect
+export const ProfileForm: React.FC<ProfileFormProps> = ({
+  onSubmit
 }) => {
   const [formState, setFormState] = useState<FormState>({
     isLoading: false
   });
 
-  const initialValues: SignupFormData = { email: '', password: '' };
+  const initialValues: ProfileFormData = { 
+    currentPassword: '', 
+    newPassword: '', 
+    confirmNewPassword: '' 
+  };
 
   const {
     values,
@@ -24,11 +27,19 @@ export const SignupForm: React.FC<SignupFormProps> = ({
     setValue,
     markAsTouched,
     validate
-  } = useForm<SignupFormData>(
+  } = useForm<ProfileFormData>(
     initialValues,
     {
-      email: validationRules.email,
-      password: validationRules.password
+      currentPassword: (value: string): string | undefined => {
+        if (!value) return 'Current password is required';
+        return undefined;
+      },
+      newPassword: (value: string): string | undefined => {
+        if (!value) return 'New password is required';
+        return validationRules.password(value);
+      },
+      confirmNewPassword: (value: string): string | undefined => 
+        validationRules.confirmPassword(value, values.newPassword)
     }
   );
 
@@ -45,19 +56,18 @@ export const SignupForm: React.FC<SignupFormProps> = ({
       await onSubmit(values);
       setFormState({ 
         isLoading: false, 
-        success: 'Account created successfully! Redirecting to your dashboard...' 
+        success: 'Profile updated successfully!' 
       });
+      // Reset form after successful update
+      setValue('currentPassword', '');
+      setValue('newPassword', '');
+      setValue('confirmNewPassword', '');
     } catch (error) {
       setFormState({
         isLoading: false,
-        error: error instanceof Error ? error.message : 'Registration failed. Please try again.'
+        error: error instanceof Error ? error.message : 'Failed to update profile. Please try again.'
       });
     }
-  };
-
-  const handleLoginClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    onLoginRedirect();
   };
 
   return (
@@ -70,29 +80,55 @@ export const SignupForm: React.FC<SignupFormProps> = ({
         <SuccessMessage message={formState.success} />
       )}
 
+      {/* Instrukcje */}
+      <div className="text-sm text-gray-600">
+        <p>
+          To change your password, please enter your current password and choose a new one.
+        </p>
+      </div>
+
       {/* Pola formularza */}
       <FormField
-        label="Email address"
-        type="email"
-        name="email"
-        value={values.email}
-        onChange={(value) => setValue('email', value)}
-        onBlur={() => markAsTouched('email')}
-        error={errors.email}
-        placeholder="Enter your email"
+        label="Current Password"
+        type="password"
+        name="currentPassword"
+        value={values.currentPassword}
+        onChange={(value) => setValue('currentPassword', value)}
+        onBlur={() => markAsTouched('currentPassword')}
+        error={errors.currentPassword}
+        placeholder="Enter your current password"
         required
         disabled={formState.isLoading}
       />
 
       <FormField
-        label="Password"
+        label="New Password"
         type="password"
-        name="password"
-        value={values.password}
-        onChange={(value) => setValue('password', value)}
-        onBlur={() => markAsTouched('password')}
-        error={errors.password}
-        placeholder="Create a password"
+        name="newPassword"
+        value={values.newPassword}
+        onChange={(value) => {
+          setValue('newPassword', value);
+          // Rewalidacja confirm password gdy zmienia się new password
+          if (values.confirmNewPassword) {
+            setValue('confirmNewPassword', values.confirmNewPassword);
+          }
+        }}
+        onBlur={() => markAsTouched('newPassword')}
+        error={errors.newPassword}
+        placeholder="Enter your new password"
+        required
+        disabled={formState.isLoading}
+      />
+
+      <FormField
+        label="Confirm New Password"
+        type="password"
+        name="confirmNewPassword"
+        value={values.confirmNewPassword}
+        onChange={(value) => setValue('confirmNewPassword', value)}
+        onBlur={() => markAsTouched('confirmNewPassword')}
+        error={errors.confirmNewPassword}
+        placeholder="Confirm your new password"
         required
         disabled={formState.isLoading}
       />
@@ -119,27 +155,12 @@ export const SignupForm: React.FC<SignupFormProps> = ({
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            Creating account...
+            Updating profile...
           </div>
         ) : (
-          'Create account'
+          'Update Profile'
         )}
       </button>
-
-      {/* Link do logowania */}
-      <div className="text-center">
-        <p className="text-sm text-gray-600">
-          Already have an account?{' '}
-          <button
-            type="button"
-            onClick={handleLoginClick}
-            className="font-medium text-blue-600 hover:text-blue-500 focus:outline-none focus:underline"
-            disabled={formState.isLoading}
-          >
-            Sign in here
-          </button>
-        </p>
-      </div>
     </form>
   );
 }; 

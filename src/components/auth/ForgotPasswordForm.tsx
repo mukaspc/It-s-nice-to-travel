@@ -44,7 +44,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
       await onSubmit(values);
       setFormState({ 
         isLoading: false, 
-        success: 'Password reset instructions have been sent to your email address.' 
+        success: 'If an account exists, we\'ll send password reset instructions to your email address.' 
       });
     } catch (error) {
       setFormState({

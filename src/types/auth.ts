@@ -11,13 +11,13 @@ export interface FormState {
 export interface LoginFormData {
   email: string;
   password: string;
+  rememberMe?: boolean;
 }
 
 // Dane formularza rejestracji
 export interface SignupFormData {
   email: string;
   password: string;
-  confirmPassword: string;
 }
 
 // Dane formularza resetu hasła
@@ -29,6 +29,13 @@ export interface ForgotPasswordFormData {
 export interface ResetPasswordFormData {
   password: string;
   confirmPassword: string;
+}
+
+// Dane formularza edycji profilu
+export interface ProfileFormData {
+  currentPassword: string;
+  newPassword: string;
+  confirmNewPassword: string;
 }
 
 // Błędy walidacji pól
@@ -58,6 +65,10 @@ export interface ForgotPasswordFormProps {
 export interface ResetPasswordFormProps {
   onSubmit: (data: ResetPasswordFormData) => Promise<void>;
   token: string;
+}
+
+export interface ProfileFormProps {
+  onSubmit: (data: ProfileFormData) => Promise<void>;
 }
 
 // Props dla layoutu auth
