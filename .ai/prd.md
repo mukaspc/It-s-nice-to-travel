@@ -79,6 +79,20 @@ MVP projektu "It's nice to travel" NIE będzie zawierać następujących funkcjo
 
 ## 5. Historyjki użytkowników
 
+### Landingpage
+
+## US-000:
+- Tytuł: Strona głowna
+- Opis: Ścieżka główna serwisu ze stroną typu landingpage opisującą możliwości i zalety serwisu. 
+- Kryteria akceptacji:
+  - Sekcja hero z nagłówkiem zachęcającym do korzystania
+  - Sekcja cards z zaletami serwisu
+  - Sekcja zdjęcie + opis gdzie wytłumaczymy przewagę wykorzystania AI nad samodzielnym planowaniem podróży
+  - Topbar z LOGO serwisu (tekstowa reprezentacja) oraz przyciskami do logowania i rejestracji
+  - Strona jest tak samo widoczna po zalogowaniu oraz bez logowania (po zalogowaniu zmieniają się jedynie przyciski w nawigacji)
+  - Nawigacja bez logowania to przyciski: "Login" oraz "Signup"
+  - Nawigacja po zalogowaniu to ikona usera z dropdownmenu w którym są elementy: "Moje plany" oraz "Wyloguj"
+
 ### Rejestracja i zarządzanie kontem
 
 ## US-000: Bezpieczny dostęp i uwierzytelnianie

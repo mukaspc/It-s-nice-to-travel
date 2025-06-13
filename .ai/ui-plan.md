@@ -17,7 +17,8 @@ Architektura UI dla "It's nice to travel" jest podzielona na dwa główne układ
   - Hero section z grafiką i hasłem przewodnim
   - Sekcje opisujące kluczowe funkcje
   - Przyciski CTA (Call to Action)
-  - Nawigacja górna (logo, przycisk logowania, przycisk rejestracji)
+  - Nawigacja górna przed zalogowaniem (logo, przycisk logowania, przycisk rejestracji)
+  - Nawigacja górna po zalogowaniu (logo, ikona user jako dropown z przyciskiem "My plans" oraz "Logout")
 - **UX/Dostępność**: Jasne CTA, czytelne nagłówki, odpowiedni kontrast, szybkie ładowanie strony
 
 ### Rejestracja
