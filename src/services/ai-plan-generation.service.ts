@@ -2,59 +2,42 @@ import type { GeneratePlanCommand, GeneratePlanResponseDTO, PlanDetailDTO, Gener
 import { ValidationError, ConflictError, NotFoundError, ForbiddenError } from '../utils/errors';
 import { supabase } from '../db/supabase.client';
 import { logger } from '../utils/logger';
-import type { Database, Json } from '../db/database.types';
+import type { Json } from '../db/database.types';
+import { OpenRouterService } from '../lib/openrouter.service';
+import { GooglePlacesService } from './google-places.service';
 
-// Mock data for testing
-const MOCK_GENERATED_PLAN: GeneratedPlanDTO = {
-  id: 'mock-gen-1',
-  content: {
-    version: '1.0',
-    places: [
-      {
-        name: 'Paris',
-        days: [
-          {
-            date: '2024-03-20',
-            schedule: [
-              {
-                time: '09:00',
-                activity: 'Visit the Eiffel Tower',
-                address: 'Champ de Mars, 5 Avenue Anatole France, 75007 Paris',
-                description: 'Start your day with a visit to the iconic Eiffel Tower. Consider going early to avoid crowds.',
-                image_url: 'https://example.com/eiffel.jpg'
-              },
-              {
-                time: '12:00',
-                activity: 'Lunch at Le Jules Verne',
-                address: 'Avenue Gustave Eiffel, 75007 Paris',
-                description: 'Enjoy a luxurious lunch with panoramic views of Paris.',
-                image_url: 'https://example.com/jules-verne.jpg'
-              }
-            ],
-            dining_recommendations: [
-              {
-                type: 'lunch',
-                name: 'Le Jules Verne',
-                address: 'Avenue Gustave Eiffel, 75007 Paris',
-                description: 'Michelin-starred restaurant with panoramic views',
-                image_url: 'https://example.com/jules-verne.jpg'
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  },
-  created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString()
-};
+const INITIAL_ESTIMATED_TIME = 90; // 90 seconds
+const TIME_UPDATE_INTERVAL = 5000; // 5 seconds in milliseconds
+
+const openRouterApiKey = import.meta.env.OPENROUTER_API_KEY;
+if (!openRouterApiKey) {
+  throw new Error('Missing OPENROUTER_API_KEY environment variable');
+}
 
 export class AIPlanGenerationService {
+  private readonly openRouter: OpenRouterService;
+  private readonly googlePlaces: GooglePlacesService;
+
+  constructor() {
+    this.openRouter = new OpenRouterService({
+      apiKey: openRouterApiKey,
+      siteUrl: 'https://it-is-nice-to-travel.com',
+      siteName: 'It Is Nice To Travel',
+      defaultModel: 'openai/gpt-4o-mini',
+      cacheOptions: {
+        enabled: false,
+        ttl: 3600,
+        maxSize: 100
+      }
+    });
+    this.googlePlaces = new GooglePlacesService();
+  }
+
   async initializeGeneration(command: GeneratePlanCommand): Promise<GeneratePlanResponseDTO> {
     logger.info('Initializing plan generation', { planId: command.planId, userId: command.userId });
     
     // Validate the plan and user access
-    await this.validatePlan(command.planId, command.userId);
+    const plan = await this.validatePlan(command.planId, command.userId);
     
     // Check if generation is already in progress
     const isInProgress = await this.isGenerationInProgress(command.planId);
@@ -63,48 +46,71 @@ export class AIPlanGenerationService {
       throw new ConflictError('Generation already in progress for this plan');
     }
 
-    // Create generation record with mock data
-    logger.debug('Creating generation record with mock data', { planId: command.planId });
-    const { data: generationRecord, error } = await supabase
+    // Check if there's an existing generated plan
+    logger.debug('Checking for existing generated plan', { planId: command.planId });
+    const { data: existingPlan, error: existingPlanError } = await supabase
       .from('generated_ai_plans')
-      .insert({
-        plan_id: command.planId,
-        status: 'processing',
-        content: JSON.parse(JSON.stringify(MOCK_GENERATED_PLAN.content)) as Json
-      })
-      .select()
-      .single();
+      .select('id')
+      .eq('plan_id', command.planId)
+      .maybeSingle();
 
-    if (error) {
-      logger.error('Failed to create generation record', { 
-        planId: command.planId, 
-        error: error.message 
-      });
-      throw new Error('Failed to create generation record');
+    let generationRecord;
+
+    if (existingPlan) {
+      // Update existing record
+      logger.debug('Updating existing generation record', { planId: command.planId });
+      const { data: updatedRecord, error } = await supabase
+        .from('generated_ai_plans')
+        .update({
+          status: 'processing',
+          content: {} as Json,
+          estimated_time_remaining: INITIAL_ESTIMATED_TIME
+        })
+        .eq('id', existingPlan.id)
+        .select()
+        .single();
+
+      if (error) {
+        logger.error('Failed to update generation record', { 
+          planId: command.planId, 
+          error: error.message 
+        });
+        throw new Error('Failed to update generation record');
+      }
+      generationRecord = updatedRecord;
+    } else {
+      // Create new record
+      logger.debug('Creating new generation record', { planId: command.planId });
+      const { data: newRecord, error } = await supabase
+        .from('generated_ai_plans')
+        .insert({
+          plan_id: command.planId,
+          status: 'processing',
+          content: {} as Json,
+          estimated_time_remaining: INITIAL_ESTIMATED_TIME
+        })
+        .select()
+        .single();
+
+      if (error) {
+        logger.error('Failed to create generation record', { 
+          planId: command.planId, 
+          error: error.message 
+        });
+        throw new Error('Failed to create generation record');
+      }
+      generationRecord = newRecord;
     }
 
-    // In mock implementation, we'll update the status to completed immediately
-    await supabase
-      .from('generated_ai_plans')
-      .update({ 
-        status: 'completed' as const,
-        content: JSON.parse(JSON.stringify(MOCK_GENERATED_PLAN.content)) as Json
-      })
-      .eq('id', generationRecord.id);
-
-    // Update user plan status to 'generated'
-    const { error: updatePlanError } = await supabase
-      .from('generated_user_plans')
-      .update({ status: 'generated' })
-      .eq('id', command.planId);
-
-    if (updatePlanError) {
-      logger.error('Failed to update plan status', { 
-        planId: command.planId, 
-        error: updatePlanError.message 
+    // Start the generation process in the background
+    this.startGenerationProcess(plan, generationRecord.id)
+      .catch(error => {
+        logger.error('Generation process failed', {
+          planId: command.planId,
+          error: error instanceof Error ? error.message : JSON.stringify(error)
+        });
+        this.updateGenerationStatus(generationRecord.id, 'failed', 0);
       });
-      throw new Error('Failed to update plan status');
-    }
 
     logger.info('Generation initialized successfully', { 
       planId: command.planId,
@@ -115,11 +121,11 @@ export class AIPlanGenerationService {
     return {
       id: generationRecord.id,
       status: 'processing',
-      estimated_time: 90 // Default estimate of 90 seconds
+      estimated_time: INITIAL_ESTIMATED_TIME
     };
   }
 
-  private async validatePlan(planId: string, userId: string): Promise<void> {
+  private async validatePlan(planId: string, userId: string): Promise<PlanDetailDTO> {
     logger.debug('Validating plan', { planId, userId });
     
     // Fetch plan with places
@@ -155,6 +161,7 @@ export class AIPlanGenerationService {
     }
 
     logger.debug('Plan validation successful', { planId });
+    return plan as PlanDetailDTO;
   }
 
   private async isGenerationInProgress(planId: string): Promise<boolean> {
@@ -184,9 +191,217 @@ export class AIPlanGenerationService {
     return isInProgress;
   }
 
-  private async startGenerationProcess(planId: string): Promise<void> {
-    logger.info('Starting mock generation process', { planId });
-    // In mock implementation, we don't need to do anything here
-    // The plan is already "generated" with mock data
+  private async enrichContentWithImages(content: any, location: string): Promise<any> {
+    const enrichedContent = { ...content };
+
+    for (const place of enrichedContent.places) {
+      for (const day of place.days) {
+        // Enrich schedule items
+        for (const item of day.schedule) {
+          if (item.activity !== 'Travel' && item.activity !== 'Check-in') {
+            item.image_url = await this.googlePlaces.getPlacePhoto(
+              item.activity,
+              `${place.name}, ${location}`
+            );
+          }
+        }
+
+        // Enrich dining recommendations
+        for (const item of day.dining_recommendations) {
+          item.image_url = await this.googlePlaces.getPlacePhoto(
+            item.name,
+            `${place.name}, ${location}`
+          );
+        }
+      }
+    }
+
+    return enrichedContent;
+  }
+
+  private async startGenerationProcess(plan: PlanDetailDTO, generationId: string): Promise<void> {
+    logger.info('Starting generation process', { planId: plan.id });
+
+    // Start the timer update interval
+    const startTime = Date.now();
+    const updateInterval = setInterval(async () => {
+      const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+      const remainingTime = Math.max(0, INITIAL_ESTIMATED_TIME - elapsedSeconds);
+      
+      await this.updateGenerationStatus(generationId, 'processing', remainingTime);
+
+      if (remainingTime === 0) {
+        clearInterval(updateInterval);
+      }
+    }, TIME_UPDATE_INTERVAL);
+
+    try {
+      const prompt = this.buildPrompt(plan);
+      logger.debug('Generated prompt', { prompt });
+      
+      const response = await this.openRouter.chat([
+        {
+          role: 'system',
+          content: `You are a travel planning assistant that creates detailed daily itineraries. You provide specific times, addresses, and descriptions for activities and dining recommendations.
+
+You MUST respond with a valid JSON object in the following format:
+{
+  "version": "string",
+  "places": [
+    {
+      "name": "string",
+      "days": [
+        {
+          "date": "string",
+          "schedule": [
+            {
+              "time": "string",
+              "activity": "string",
+              "address": "string",
+              "description": "string"
+            }
+          ],
+          "dining_recommendations": [
+            {
+              "type": "string",
+              "name": "string",
+              "address": "string",
+              "description": "string"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}`
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ], {
+        temperature: 0.7
+      });
+
+      logger.debug('Received response from OpenRouter', { 
+        choices: response.choices?.length,
+        usage: response.usage
+      });
+
+      // Parse the content if it's a string
+      const content = typeof response.choices[0].message.content === 'string' 
+        ? JSON.parse(response.choices[0].message.content)
+        : response.choices[0].message.content;
+
+      // Enrich content with real images
+      const enrichedContent = await this.enrichContentWithImages(content, 'Poland');
+
+      // Clear the interval before updating the final status
+      clearInterval(updateInterval);
+
+      // Update the generation record with the generated content
+      const { error } = await supabase
+        .from('generated_ai_plans')
+        .update({ 
+          status: 'completed',
+          content: content as unknown as Json,
+          estimated_time_remaining: 0
+        })
+        .eq('id', generationId);
+
+      if (error) {
+        throw new Error(`Failed to update generation record: ${error.message}`);
+      }
+
+      // Update user plan status to 'generated'
+      const { error: updatePlanError } = await supabase
+        .from('generated_user_plans')
+        .update({ status: 'generated' })
+        .eq('id', plan.id);
+
+      if (updatePlanError) {
+        throw new Error(`Failed to update plan status: ${updatePlanError.message}`);
+      }
+
+      logger.info('Generation completed successfully', { 
+        planId: plan.id,
+        generationId 
+      });
+    } catch (error) {
+      // Clear the interval before handling the error
+      clearInterval(updateInterval);
+
+      logger.error('Generation process failed', {
+        planId: plan.id,
+        error: error instanceof Error ? error.message : JSON.stringify(error),
+        errorObject: error instanceof Error ? {
+          name: error.name,
+          message: error.message,
+          stack: error.stack,
+          cause: error.cause
+        } : error
+      });
+      
+      // Update generation status to failed
+      await this.updateGenerationStatus(generationId, 'failed', 0)
+        .catch(updateError => {
+          logger.error('Failed to update generation status', {
+            generationId,
+            error: updateError instanceof Error ? updateError.message : JSON.stringify(updateError)
+          });
+        });
+
+      throw error;
+    }
+  }
+
+  private async updateGenerationStatus(
+    generationId: string, 
+    status: 'completed' | 'processing' | 'failed',
+    estimatedTimeRemaining: number
+  ): Promise<void> {
+    const { error } = await supabase
+      .from('generated_ai_plans')
+      .update({ 
+        status,
+        estimated_time_remaining: estimatedTimeRemaining
+      })
+      .eq('id', generationId);
+
+    if (error) {
+      logger.error('Failed to update generation status', {
+        generationId,
+        status,
+        estimatedTimeRemaining,
+        error: error.message
+      });
+    }
+  }
+
+  private buildPrompt(plan: PlanDetailDTO): string {
+    const preferences = plan.travel_preferences ? `Travel preferences: ${plan.travel_preferences}\n` : '';
+    const notes = plan.note ? `Additional notes: ${plan.note}\n` : '';
+    
+    const placesInfo = plan.places.map(place => 
+      `- ${place.name} (${place.start_date} to ${place.end_date})${place.note ? `\n  Note: ${place.note}` : ''}`
+    ).join('\n');
+
+    return `Please create a detailed travel itinerary for ${plan.people_count} people.
+Trip dates: ${plan.start_date} to ${plan.end_date}
+${preferences}${notes}
+Places to visit:
+${placesInfo}
+
+Please provide a detailed day-by-day itinerary for each place, including:
+- Specific times for each activity
+- Full addresses for all locations
+- Detailed descriptions of activities
+- Dining recommendations for each day (breakfast, lunch, dinner)
+- Consider travel time between activities
+- Account for opening hours and best times to visit
+- Include local cultural experiences and hidden gems
+- Consider the number of people when suggesting activities and restaurants
+
+The response should be in JSON format matching the specified schema.`;
   }
 } 

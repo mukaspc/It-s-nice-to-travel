@@ -384,27 +384,31 @@ export class OpenRouterService {
    * @returns Error with appropriate message
    */
   private handleError(status: number, error: unknown): Error {
-    const errorMessage = error && 
-      typeof error === "object" && 
-      "error" in error && 
-      error.error !== undefined && 
-      error.error !== null
-        ? String(error.error)
-        : "Unknown error occurred";
+    let errorMessage = 'Unknown error occurred';
+    
+    if (error && typeof error === 'object') {
+      if ('error' in error && error.error) {
+        errorMessage = typeof error.error === 'string' 
+          ? error.error 
+          : JSON.stringify(error.error);
+      } else {
+        errorMessage = JSON.stringify(error);
+      }
+    }
 
     switch (status) {
       case 401:
       case 403:
-        return new Error("Authentication failed. Please check your API key.");
+        return new Error(`Authentication failed. Please check your API key. Details: ${errorMessage}`);
       case 429:
-        return new Error("Rate limit exceeded. Please try again later.");
+        return new Error(`Rate limit exceeded. Please try again later. Details: ${errorMessage}`);
       case 500:
       case 502:
       case 503:
       case 504:
-        return new Error("Server error. Please try again later.");
+        return new Error(`Server error. Please try again later. Details: ${errorMessage}`);
       default:
-        return new Error(errorMessage);
+        return new Error(`API request failed: ${errorMessage}`);
     }
   }
 
