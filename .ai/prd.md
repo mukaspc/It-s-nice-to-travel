@@ -27,7 +27,7 @@ Głównym problemem, który rozwiązuje "It's nice to travel", jest trudność w
 ## 3. Wymagania funkcjonalne
 
 ### 3.1 System kont użytkowników
-- Rejestracja użytkownika wymagająca podania adresu e-mail, hasła i imienia
+- Rejestracja użytkownika wymagająca podania adresu e-mail, hasła
 - Logowanie użytkownika
 - Przywracanie hasła
 - Edycja profilu użytkownika
@@ -81,11 +81,25 @@ MVP projektu "It's nice to travel" NIE będzie zawierać następujących funkcjo
 
 ### Rejestracja i zarządzanie kontem
 
+## US-000: Bezpieczny dostęp i uwierzytelnianie
+
+- Tytuł: Bezpieczny dostęp
+- Opis: Jako użytkownik chcę mieć możliwość rejestracji i logowania się do systemu w sposób zapewniający bezpieczeństwo moich danych.
+- Kryteria akceptacji:
+  - Logowanie i rejestracja odbywają się na dedykowanych stronach.
+  - Logowanie wymaga podania adresu email i hasła.
+  - Rejestracja wymaga podania adresu email, hasła i potwierdzenia hasła.
+  - Użytkownik NIE MOŻE korzystać z funkcji tworzenia, przeglądania i generowania planów podróży bez logowania się do systemu.
+  - Użytkownik może logować się do systemu poprzez przycisk w prawym górnym rogu.
+  - Użytkownik może się wylogować z systemu poprzez przycisk w prawym górnym rogu w głównym @Layout.astro.
+  - Nie korzystamy z zewnętrznych serwisów logowania (np. Google, GitHub).
+  - Odzyskiwanie hasła powinno być możliwe.
+
 #### US-001
 - Tytuł: Rejestracja nowego użytkownika
 - Opis: Jako nowy użytkownik, chcę się zarejestrować w aplikacji, aby móc korzystać z funkcji planowania podróży.
 - Kryteria akceptacji:
-  - Formularz rejestracji zawiera pola: adres e-mail, hasło i imię
+  - Formularz rejestracji zawiera pola: adres e-mail, hasło
   - Walidacja adresu e-mail pod kątem poprawnego formatu
   - Walidacja hasła (minimum 8 znaków, co najmniej 1 duża litera, 1 cyfra)
   - Komunikat o pomyślnej rejestracji
@@ -116,7 +130,6 @@ MVP projektu "It's nice to travel" NIE będzie zawierać następujących funkcjo
 - Tytuł: Edycja profilu użytkownika
 - Opis: Jako zalogowany użytkownik, chcę edytować informacje w moim profilu, aby je zaktualizować.
 - Kryteria akceptacji:
-  - Możliwość zmiany imienia
   - Możliwość zmiany hasła (wymagane podanie starego hasła)
   - Przycisk zapisania zmian
   - Komunikat o pomyślnym zaktualizowaniu profilu
