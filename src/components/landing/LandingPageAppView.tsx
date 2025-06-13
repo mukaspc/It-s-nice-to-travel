@@ -7,14 +7,14 @@ import { HeroSection } from './HeroSection';
 import { FeaturesSection } from './FeaturesSection';
 import { AIAdvantageSection } from './AIAdvantageSection';
 
-interface LandingPageAppProps {
+interface LandingPageAppViewProps {
   viewModel: LandingPageViewModel;
 }
 
 /**
  * Główny komponent aplikacji landing page
  */
-export const LandingPageAppView: React.FC<LandingPageAppProps> = ({ viewModel }) => {
+export const LandingPageAppView: React.FC<LandingPageAppViewProps> = ({ viewModel }) => {
   const { authState, logout } = useAuth();
   const { navigateToLogin, navigateToSignup, navigateToPlans } = useNavigation();
 

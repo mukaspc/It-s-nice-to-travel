@@ -1,0 +1,125 @@
+import React, { useState } from 'react';
+import type { ForgotPasswordFormProps, ForgotPasswordFormData, FormState } from '../../types/auth';
+import { useForm, validationRules } from '../../hooks/useForm';
+import { FormField } from './FormField';
+import { ErrorMessage } from './ErrorMessage';
+import { SuccessMessage } from './SuccessMessage';
+
+/**
+ * Formularz żądania resetu hasła
+ */
+export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
+  onSubmit,
+  onBackToLogin
+}) => {
+  const [formState, setFormState] = useState<FormState>({
+    isLoading: false
+  });
+
+  const initialValues: ForgotPasswordFormData = { email: '' };
+
+  const {
+    values,
+    errors,
+    setValue,
+    markAsTouched,
+    validate
+  } = useForm<ForgotPasswordFormData>(
+    initialValues,
+    {
+      email: validationRules.email
+    }
+  );
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validate()) {
+      return;
+    }
+
+    setFormState({ isLoading: true });
+
+    try {
+      await onSubmit(values);
+      setFormState({ 
+        isLoading: false, 
+        success: 'Password reset instructions have been sent to your email address.' 
+      });
+    } catch (error) {
+      setFormState({
+        isLoading: false,
+        error: error instanceof Error ? error.message : 'Failed to send reset email. Please try again.'
+      });
+    }
+  };
+
+  const handleBackToLoginClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    onBackToLogin();
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Komunikaty */}
+      {formState.error && (
+        <ErrorMessage message={formState.error} />
+      )}
+      {formState.success && (
+        <SuccessMessage message={formState.success} />
+      )}
+
+      {/* Instrukcje */}
+      <div className="text-sm text-gray-600">
+        <p>
+          Enter your email address and we'll send you instructions to reset your password.
+        </p>
+      </div>
+
+      {/* Pole email */}
+      <FormField
+        label="Email address"
+        type="email"
+        name="email"
+        value={values.email}
+        onChange={(value) => setValue('email', value)}
+        onBlur={() => markAsTouched('email')}
+        error={errors.email}
+        placeholder="Enter your email"
+        required
+        disabled={formState.isLoading}
+      />
+
+      {/* Przycisk submit */}
+      <button
+        type="submit"
+        disabled={formState.isLoading}
+        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+      >
+        {formState.isLoading ? (
+          <div className="flex items-center">
+            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Sending instructions...
+          </div>
+        ) : (
+          'Send reset instructions'
+        )}
+      </button>
+
+      {/* Link powrotu do logowania */}
+      <div className="text-center">
+        <button
+          type="button"
+          onClick={handleBackToLoginClick}
+          className="text-sm text-blue-600 hover:text-blue-500 focus:outline-none focus:underline"
+          disabled={formState.isLoading}
+        >
+          ← Back to sign in
+        </button>
+      </div>
+    </form>
+  );
+}; 

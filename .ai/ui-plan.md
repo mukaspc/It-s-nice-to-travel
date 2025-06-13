@@ -25,7 +25,7 @@ Architektura UI dla "It's nice to travel" jest podzielona na dwa główne układ
 - **Ścieżka**: `/signup`
 - **Główny cel**: Umożliwienie utworzenia konta użytkownika
 - **Kluczowe informacje**:
-  - Formularz rejestracji (e-mail, hasło, imię)
+  - Formularz rejestracji (e-mail, hasło)
   - Link do logowania
 - **Kluczowe komponenty**:
   - Formularz rejestracji z walidacją inline
