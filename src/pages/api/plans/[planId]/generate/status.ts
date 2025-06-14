@@ -1,13 +1,13 @@
 import type { APIRoute } from 'astro';
 import { getUserIdFromLocals } from '../../../../../utils/auth';
-import { supabase } from '../../../../../db/supabase.client';
+import { createSupabaseServerInstance } from '../../../../../db/supabase.client';
 import { NotFoundError, ForbiddenError } from '../../../../../utils/errors';
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ params, request, locals }) => {
+export const GET: APIRoute = async ({ params, request, locals, cookies }) => {
   try {
-    const { planId } = params;
+    const planId = params.planId;
     const userId = getUserIdFromLocals(locals);
 
     if (!planId) {
@@ -17,8 +17,13 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
       );
     }
 
+    const supabaseClient = createSupabaseServerInstance({
+      headers: request.headers,
+      cookies
+    });
+
     // First check if the plan exists and belongs to the user
-    const { data: plan, error: planError } = await supabase
+    const { data: plan, error: planError } = await supabaseClient
       .from('generated_user_plans')
       .select('id')
       .eq('id', planId)
@@ -30,7 +35,7 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
     }
 
     // Get the generation status
-    const { data: generationStatus, error: statusError } = await supabase
+    const { data: generationStatus, error: statusError } = await supabaseClient
       .from('generated_ai_plans')
       .select('status, progress, estimated_time_remaining')
       .eq('plan_id', planId)

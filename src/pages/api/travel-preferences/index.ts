@@ -1,11 +1,16 @@
+import { createSupabaseServerInstance } from "../../../db/supabase.client";
 import type { APIRoute } from "astro";
-import { supabase } from "../../../db/supabase.client";
 
 export const prerender = false;
 
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ request, locals, cookies }) => {
   try {
-    const { data: preferences, error } = await supabase
+    const supabaseClient = createSupabaseServerInstance({
+      headers: request.headers,
+      cookies
+    });
+
+    const { data, error } = await supabaseClient
       .from("travel_preferences")
       .select("*")
       .order("name", { ascending: true });
@@ -18,7 +23,7 @@ export const GET: APIRoute = async () => {
       });
     }
 
-    return new Response(JSON.stringify(preferences), {
+    return new Response(JSON.stringify(data), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });

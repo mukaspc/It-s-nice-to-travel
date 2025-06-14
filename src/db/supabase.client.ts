@@ -54,6 +54,7 @@ export const cookieOptions: CookieOptionsWithName = {
   secure: process.env.NODE_ENV === 'production',
   httpOnly: true,
   sameSite: 'lax',
+  maxAge: 60 * 60 * 24 * 7, // 7 dni
 };
 
 function parseCookieHeader(cookieHeader: string): { name: string; value: string }[] {
@@ -80,9 +81,18 @@ export const createSupabaseServerInstance = (context: {
           return parseCookieHeader(context.headers.get('Cookie') ?? '');
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            context.cookies.set(name, value, options),
-          );
+          cookiesToSet.forEach(({ name, value, options }) => {
+            try {
+              context.cookies.set(name, value, options);
+            } catch (error) {
+              // Ignoruj błędy związane z próbą ustawienia cookies po wysłaniu response
+              if (error instanceof Error && error.message.includes('response has already been sent')) {
+                console.warn(`Cannot set cookie ${name}: response already sent`);
+              } else {
+                console.error(`Error setting cookie ${name}:`, error);
+              }
+            }
+          });
         },
       },
     },
