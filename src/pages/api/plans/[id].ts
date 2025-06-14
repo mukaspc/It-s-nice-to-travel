@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
 import type { PlanDTO } from "../../../types";
-import { supabase } from "../../../db/supabase.client";
+import { createSupabaseServerInstance } from "../../../db/supabase.client";
 import { getUserIdFromLocals } from "../../../utils/auth";
 
 const updatePlanSchema = z.object({
@@ -13,25 +13,28 @@ const updatePlanSchema = z.object({
   travel_preferences: z.string().max(2500, "Travel preferences must be at most 2500 characters").nullable(),
 });
 
-export const PUT: APIRoute = async ({ params, request, locals }) => {
+export const PUT: APIRoute = async ({ params, request, locals, cookies }) => {
   try {
-    // 1. Validate plan ID
-    const { id } = params;
-    if (!id) {
+    const planId = params.id;
+    if (!planId) {
       return new Response(JSON.stringify({ error: "Plan ID is required" }), {
         status: 400,
         headers: { "Content-Type": "application/json" },
       });
     }
 
-    // 2. Get user ID from middleware
     const userId = getUserIdFromLocals(locals);
+    
+    const supabaseClient = createSupabaseServerInstance({
+      headers: request.headers,
+      cookies
+    });
 
     // 3. Check if plan exists and belongs to user
-    const { data: existingPlan, error: fetchError } = await supabase
+    const { data: existingPlan, error: fetchError } = await supabaseClient
       .from("generated_user_plans")
       .select("id")
-      .eq("id", id)
+      .eq("id", planId)
       .eq("user_id", userId)
       .single();
 
@@ -66,13 +69,13 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     }
 
     // 6. Update plan
-    const { data: updatedPlan, error: updateError } = await supabase
+    const { data: updatedPlan, error: updateError } = await supabaseClient
       .from("generated_user_plans")
       .update({
         ...data,
         updated_at: new Date().toISOString(),
       })
-      .eq("id", id)
+      .eq("id", planId)
       .eq("user_id", userId)
       .select()
       .single();
@@ -98,29 +101,32 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
   }
 };
 
-export const GET: APIRoute = async ({ params, locals }) => {
+export const GET: APIRoute = async ({ params, request, locals, cookies }) => {
   try {
-    // 1. Validate plan ID
-    const { id } = params;
-    if (!id) {
+    const planId = params.id;
+    if (!planId) {
       return new Response(JSON.stringify({ error: "Plan ID is required" }), {
         status: 400,
         headers: { "Content-Type": "application/json" },
       });
     }
 
-    // 2. Get user ID from middleware
     const userId = getUserIdFromLocals(locals);
+    
+    const supabaseClient = createSupabaseServerInstance({
+      headers: request.headers,
+      cookies
+    });
 
     // 3. Fetch plan with places and check access
-    const { data: plan, error } = await supabase
+    const { data: plan, error } = await supabaseClient
       .from("generated_user_plans")
       .select(`
         *,
         places(*),
         has_generated_plan:generated_ai_plans(id)
       `)
-      .eq("id", id)
+      .eq("id", planId)
       .eq("user_id", userId)
       .single();
 
@@ -158,24 +164,28 @@ export const GET: APIRoute = async ({ params, locals }) => {
   }
 };
 
-export const DELETE: APIRoute = async ({ params, locals }) => {
+export const DELETE: APIRoute = async ({ params, request, locals, cookies }) => {
   try {
-    const { id } = params;
-    if (!id) {
+    const planId = params.id;
+    if (!planId) {
       return new Response(JSON.stringify({ error: "Plan ID is required" }), {
         status: 400,
         headers: { "Content-Type": "application/json" },
       });
     }
 
-    // Get user ID from middleware
     const userId = getUserIdFromLocals(locals);
+    
+    const supabaseClient = createSupabaseServerInstance({
+      headers: request.headers,
+      cookies
+    });
 
     // First check if the plan exists and belongs to the user
-    const { data: plan, error: fetchError } = await supabase
+    const { data: plan, error: fetchError } = await supabaseClient
       .from("generated_user_plans")
       .select("id")
-      .eq("id", id)
+      .eq("id", planId)
       .eq("user_id", userId)
       .is("deleted_at", null)
       .single();
@@ -188,10 +198,10 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
     }
 
     // Perform soft delete by setting deleted_at timestamp
-    const { error: deleteError } = await supabase
+    const { error: deleteError } = await supabaseClient
       .from("generated_user_plans")
       .update({ deleted_at: new Date().toISOString() })
-      .eq("id", id)
+      .eq("id", planId)
       .eq("user_id", userId);
 
     if (deleteError) {

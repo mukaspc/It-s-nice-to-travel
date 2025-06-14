@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
 import type { PlaceDTO } from "../../../../../types";
-import { supabase } from "../../../../../db/supabase.client";
+import { createSupabaseServerInstance } from "../../../../../db/supabase.client";
 import { getUserIdFromLocals } from "../../../../../utils/auth";
 
 const createPlaceSchema = z.object({
@@ -11,9 +11,9 @@ const createPlaceSchema = z.object({
   note: z.string().max(2500, "Note must be at most 2500 characters").nullable(),
 });
 
-export const GET: APIRoute = async ({ params, locals }) => {
+export const GET: APIRoute = async ({ params, request, locals, cookies }) => {
   try {
-    const { planId } = params;
+    const planId = params.planId;
     if (!planId) {
       return new Response(JSON.stringify({ error: "Plan ID is required" }), {
         status: 400,
@@ -21,11 +21,15 @@ export const GET: APIRoute = async ({ params, locals }) => {
       });
     }
 
-    // Get user ID from middleware
     const userId = getUserIdFromLocals(locals);
+    
+    const supabaseClient = createSupabaseServerInstance({
+      headers: request.headers,
+      cookies
+    });
 
     // First check if the plan exists and belongs to the user
-    const { data: plan, error: planError } = await supabase
+    const { data: plan, error: planError } = await supabaseClient
       .from("generated_user_plans")
       .select("id, start_date, end_date")
       .eq("id", planId)
@@ -41,7 +45,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
     }
 
     // Fetch places for the plan
-    const { data: places, error: placesError } = await supabase
+    const { data: places, error: placesError } = await supabaseClient
       .from("places")
       .select("*")
       .eq("plan_id", planId)
@@ -68,9 +72,9 @@ export const GET: APIRoute = async ({ params, locals }) => {
   }
 };
 
-export const POST: APIRoute = async ({ params, request, locals }) => {
+export const POST: APIRoute = async ({ params, request, locals, cookies }) => {
   try {
-    const { planId } = params;
+    const planId = params.planId;
     if (!planId) {
       return new Response(JSON.stringify({ error: "Plan ID is required" }), {
         status: 400,
@@ -78,11 +82,15 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
       });
     }
 
-    // Get user ID from middleware
     const userId = getUserIdFromLocals(locals);
+    
+    const supabaseClient = createSupabaseServerInstance({
+      headers: request.headers,
+      cookies
+    });
 
     // First check if the plan exists and belongs to the user
-    const { data: plan, error: planError } = await supabase
+    const { data: plan, error: planError } = await supabaseClient
       .from("generated_user_plans")
       .select("id, start_date, end_date")
       .eq("id", planId)
@@ -135,7 +143,7 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
 
     // Create place
     const now = new Date().toISOString();
-    const { data: place, error } = await supabase
+    const { data: place, error } = await supabaseClient
       .from("places")
       .insert({
         plan_id: planId,

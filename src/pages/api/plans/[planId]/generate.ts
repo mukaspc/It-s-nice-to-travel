@@ -1,21 +1,27 @@
 import type { APIRoute } from 'astro';
+import { createSupabaseServerInstance } from '../../../../db/supabase.client';
 import { AIPlanGenerationService } from '../../../../services/ai-plan-generation.service';
 import { getUserIdFromLocals } from '../../../../utils/auth';
 import { ValidationError, ConflictError, NotFoundError, ForbiddenError } from '../../../../utils/errors';
 
 export const prerender = false;
 
-export const POST: APIRoute = async ({ params, request, locals }) => {
+export const POST: APIRoute = async ({ params, request, locals, cookies }) => {
   try {
-    const { planId } = params;
-    const userId = getUserIdFromLocals(locals);
-
+    const planId = params.planId;
     if (!planId) {
-      return new Response(
-        JSON.stringify({ error: 'Plan ID is required' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: "Plan ID is required" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
     }
+
+    const userId = getUserIdFromLocals(locals);
+    
+    const supabaseClient = createSupabaseServerInstance({
+      headers: request.headers,
+      cookies
+    });
 
     const service = new AIPlanGenerationService();
     const result = await service.initializeGeneration({ planId, userId });

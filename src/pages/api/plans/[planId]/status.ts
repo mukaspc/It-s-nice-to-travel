@@ -1,19 +1,27 @@
 import type { APIRoute } from 'astro';
-import { supabase } from '../../../../db/supabase.client';
+import { createSupabaseServerInstance } from '../../../../db/supabase.client';
 import { getUserIdFromLocals } from '../../../../utils/auth';
 
-export const GET: APIRoute = async ({ params, request, locals }) => {
-  try {
-    const { planId } = params;
-    const userId = getUserIdFromLocals(locals);
-    const useSSE = new URL(request.url).searchParams.get('sse') === 'true';
+export const prerender = false;
 
+export const GET: APIRoute = async ({ params, request, locals, cookies }) => {
+  try {
+    const planId = params.planId;
     if (!planId) {
-      return new Response(
-        JSON.stringify({ error: 'Plan ID is required' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: "Plan ID is required" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
     }
+
+    const userId = getUserIdFromLocals(locals);
+    
+    const supabaseClient = createSupabaseServerInstance({
+      headers: request.headers,
+      cookies
+    });
+
+    const useSSE = new URL(request.url).searchParams.get('sse') === 'true';
 
     // Check if the client wants SSE updates
     if (useSSE) {
@@ -26,7 +34,7 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
       const stream = new ReadableStream({
         async start(controller) {
           const sendUpdate = async () => {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
               .from('generated_ai_plans')
               .select('status, estimated_time_remaining')
               .eq('plan_id', planId)
@@ -64,7 +72,7 @@ export const GET: APIRoute = async ({ params, request, locals }) => {
     }
 
     // Normal HTTP request
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
       .from('generated_ai_plans')
       .select('status, estimated_time_remaining')
       .eq('plan_id', planId)
