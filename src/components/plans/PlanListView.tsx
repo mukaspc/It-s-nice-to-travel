@@ -2,6 +2,7 @@ import { useState } from "react";
 import { PlanFilterBar } from "./PlanFilterBar";
 import { PlanGrid } from "./PlanGrid";
 import { DeleteConfirmDialog } from "./DeleteConfirmDialog";
+import { EditConfirmDialog } from "../ui/edit-confirm-dialog";
 import { Button } from "../ui/button";
 import { Plus } from "lucide-react";
 import { usePlanList } from "../../hooks/usePlanList";
@@ -10,6 +11,7 @@ import { ErrorBoundary } from "../ErrorBoundary";
 export function PlanListView() {
   const [selectedPlanId, setSelectedPlanId] = useState<string>();
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isEditDialogOpen, setEditDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const { plans, isLoading, error, sort, filters, handleSortChange, handleFilterChange, handleRetry, handleDelete } =
@@ -37,6 +39,24 @@ export function PlanListView() {
     setDeleteDialogOpen(false);
     setSelectedPlanId(undefined);
   };
+
+  const handleEditWithConfirmClick = (id: string) => {
+    setSelectedPlanId(id);
+    setEditDialogOpen(true);
+  };
+
+  const handleEditConfirm = () => {
+    if (selectedPlanId) {
+      window.location.href = `/plans/${selectedPlanId}/edit`;
+    }
+  };
+
+  const handleEditCancel = () => {
+    setEditDialogOpen(false);
+    setSelectedPlanId(undefined);
+  };
+
+  const selectedPlan = plans.find((p) => p.id === selectedPlanId);
 
   return (
     <ErrorBoundary>
@@ -67,14 +87,22 @@ export function PlanListView() {
           onDelete={handleDeleteClick}
           onGenerate={(id) => (window.location.href = `/plans/${id}/generate`)}
           onExplore={(id) => (window.location.href = `/plans/${id}/view`)}
+          onEditWithConfirm={handleEditWithConfirmClick}
         />
 
         <DeleteConfirmDialog
           isOpen={isDeleteDialogOpen}
           onConfirm={handleDeleteConfirm}
           onCancel={handleDeleteCancel}
-          planName={plans.find((p) => p.id === selectedPlanId)?.name || ""}
+          planName={selectedPlan?.name || ""}
           isDeleting={isDeleting}
+        />
+
+        <EditConfirmDialog
+          isOpen={isEditDialogOpen}
+          onConfirm={handleEditConfirm}
+          onCancel={handleEditCancel}
+          planName={selectedPlan?.name || ""}
         />
       </div>
     </ErrorBoundary>

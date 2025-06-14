@@ -11,6 +11,7 @@ interface PlanCardProps {
   onDelete: () => void;
   onGenerate: () => void;
   onExplore: () => void;
+  onEditWithConfirm?: () => void;
 }
 
 const STATUS_COLORS: Record<PlanListItemDTO["status"], "default" | "secondary" | "destructive" | "outline"> = {
@@ -18,7 +19,15 @@ const STATUS_COLORS: Record<PlanListItemDTO["status"], "default" | "secondary" |
   generated: "default",
 };
 
-export function PlanCard({ plan, onEdit, onDelete, onGenerate, onExplore }: PlanCardProps) {
+export function PlanCard({ plan, onEdit, onDelete, onGenerate, onExplore, onEditWithConfirm }: PlanCardProps) {
+  const handleEditClick = () => {
+    if (plan.status === "generated" && onEditWithConfirm) {
+      onEditWithConfirm();
+    } else {
+      onEdit();
+    }
+  };
+
   return (
     <Card className="relative">
       <CardHeader>
@@ -45,7 +54,7 @@ export function PlanCard({ plan, onEdit, onDelete, onGenerate, onExplore }: Plan
         </div>
       </CardContent>
       <CardFooter className="flex justify-end gap-2">
-        <Button variant="outline" size="sm" className="gap-1" onClick={onEdit}>
+        <Button variant="outline" size="sm" className="gap-1" onClick={handleEditClick}>
           <Edit className="h-4 w-4" />
           Edit
         </Button>

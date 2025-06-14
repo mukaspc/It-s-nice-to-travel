@@ -30,10 +30,10 @@ export const PUT: APIRoute = async ({ params, request, locals, cookies }) => {
       cookies
     });
 
-    // 3. Check if plan exists and belongs to user
+    // Check if plan exists and belongs to user, and get current status
     const { data: existingPlan, error: fetchError } = await supabaseClient
       .from("generated_user_plans")
-      .select("id")
+      .select("id, status")
       .eq("id", planId)
       .eq("user_id", userId)
       .single();
@@ -45,7 +45,7 @@ export const PUT: APIRoute = async ({ params, request, locals, cookies }) => {
       });
     }
 
-    // 4. Validate request body
+    // Validate request body
     const body = await request.json();
     const validationResult = updatePlanSchema.safeParse(body);
 
@@ -58,7 +58,7 @@ export const PUT: APIRoute = async ({ params, request, locals, cookies }) => {
 
     const data = validationResult.data;
 
-    // 5. Validate date range
+    // Validate date range
     const startDate = new Date(data.start_date);
     const endDate = new Date(data.end_date);
     if (endDate < startDate) {
@@ -68,13 +68,18 @@ export const PUT: APIRoute = async ({ params, request, locals, cookies }) => {
       });
     }
 
-    // 6. Update plan
+    // If plan was generated, change status to draft and remove generated content
+    const updateData = {
+      ...data,
+      updated_at: new Date().toISOString(),
+      // Change status to draft if plan was previously generated
+      status: existingPlan.status === "generated" ? "draft" : existingPlan.status
+    };
+
+    // Update plan
     const { data: updatedPlan, error: updateError } = await supabaseClient
       .from("generated_user_plans")
-      .update({
-        ...data,
-        updated_at: new Date().toISOString(),
-      })
+      .update(updateData)
       .eq("id", planId)
       .eq("user_id", userId)
       .select()
@@ -86,6 +91,19 @@ export const PUT: APIRoute = async ({ params, request, locals, cookies }) => {
         status: 500,
         headers: { "Content-Type": "application/json" },
       });
+    }
+
+    // If plan was generated, delete the generated AI plan
+    if (existingPlan.status === "generated") {
+      const { error: deleteError } = await supabaseClient
+        .from("generated_ai_plans")
+        .delete()
+        .eq("plan_id", planId);
+
+      if (deleteError) {
+        console.error("Failed to delete generated AI plan:", deleteError);
+        // Don't fail the request if this operation fails, just log it
+      }
     }
 
     return new Response(JSON.stringify(updatedPlan), {
