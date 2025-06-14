@@ -4,16 +4,10 @@ import { Progress } from '../ui/progress';
 import { Button } from '../ui/button';
 import { ArrowLeft, Timer, Loader2 } from 'lucide-react';
 import { useNavigation } from '../../hooks/useNavigation';
-import type { GeneratePlanResponseDTO } from '../../types';
+import type { GeneratePlanResponseDTO, GeneratedPlanStatusDTO } from '../../types';
 
 interface GenerationProgressProps {
   planId: string;
-}
-
-interface GenerationStatusResponse {
-  status: 'processing' | 'completed' | 'failed';
-  progress: number;
-  estimated_time_remaining: number;
 }
 
 export function GenerationProgress({ planId }: GenerationProgressProps) {
@@ -64,7 +58,7 @@ export function GenerationProgress({ planId }: GenerationProgressProps) {
           throw new Error(errorData.error || 'Failed to check generation status');
         }
 
-        const statusData: GenerationStatusResponse = await response.json();
+        const statusData: GeneratedPlanStatusDTO = await response.json();
         
         setProgress(statusData.progress);
         setEstimatedTime(statusData.estimated_time_remaining);
