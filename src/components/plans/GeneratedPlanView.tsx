@@ -55,6 +55,8 @@ export function GeneratedPlanView({ planId }: GeneratedPlanViewProps) {
 
     if (planId) {
       fetchPlan();
+    } else {
+      setIsLoading(false);
     }
   }, [planId]);
 
