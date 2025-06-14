@@ -1,4 +1,4 @@
-import  { StrictMode, createElement } from 'react';
+import { StrictMode, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { LandingPageAppView } from './LandingPageAppView';
 import { initializeSupabaseClient } from '../../db/supabase.client';

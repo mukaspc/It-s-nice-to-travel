@@ -2,6 +2,8 @@
 import Layout from "../../../layouts/Layout.astro";
 import PlansLayout from "../../../components/plans/PlansLayout.astro";
 import type { PlanDTO } from "../../../types";
+import { createSupabaseServerInstance } from "../../../db/supabase.client";
+import { getUserIdFromLocals } from "../../../utils/auth";
 
 const { id } = Astro.params;
 
@@ -9,11 +11,44 @@ let plan: PlanDTO | undefined;
 let error: string | undefined;
 
 try {
-  const response = await fetch(`${Astro.url.origin}/api/plans/${id}`);
-  if (!response.ok) {
+  if (!id) {
+    throw new Error("Plan ID is required");
+  }
+
+  // Use the Supabase client directly instead of fetch to avoid authentication issues
+  const userId = getUserIdFromLocals(Astro.locals);
+  
+  const supabaseClient = createSupabaseServerInstance({
+    headers: Astro.request.headers,
+    cookies: Astro.cookies
+  });
+
+  // Fetch plan with places and check access
+  const { data: planData, error: fetchError } = await supabaseClient
+    .from("generated_user_plans")
+    .select(`
+      *,
+      places(*),
+      has_generated_plan:generated_ai_plans(id)
+    `)
+    .eq("id", id)
+    .eq("user_id", userId)
+    .single();
+
+  if (fetchError) {
+    console.error("Database error:", fetchError);
     throw new Error("Failed to fetch plan");
   }
-  plan = await response.json();
+
+  if (!planData) {
+    throw new Error("Plan not found");
+  }
+
+  // Transform response to match API schema
+  plan = {
+    ...planData,
+    has_generated_plan: Array.isArray(planData.has_generated_plan) && planData.has_generated_plan.length > 0,
+  };
 } catch (err) {
   error = err instanceof Error ? err.message : "Failed to load plan";
   console.error("Error fetching plan:", err);
