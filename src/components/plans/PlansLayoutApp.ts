@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { PlansLayoutView } from './PlansLayoutView';
 import { PlanListView } from './PlanListView';
 import { PlanFormWrapper } from './PlanFormWrapper';
+import { GeneratedPlanView } from './GeneratedPlanView';
 import { initializeSupabaseClient } from '../../db/supabase.client';
 
 // Flag do zapobiegania podwójnej inicjalizacji
@@ -12,6 +13,7 @@ let isInitialized = false;
 const getPageComponent = (container: Element) => {
   const planListContainer = container.querySelector('#plan-list-view');
   const planFormContainer = container.querySelector('#plan-form-wrapper');
+  const generatedPlanContainer = container.querySelector('#generated-plan-view');
   
   if (planListContainer) {
     return createElement(PlanListView);
@@ -21,6 +23,11 @@ const getPageComponent = (container: Element) => {
     const initialData = initialDataStr ? JSON.parse(initialDataStr) : undefined;
     
     return createElement(PlanFormWrapper, { mode, initialData });
+  } else if (generatedPlanContainer) {
+    const planId = generatedPlanContainer.getAttribute('data-plan-id');
+    if (planId) {
+      return createElement(GeneratedPlanView, { planId });
+    }
   }
   
   // Fallback - renderuj oryginalną zawartość jako HTML

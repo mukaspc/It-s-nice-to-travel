@@ -58,7 +58,6 @@ try {
 <Layout title={plan ? `Edit ${plan.name}` : "Edit Travel Plan"}>
   <PlansLayout>
     <div class="space-y-6">
-      <h1 class="text-3xl font-bold">{plan ? `Edit ${plan.name}` : "Edit Travel Plan"}</h1>
       {error && <div class="bg-destructive/15 text-destructive p-4 rounded-md">{error}</div>}
       {!error && <div id="plan-form-wrapper" data-mode="edit" data-initial-data={JSON.stringify(plan)}></div>}
     </div>

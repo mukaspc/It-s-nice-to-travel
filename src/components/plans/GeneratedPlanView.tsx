@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useLayoutEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { ArrowLeft, MapPin, Clock, Utensils } from 'lucide-react';
@@ -15,7 +15,7 @@ export function GeneratedPlanView({ planId }: GeneratedPlanViewProps) {
   const [isLoading, setIsLoading] = useState(true);
   const { navigateToPlans } = useNavigation();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // Reset state when planId changes
     setPlan(null);
     setError(null);
