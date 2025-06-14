@@ -58,20 +58,6 @@ Architektura UI dla "It's nice to travel" jest podzielona na dwa główne układ
   - Komunikaty informacyjne
 - **UX/Bezpieczeństwo**: Jasne komunikaty statusu, zabezpieczenie tokenu resetu
 
-### Dashboard
-- **Ścieżka**: `/dashboard`
-- **Główny cel**: Centralny punkt dostępu do aplikacji dla zalogowanych użytkowników
-- **Kluczowe informacje**:
-  - Podsumowanie (liczba planów)
-  - Skrócona lista ostatnich planów
-  - Przycisk utworzenia nowego planu
-- **Kluczowe komponenty**:
-  - Nawigacja boczna
-  - Karty statystyk
-  - Grid z ostatnimi planami
-  - Duży przycisk CTA do tworzenia planu
-- **UX/Dostępność**: Intuicyjny układ, wyraźne CTA, konsystentna nawigacja
-
 ### Lista planów
 - **Ścieżka**: `/plans`
 - **Główny cel**: Zarządzanie wszystkimi planami użytkownika
@@ -135,10 +121,10 @@ Architektura UI dla "It's nice to travel" jest podzielona na dwa główne układ
 2. Klika przycisk "Sign up"
 3. Wypełnia formularz rejestracji i przesyła go
 4. Otrzymuje potwierdzenie rejestracji
-5. Jest przekierowywany na Dashboard z pustą listą planów
+5. Jest przekierowywany na Listę planów z pustą listą planów
 
 ### Tworzenie i generowanie planu podróży
-1. Z Dashboardu użytkownik klika "Create new plan"
+1. Z Listy planów użytkownik klika "New plan"
 2. Wypełnia podstawowe informacje planu
 3. Dodaje miejsca z datami pobytu
 4. Wybiera preferencje podróży
@@ -171,7 +157,6 @@ Architektura UI dla "It's nice to travel" jest podzielona na dwa główne układ
 ### Układ dla zalogowanych użytkowników
 - **Nawigacja boczna** (rozwijana na urządzeniach mobilnych):
   - Logo
-  - Dashboard (ikona domu)
   - Moje plany
   - Utwórz nowy plan
   - Ustawienia konta
