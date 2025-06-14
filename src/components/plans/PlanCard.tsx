@@ -2,7 +2,7 @@ import type { PlanListItemDTO } from "../../types";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "../ui/card";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import { CalendarDays, Users, Edit, Trash2, Wand2, Map } from "lucide-react";
+import { CalendarDays, Users, Edit, Trash2, Wand2, Map, MapPin } from "lucide-react";
 import { format } from "date-fns";
 
 interface PlanCardProps {
@@ -28,6 +28,9 @@ export function PlanCard({ plan, onEdit, onDelete, onGenerate, onExplore, onEdit
     }
   };
 
+  const hasNoPlaces = plan.places_count === 0;
+  const canGenerate = plan.status === "draft" && !hasNoPlaces;
+
   return (
     <Card className="relative">
       <CardHeader>
@@ -50,7 +53,18 @@ export function PlanCard({ plan, onEdit, onDelete, onGenerate, onExplore, onEdit
             <Users className="h-4 w-4 mr-2" />
             <span>{plan.people_count} people</span>
           </div>
+          <div className="flex items-center text-sm text-muted-foreground">
+            <MapPin className="h-4 w-4 mr-2" />
+            <span>{plan.places_count} {plan.places_count === 1 ? 'place' : 'places'}</span>
+          </div>
           {plan.note && <p className="text-sm text-muted-foreground line-clamp-2 mt-2">{plan.note}</p>}
+          {hasNoPlaces && plan.status === "draft" && (
+            <div className="bg-amber-50 border border-amber-200 rounded-md p-2 mt-2">
+              <p className="text-xs text-amber-700">
+                Add places to your travel plan to enable AI generation
+              </p>
+            </div>
+          )}
         </div>
       </CardContent>
       <CardFooter className="flex justify-end gap-2">
@@ -68,7 +82,14 @@ export function PlanCard({ plan, onEdit, onDelete, onGenerate, onExplore, onEdit
             Explore plan
           </Button>
         ) : (
-          <Button variant="default" size="sm" className="gap-1" onClick={onGenerate}>
+          <Button 
+            variant="default" 
+            size="sm" 
+            className="gap-1" 
+            onClick={onGenerate}
+            disabled={!canGenerate}
+            title={hasNoPlaces ? "Add places to your plan before generating" : "Generate AI travel plan"}
+          >
             <Wand2 className="h-4 w-4" />
             Generate
           </Button>

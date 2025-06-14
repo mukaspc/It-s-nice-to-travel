@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Progress } from '../ui/progress';
 import { Button } from '../ui/button';
-import { ArrowLeft, Timer, Loader2 } from 'lucide-react';
+import { ArrowLeft, Timer, Loader2, AlertTriangle } from 'lucide-react';
 import { useNavigation } from '../../hooks/useNavigation';
-import type { GeneratePlanResponseDTO, GeneratedPlanStatusDTO } from '../../types';
+import type { GeneratePlanResponseDTO, GeneratedPlanStatusDTO, PlanDetailDTO } from '../../types';
 
 interface GenerationProgressProps {
   planId: string;
@@ -19,8 +19,25 @@ export function GenerationProgress({ planId }: GenerationProgressProps) {
   const { navigateToPlans } = useNavigation();
 
   useEffect(() => {
-    const startGeneration = async () => {
+    const validateAndStartGeneration = async () => {
       try {
+        // First, validate that the plan has places
+        const planResponse = await fetch(`/api/plans/${planId}`);
+        
+        if (!planResponse.ok) {
+          const errorData = await planResponse.json();
+          throw new Error(errorData.error || 'Failed to fetch plan details');
+        }
+
+        const planData: PlanDetailDTO = await planResponse.json();
+        
+        // Check if plan has places
+        if (!planData.places || planData.places.length === 0) {
+          setError('Cannot generate plan: No places have been added to this travel plan. Please add at least one place before generating your itinerary.');
+          return;
+        }
+
+        // If validation passes, start the generation
         const response = await fetch(`/api/plans/${planId}/generate`, {
           method: 'POST',
         });
@@ -38,7 +55,7 @@ export function GenerationProgress({ planId }: GenerationProgressProps) {
       }
     };
 
-    startGeneration();
+    validateAndStartGeneration();
   }, [planId]);
 
   useEffect(() => {
@@ -114,11 +131,25 @@ export function GenerationProgress({ planId }: GenerationProgressProps) {
         </div>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-center">
-              <p className="text-destructive mb-4">{error}</p>
-              <Button variant="outline" onClick={() => window.location.reload()}>
-                Try Again
-              </Button>
+            <div className="text-center space-y-4">
+              <div className="flex justify-center">
+                <AlertTriangle className="h-12 w-12 text-amber-500" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold">Cannot Generate Plan</h3>
+                <p className="text-muted-foreground">{error}</p>
+              </div>
+              <div className="flex justify-center gap-3">
+                <Button variant="outline" onClick={handleBackToPlans}>
+                  Back to Plans
+                </Button>
+                <Button 
+                  variant="default" 
+                  onClick={() => window.location.href = `/plans/${planId}/edit`}
+                >
+                  Add Places
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
