@@ -20,6 +20,7 @@ export const useAuth = () => {
     
     // Nasłuchuj zmian stanu uwierzytelnienia
     const supabase = getSupabaseClient();
+    
     if (!supabase) {
       // Jeśli Supabase nie jest dostępny, ustaw stan jako niezalogowany
       setAuthState({
@@ -47,6 +48,20 @@ export const useAuth = () => {
             user: undefined,
             error: undefined
           });
+        } else if (event === 'TOKEN_REFRESHED' && session) {
+          setAuthState({
+            isAuthenticated: true,
+            isLoading: false,
+            user: mapSupabaseUser(session.user),
+            error: undefined
+          });
+        } else if (event === 'INITIAL_SESSION') {
+          setAuthState({
+            isAuthenticated: !!session,
+            isLoading: false,
+            user: session ? mapSupabaseUser(session.user) : undefined,
+            error: undefined
+          });
         }
       }
     );
@@ -57,6 +72,7 @@ export const useAuth = () => {
   const checkSession = async () => {
     try {
       const supabase = getSupabaseClient();
+      
       if (!supabase) {
         // Jeśli Supabase nie jest dostępny, ustaw stan jako niezalogowany
         setAuthState({

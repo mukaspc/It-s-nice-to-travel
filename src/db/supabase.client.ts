@@ -24,7 +24,41 @@ let clientSupabase: ReturnType<typeof createClient<Database>> | null = null;
 // Funkcja do inicjalizacji klienta po stronie przeglądarki
 export const initializeSupabaseClient = (url: string, key: string) => {
   if (!clientSupabase && !isServer) {
-    clientSupabase = createClient<Database>(url, key);
+    // Używamy createServerClient również po stronie klienta dla synchronizacji cookies
+    clientSupabase = createServerClient<Database>(url, key, {
+      cookieOptions: {
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: false, // Musi być false po stronie klienta
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 7, // 7 dni
+      },
+      cookies: {
+        getAll() {
+          // Po stronie klienta pobieramy cookies z document.cookie
+          return document.cookie
+            .split(';')
+            .map(cookie => {
+              const [name, ...rest] = cookie.trim().split('=');
+              return { name, value: rest.join('=') };
+            })
+            .filter(cookie => cookie.name && cookie.value);
+        },
+        setAll(cookiesToSet) {
+          // Po stronie klienta ustawiamy cookies przez document.cookie
+          cookiesToSet.forEach(({ name, value, options }) => {
+            let cookieString = `${name}=${value}`;
+            
+            if (options?.path) cookieString += `; Path=${options.path}`;
+            if (options?.maxAge) cookieString += `; Max-Age=${options.maxAge}`;
+            if (options?.sameSite) cookieString += `; SameSite=${options.sameSite}`;
+            if (options?.secure) cookieString += `; Secure`;
+            
+            document.cookie = cookieString;
+          });
+        },
+      },
+    });
   }
   return clientSupabase;
 };
