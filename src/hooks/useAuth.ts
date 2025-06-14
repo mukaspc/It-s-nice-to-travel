@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase as getSupabaseClient } from '../db/supabase.client';
 import type { AuthState, User } from '../types/landing';
 
@@ -14,9 +14,15 @@ export const useAuth = () => {
     user: undefined
   });
 
+  // Ref do śledzenia czy już sprawdzaliśmy użytkownika
+  const hasCheckedUser = useRef(false);
+  const isCheckingUser = useRef(false);
+
   useEffect(() => {
-    // Sprawdź początkową sesję
-    checkSession();
+    // Sprawdź początkową sesję tylko raz
+    if (!hasCheckedUser.current && !isCheckingUser.current) {
+      checkUser();
+    }
     
     // Nasłuchuj zmian stanu uwierzytelnienia
     const supabase = getSupabaseClient();
@@ -29,18 +35,20 @@ export const useAuth = () => {
         error: undefined, // Nie traktujemy tego jako błąd
         user: undefined
       });
+      hasCheckedUser.current = true;
       return;
     }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        // Nie sprawdzaj ponownie dla INITIAL_SESSION jeśli już sprawdzaliśmy
+        if (event === 'INITIAL_SESSION' && hasCheckedUser.current) {
+          return;
+        }
+
         if (event === 'SIGNED_IN' && session) {
-          setAuthState({
-            isAuthenticated: true,
-            isLoading: false,
-            user: mapSupabaseUser(session.user),
-            error: undefined
-          });
+          // Użyj getUser() aby zweryfikować autentyczność użytkownika
+          await verifyAndSetUser();
         } else if (event === 'SIGNED_OUT') {
           setAuthState({
             isAuthenticated: false,
@@ -49,19 +57,21 @@ export const useAuth = () => {
             error: undefined
           });
         } else if (event === 'TOKEN_REFRESHED' && session) {
-          setAuthState({
-            isAuthenticated: true,
-            isLoading: false,
-            user: mapSupabaseUser(session.user),
-            error: undefined
-          });
+          // Ponownie zweryfikuj użytkownika po odświeżeniu tokena
+          await verifyAndSetUser();
         } else if (event === 'INITIAL_SESSION') {
-          setAuthState({
-            isAuthenticated: !!session,
-            isLoading: false,
-            user: session ? mapSupabaseUser(session.user) : undefined,
-            error: undefined
-          });
+          // Dla initial session również użyj getUser()
+          if (session) {
+            await verifyAndSetUser();
+          } else {
+            setAuthState({
+              isAuthenticated: false,
+              isLoading: false,
+              user: undefined,
+              error: undefined
+            });
+          }
+          hasCheckedUser.current = true;
         }
       }
     );
@@ -69,8 +79,54 @@ export const useAuth = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const checkSession = async () => {
+  const verifyAndSetUser = async () => {
+    if (isCheckingUser.current) {
+      return; // Już sprawdzamy, nie rób tego ponownie
+    }
+
     try {
+      isCheckingUser.current = true;
+      const supabase = getSupabaseClient();
+      if (!supabase) return;
+
+      const { data: { user }, error } = await supabase.auth.getUser();
+      
+      if (error || !user) {
+        setAuthState({
+          isAuthenticated: false,
+          isLoading: false,
+          user: undefined,
+          error: error ? 'Authentication verification failed' : undefined
+        });
+      } else {
+        setAuthState({
+          isAuthenticated: true,
+          isLoading: false,
+          user: mapSupabaseUser(user),
+          error: undefined
+        });
+      }
+    } catch (error) {
+      setAuthState({
+        isAuthenticated: false,
+        isLoading: false,
+        user: undefined,
+        error: 'Authentication verification failed'
+      });
+    } finally {
+      isCheckingUser.current = false;
+    }
+  };
+
+  const checkUser = async () => {
+    if (isCheckingUser.current) {
+      return; // Już sprawdzamy, nie rób tego ponownie
+    }
+
+    try {
+      isCheckingUser.current = true;
+      hasCheckedUser.current = true;
+      
       const supabase = getSupabaseClient();
       
       if (!supabase) {
@@ -84,21 +140,24 @@ export const useAuth = () => {
         return;
       }
 
-      const { data: { session } } = await supabase.auth.getSession();
+      // Użyj getUser() zamiast getSession() dla bezpieczeństwa
+      const { data: { user }, error } = await supabase.auth.getUser();
       
       setAuthState({
-        isAuthenticated: !!session,
+        isAuthenticated: !error && !!user,
         isLoading: false,
-        user: session ? mapSupabaseUser(session.user) : undefined,
-        error: undefined
+        user: user && !error ? mapSupabaseUser(user) : undefined,
+        error: error ? 'Authentication verification failed' : undefined
       });
     } catch (error) {
       setAuthState({
         isAuthenticated: false,
         isLoading: false,
         user: undefined,
-        error: 'Error checking session'
+        error: 'Error checking authentication'
       });
+    } finally {
+      isCheckingUser.current = false;
     }
   };
 
@@ -121,6 +180,9 @@ export const useAuth = () => {
         user: undefined,
         error: undefined
       });
+      
+      // Reset flag po wylogowaniu
+      hasCheckedUser.current = false;
     } catch (error) {
       setAuthState(prevState => ({
         ...prevState,

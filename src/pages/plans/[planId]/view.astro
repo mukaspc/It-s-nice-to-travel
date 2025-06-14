@@ -1,6 +1,6 @@
 ---
 import Layout from "../../../layouts/Layout.astro";
-import PlansContainer from "../../../components/plans/PlansContainer.astro";
+import PlansLayout from "../../../components/plans/PlansLayout.astro";
 import { GeneratedPlanView } from "../../../components/plans/GeneratedPlanView";
 
 const { planId } = Astro.params;
@@ -11,7 +11,7 @@ if (!planId) {
 ---
 
 <Layout title="Generated Plan">
-  <PlansContainer>
+  <PlansLayout>
     <GeneratedPlanView client:load planId={planId} />
-  </PlansContainer>
+  </PlansLayout>
 </Layout> 

@@ -50,6 +50,7 @@ export interface HeaderProps {
   onSignup: () => void;
   onLogout: () => void;
   onNavigateToPlans: () => void;
+  onLogoClick?: () => void;
 }
 
 export interface UnauthenticatedNavProps {

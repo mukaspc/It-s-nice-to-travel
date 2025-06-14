@@ -12,10 +12,16 @@ export const Header: React.FC<HeaderProps> = ({
   onLogin,
   onSignup,
   onLogout,
-  onNavigateToPlans
+  onNavigateToPlans,
+  onLogoClick
 }) => {
   const handleLogoClick = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (onLogoClick) {
+      onLogoClick();
+    } else {
+      // Domyślne zachowanie - scroll do góry
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const renderNavigation = () => {

@@ -1,11 +1,10 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { PlanListView } from "../../components/plans/PlanListView";
-import PlansContainer from "../../components/plans/PlansContainer.astro";
+import PlansLayout from "../../components/plans/PlansLayout.astro";
 ---
 
 <Layout title="Travel Plans">
-  <PlansContainer>
-    <PlanListView client:load />
-  </PlansContainer>
+  <PlansLayout>
+    <div id="plan-list-view"></div>
+  </PlansLayout>
 </Layout>

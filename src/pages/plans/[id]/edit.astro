@@ -1,7 +1,6 @@
 ---
 import Layout from "../../../layouts/Layout.astro";
-import PlansContainer from "../../../components/plans/PlansContainer.astro";
-import { PlanFormWrapper } from "../../../components/plans/PlanFormWrapper";
+import PlansLayout from "../../../components/plans/PlansLayout.astro";
 import type { PlanDTO } from "../../../types";
 
 const { id } = Astro.params;
@@ -22,11 +21,11 @@ try {
 ---
 
 <Layout title={plan ? `Edit ${plan.name}` : "Edit Travel Plan"}>
-  <PlansContainer>
+  <PlansLayout>
     <div class="space-y-6">
       <h1 class="text-3xl font-bold">{plan ? `Edit ${plan.name}` : "Edit Travel Plan"}</h1>
       {error && <div class="bg-destructive/15 text-destructive p-4 rounded-md">{error}</div>}
-      {!error && <PlanFormWrapper client:load mode="edit" initialData={plan} />}
+      {!error && <div id="plan-form-wrapper" data-mode="edit" data-initial-data={JSON.stringify(plan)}></div>}
     </div>
-  </PlansContainer>
+  </PlansLayout>
 </Layout> 

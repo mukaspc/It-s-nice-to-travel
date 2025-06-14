@@ -1,0 +1,19 @@
+---
+import { getSupabaseConfig } from "../../db/supabase.client";
+
+// Pobierz konfigurację Supabase po stronie serwera
+const supabaseConfig = getSupabaseConfig();
+---
+
+<div 
+  id="plans-layout" 
+  data-supabase-url={supabaseConfig?.supabaseUrl}
+  data-supabase-key={supabaseConfig?.supabaseKey}
+>
+  <slot />
+</div>
+
+<script>
+  // Import będzie realizowany przez Astro
+  import './PlansLayoutApp.ts';
+</script> 

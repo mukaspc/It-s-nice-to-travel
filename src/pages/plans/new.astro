@@ -1,14 +1,13 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import PlansContainer from "../../components/plans/PlansContainer.astro";
-import { PlanFormWrapper } from "../../components/plans/PlanFormWrapper";
+import PlansLayout from "../../components/plans/PlansLayout.astro";
 ---
 
 <Layout title="New Travel Plan">
-  <PlansContainer>
+  <PlansLayout>
     <div class="space-y-6">
       <h1 class="text-3xl font-bold">New Travel Plan</h1>
-      <PlanFormWrapper client:load mode="create" />
+      <div id="plan-form-wrapper" data-mode="create"></div>
     </div>
-  </PlansContainer>
+  </PlansLayout>
 </Layout> 
