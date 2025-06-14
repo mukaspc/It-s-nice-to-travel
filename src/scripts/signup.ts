@@ -2,28 +2,39 @@ import { StrictMode, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { AuthLayout } from '../components/auth/AuthLayout';
 import { SignupForm } from '../components/auth/SignupForm';
+import { getSupabaseClient, initializeSupabaseClient } from '../db/supabase.client';
 import type { SignupFormData } from '../types/auth';
 
-// Prawdziwa funkcja rejestracji przez API
+// Funkcja rejestracji przez client-side Supabase
 const handleSignup = async (data: SignupFormData): Promise<void> => {
-  const response = await fetch('/api/auth/signup', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-
-  const result = await response.json();
-
-  if (!response.ok) {
-    throw new Error(result.error || 'Registration failed');
+  const supabase = getSupabaseClient();
+  
+  if (!supabase) {
+    throw new Error('Supabase client not available');
   }
 
+  const { data: authData, error } = await supabase.auth.signUp({
+    email: data.email,
+    password: data.password,
+    options: {
+      // Wyłączamy weryfikację emaila dla MVP zgodnie z wymaganiami
+      emailRedirectTo: undefined,
+    }
+  });
+
+  if (error) {
+    throw new Error(error.message || 'Registration failed');
+  }
+
+  if (!authData.user) {
+    throw new Error('Registration failed');
+  }
+
+  // Poczekaj chwilę aby sesja została zapisana
+  await new Promise(resolve => setTimeout(resolve, 500));
+
   // Przekierowanie do /plans zgodnie z wymaganiami
-  setTimeout(() => {
-    window.location.href = '/plans';
-  }, 2000);
+  window.location.href = '/plans';
 };
 
 const handleLoginRedirect = (): void => {
@@ -33,8 +44,17 @@ const handleLoginRedirect = (): void => {
 // Inicjalizacja React aplikacji
 document.addEventListener('DOMContentLoaded', () => {
   const container = document.getElementById('signup-page');
+  const supabaseUrl = container?.getAttribute('data-supabase-url');
+  const supabaseKey = container?.getAttribute('data-supabase-key');
   
   if (container) {
+    // Inicjalizuj klienta Supabase jeśli konfiguracja jest dostępna
+    if (supabaseUrl && supabaseKey) {
+      initializeSupabaseClient(supabaseUrl, supabaseKey);
+    } else {
+      console.warn('Supabase configuration not available - signup will not work');
+    }
+
     const root = createRoot(container);
     
     const authLayoutElement = createElement(AuthLayout, {
