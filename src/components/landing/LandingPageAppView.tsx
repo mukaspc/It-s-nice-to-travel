@@ -42,7 +42,12 @@ export const LandingPageAppView: React.FC<LandingPageAppViewProps> = ({ viewMode
   };
 
   const handleCTAClick = () => {
-    navigateToSignup();
+    // Dla zalogowanych użytkowników kieruj do planów, dla niezalogowanych do rejestracji
+    if (authState.isAuthenticated) {
+      navigateToPlans();
+    } else {
+      navigateToSignup();
+    }
   };
 
   return (
@@ -58,6 +63,7 @@ export const LandingPageAppView: React.FC<LandingPageAppViewProps> = ({ viewMode
       <HeroSection
         heroContent={viewModel.heroContent}
         onCTAClick={handleCTAClick}
+        authState={authState}
       />
       
       <FeaturesSection 

@@ -5,8 +5,25 @@ import type { HeroSectionProps } from '../../types/landing';
  */
 export const HeroSection: React.FC<HeroSectionProps> = ({
   heroContent,
-  onCTAClick
+  onCTAClick,
+  authState
 }) => {
+  // Określ tekst i akcję CTA na podstawie stanu uwierzytelnienia
+  const getCTAContent = () => {
+    if (authState?.isAuthenticated) {
+      return {
+        text: 'Go to My Plans',
+        description: 'Continue planning your amazing trips'
+      };
+    }
+    return {
+      text: heroContent.ctaText,
+      description: heroContent.description
+    };
+  };
+
+  const ctaContent = getCTAContent();
+
   return (
     <section className="bg-gradient-to-br from-blue-50 to-emerald-50 py-16 sm:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -18,14 +35,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </h1>
           
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-            {heroContent.description}
+            {ctaContent.description}
           </p>
           
           <button
             onClick={onCTAClick}
             className="inline-flex items-center px-8 py-4 text-lg font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
           >
-            {heroContent.ctaText}
+            {ctaContent.text}
             <svg 
               className="ml-2 w-5 h-5" 
               fill="none" 

@@ -1,11 +1,15 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { getSupabaseConfig } from "../db/supabase.client";
 import type { 
   LandingPageViewModel, 
   FeatureItem, 
   HeroContent, 
   AIAdvantageContent 
 } from "../types/landing";
+
+// Pobierz konfigurację Supabase po stronie serwera
+const supabaseConfig = getSupabaseConfig();
 
 // Mockowe dane dla landing page
 const heroContent: HeroContent = {
@@ -81,7 +85,12 @@ const viewModel: LandingPageViewModel = {
   </Fragment>
 
   <main>
-    <div id="landing-page" data-view-model={JSON.stringify(viewModel)}></div>
+    <div 
+      id="landing-page" 
+      data-view-model={JSON.stringify(viewModel)}
+      data-supabase-url={supabaseConfig?.supabaseUrl}
+      data-supabase-key={supabaseConfig?.supabaseKey}
+    ></div>
   </main>
 </Layout>
 

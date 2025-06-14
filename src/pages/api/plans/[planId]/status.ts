@@ -1,11 +1,11 @@
 import type { APIRoute } from 'astro';
 import { supabase } from '../../../../db/supabase.client';
-import { getUserIdFromRequest } from '../../../../utils/auth';
+import { getUserIdFromLocals } from '../../../../utils/auth';
 
-export const GET: APIRoute = async ({ params, request }) => {
+export const GET: APIRoute = async ({ params, request, locals }) => {
   try {
     const { planId } = params;
-    const userId = await getUserIdFromRequest(request);
+    const userId = getUserIdFromLocals(locals);
     const useSSE = new URL(request.url).searchParams.get('sse') === 'true';
 
     if (!planId) {
@@ -63,7 +63,7 @@ export const GET: APIRoute = async ({ params, request }) => {
       return new Response(stream, { headers });
     }
 
-    // Regular status check
+    // Normal HTTP request
     const { data, error } = await supabase
       .from('generated_ai_plans')
       .select('status, estimated_time_remaining')
@@ -73,22 +73,27 @@ export const GET: APIRoute = async ({ params, request }) => {
     if (error) {
       return new Response(
         JSON.stringify({ error: error.message }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
+        { status: 404, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
     if (!data) {
       return new Response(
-        JSON.stringify({ error: 'Generation not found' }),
+        JSON.stringify({ status: 'not_found' }),
         { status: 404, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
     return new Response(
       JSON.stringify(data),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
+      { 
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      }
     );
+
   } catch (error) {
+    console.error('Error fetching plan status:', error);
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }

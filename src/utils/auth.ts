@@ -1,11 +1,32 @@
-import { DEFAULT_USER_ID } from '../db/supabase.client';
+import { createSupabaseServerInstance } from '../db/supabase.client';
+import { UnauthorizedError } from './errors';
 
+/**
+ * Pobiera ID użytkownika z middleware locals (preferowane podejście)
+ */
+export function getUserIdFromLocals(locals: any): string {
+  if (!locals.user || !locals.user.id) {
+    throw new UnauthorizedError('User not authenticated');
+  }
+  return locals.user.id;
+}
+
+/**
+ * @deprecated Używaj getUserIdFromLocals zamiast tej funkcji
+ * Pobiera ID użytkownika z request (legacy dla kompatybilności)
+ */
 export async function getUserIdFromRequest(request: Request): Promise<string> {
-  // During development, always return the default user ID
-  return DEFAULT_USER_ID;
+  throw new UnauthorizedError('getUserIdFromRequest is deprecated. Use getUserIdFromLocals with middleware locals instead.');
+}
+
+// Dodajemy funkcję pomocniczą do weryfikacji w middleware
+export async function requireAuth(request: Request, locals: any): Promise<{ id: string; email: string }> {
+  if (!locals.user) {
+    throw new UnauthorizedError('Authentication required');
+  }
   
-  // TODO: Implement proper authentication in production:
-  // 1. Verify Authorization header
-  // 2. Validate JWT token
-  // 3. Extract and verify user ID
+  return {
+    id: locals.user.id,
+    email: locals.user.email
+  };
 } 

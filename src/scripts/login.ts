@@ -4,21 +4,29 @@ import { AuthLayout } from '../components/auth/AuthLayout';
 import { LoginForm } from '../components/auth/LoginForm';
 import type { LoginFormData } from '../types/auth';
 
-// Mock funkcje - w przyszłości będą zastąpione prawdziwymi wywołaniami API
+// Prawdziwa funkcja logowania przez API
 const handleLogin = async (data: LoginFormData): Promise<void> => {
-  console.log('Login attempt:', data);
-  
-  // Symulacja opóźnienia API
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Symulacja błędu dla demonstracji
-  if (data.email === 'error@example.com') {
-    throw new Error('Invalid email or password');
+  const response = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(result.error || 'Login failed');
   }
+
+  // Sprawdź czy jest redirect URL w query params
+  const urlParams = new URLSearchParams(window.location.search);
+  const redirectUrl = urlParams.get('redirect') || '/plans';
   
-  // Symulacja sukcesu - przekierowanie do dashboard
+  // Przekierowanie do odpowiedniej strony
   setTimeout(() => {
-    window.location.href = '/dashboard';
+    window.location.href = redirectUrl;
   }, 1500);
 };
 

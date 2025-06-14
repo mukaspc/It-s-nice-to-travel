@@ -1,14 +1,14 @@
 import type { APIRoute } from 'astro';
-import { getUserIdFromRequest } from '../../../../utils/auth';
+import { getUserIdFromLocals } from '../../../../utils/auth';
 import { supabase } from '../../../../db/supabase.client';
 import { NotFoundError, ForbiddenError } from '../../../../utils/errors';
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ params, request }) => {
+export const GET: APIRoute = async ({ params, request, locals }) => {
   try {
     const { planId } = params;
-    const userId = await getUserIdFromRequest(request);
+    const userId = getUserIdFromLocals(locals);
 
     if (!planId) {
       return new Response(

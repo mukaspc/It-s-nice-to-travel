@@ -2,7 +2,7 @@ import type { APIRoute } from "astro";
 import { z } from "zod";
 import type { PlaceDTO } from "../../../../../types";
 import { supabase } from "../../../../../db/supabase.client";
-import { DEFAULT_USER_ID } from "../../../../../db/supabase.client";
+import { getUserIdFromLocals } from "../../../../../utils/auth";
 
 const createPlaceSchema = z.object({
   name: z.string().min(1, "Name is required").max(100, "Name must be at most 100 characters"),
@@ -11,7 +11,7 @@ const createPlaceSchema = z.object({
   note: z.string().max(2500, "Note must be at most 2500 characters").nullable(),
 });
 
-export const GET: APIRoute = async ({ params }) => {
+export const GET: APIRoute = async ({ params, locals }) => {
   try {
     const { planId } = params;
     if (!planId) {
@@ -21,12 +21,15 @@ export const GET: APIRoute = async ({ params }) => {
       });
     }
 
+    // Get user ID from middleware
+    const userId = getUserIdFromLocals(locals);
+
     // First check if the plan exists and belongs to the user
     const { data: plan, error: planError } = await supabase
       .from("generated_user_plans")
       .select("id, start_date, end_date")
       .eq("id", planId)
-      .eq("user_id", DEFAULT_USER_ID)
+      .eq("user_id", userId)
       .is("deleted_at", null)
       .single();
 
@@ -65,7 +68,7 @@ export const GET: APIRoute = async ({ params }) => {
   }
 };
 
-export const POST: APIRoute = async ({ params, request }) => {
+export const POST: APIRoute = async ({ params, request, locals }) => {
   try {
     const { planId } = params;
     if (!planId) {
@@ -75,12 +78,15 @@ export const POST: APIRoute = async ({ params, request }) => {
       });
     }
 
+    // Get user ID from middleware
+    const userId = getUserIdFromLocals(locals);
+
     // First check if the plan exists and belongs to the user
     const { data: plan, error: planError } = await supabase
       .from("generated_user_plans")
       .select("id, start_date, end_date")
       .eq("id", planId)
-      .eq("user_id", DEFAULT_USER_ID)
+      .eq("user_id", userId)
       .is("deleted_at", null)
       .single();
 
@@ -129,19 +135,22 @@ export const POST: APIRoute = async ({ params, request }) => {
 
     // Create place
     const now = new Date().toISOString();
-    const { data: place, error: createError } = await supabase
+    const { data: place, error } = await supabase
       .from("places")
       .insert({
-        ...data,
         plan_id: planId,
+        name: data.name,
+        start_date: data.start_date,
+        end_date: data.end_date,
+        note: data.note,
         created_at: now,
         updated_at: now,
       })
       .select()
       .single();
 
-    if (createError) {
-      console.error("Database error:", createError);
+    if (error) {
+      console.error("Database error:", error);
       return new Response(JSON.stringify({ error: "Failed to create place" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },

@@ -72,6 +72,7 @@ export interface UserDropdownProps {
 export interface HeroSectionProps {
   heroContent: HeroContent;
   onCTAClick: () => void;
+  authState?: AuthState;
 }
 
 export interface FeaturesSectionProps {

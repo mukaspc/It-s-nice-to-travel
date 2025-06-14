@@ -1,8 +1,8 @@
 import { z } from "zod";
 import type { APIRoute } from "astro";
 import type { PlanListItemDTO, PlanListResponseDTO, PlanStatus } from "../../../types";
-import { DEFAULT_USER_ID } from "../../../db/supabase.client";
 import { supabase } from "../../../db/supabase.client";
+import { getUserIdFromLocals } from "../../../utils/auth";
 
 // Walidacja parametrów zapytania
 const queryParamsSchema = z.object({
@@ -68,8 +68,8 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
     const queryParams = queryParamsResult.data;
 
-    // Using the imported supabase client instead of locals
-    const userId = DEFAULT_USER_ID;
+    // 2. Pobierz ID zalogowanego użytkownika
+    const userId = getUserIdFromLocals(locals);
 
     // 3. Przygotowanie zapytania do bazy danych
     // Optymalizacja: Używając CTE (Common Table Expression) razem z COUNT możemy wykonać
@@ -110,19 +110,18 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
     if (error) {
       console.error("Database error:", error);
-      return new Response(JSON.stringify({ error: "Internal server error" }), {
+      return new Response(JSON.stringify({ error: "Failed to fetch plans" }), {
         status: 500,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       });
     }
 
-    // 4. Transformacja wyników do odpowiedniego formatu DTO
+    // 4. Przygotowanie odpowiedzi
     const totalCount = count || 0;
+    const pageCount = Math.ceil(totalCount / queryParams.limit);
 
-    // Optymalizacja: Bardziej efektywny sposób mapowania wyników
-    const planItems: PlanListItemDTO[] = plans.map((plan) => ({
+    // Transformacja wyników do odpowiedniego formatu DTO
+    const planItems = (plans || []).map((plan) => ({
       id: plan.id,
       name: plan.name,
       start_date: plan.start_date,
@@ -134,11 +133,8 @@ export const GET: APIRoute = async ({ request, locals }) => {
       created_at: plan.created_at,
       updated_at: plan.updated_at,
       // Poprawne pobieranie liczby miejsc - SupabaseJS zwraca tablicę wyników dla relacji
-      places_count: plan.places_count?.[0]?.count || 0,
+      places_count: Array.isArray(plan.places_count) ? plan.places_count[0]?.count || 0 : 0,
     }));
-
-    // Obliczanie liczby stron na podstawie limitów i całkowitej liczby wyników
-    const pageCount = Math.ceil(totalCount / queryParams.limit);
 
     const response: PlanListResponseDTO = {
       data: planItems,
@@ -148,20 +144,15 @@ export const GET: APIRoute = async ({ request, locals }) => {
       },
     };
 
-    // 5. Zwróć odpowiedź
     return new Response(JSON.stringify(response), {
       status: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
     console.error("Unexpected error:", error);
     return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
     });
   }
 };
@@ -175,8 +166,12 @@ export const GET: APIRoute = async ({ request, locals }) => {
  * @param {Object} locals - Lokalny kontekst zawierający klienta Supabase
  * @returns {Response} Odpowiedź HTTP z kodem 201 i utworzonym planem lub odpowiednim kodem błędu
  */
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   try {
+    // 1. Pobierz ID zalogowanego użytkownika
+    const userId = getUserIdFromLocals(locals);
+
+    // 2. Validate request body
     const body = await request.json();
     const validationResult = createPlanSchema.safeParse(body);
 
@@ -189,7 +184,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     const data = validationResult.data;
 
-    // Validate date range
+    // 3. Validate date range
     const startDate = new Date(data.start_date);
     const endDate = new Date(data.end_date);
     if (endDate < startDate) {
@@ -199,13 +194,19 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
+    // 4. Create plan in database
     const now = new Date().toISOString();
     const { data: plan, error } = await supabase
       .from("generated_user_plans")
       .insert({
-        ...data,
-        user_id: DEFAULT_USER_ID,
+        name: data.name,
+        start_date: data.start_date,
+        end_date: data.end_date,
+        people_count: data.people_count,
+        note: data.note,
+        travel_preferences: data.travel_preferences,
         status: "draft",
+        user_id: userId,
         created_at: now,
         updated_at: now,
       })

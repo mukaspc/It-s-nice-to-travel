@@ -2,7 +2,7 @@ import type { APIRoute } from "astro";
 import { z } from "zod";
 import type { PlaceDTO } from "../../../../../types";
 import { supabase } from "../../../../../db/supabase.client";
-import { DEFAULT_USER_ID } from "../../../../../db/supabase.client";
+import { getUserIdFromLocals } from "../../../../../utils/auth";
 
 const updatePlaceSchema = z.object({
   name: z.string().min(1, "Name is required").max(100, "Name must be at most 100 characters"),
@@ -11,7 +11,7 @@ const updatePlaceSchema = z.object({
   note: z.string().max(2500, "Note must be at most 2500 characters").nullable(),
 });
 
-export const PUT: APIRoute = async ({ params, request }) => {
+export const PUT: APIRoute = async ({ params, request, locals }) => {
   try {
     const { planId, placeId } = params;
     if (!planId || !placeId) {
@@ -21,12 +21,15 @@ export const PUT: APIRoute = async ({ params, request }) => {
       });
     }
 
+    // Get user ID from middleware
+    const userId = getUserIdFromLocals(locals);
+
     // First check if the plan exists and belongs to the user
     const { data: plan, error: planError } = await supabase
       .from("generated_user_plans")
       .select("id, start_date, end_date")
       .eq("id", planId)
-      .eq("user_id", DEFAULT_USER_ID)
+      .eq("user_id", userId)
       .is("deleted_at", null)
       .single();
 
@@ -89,10 +92,13 @@ export const PUT: APIRoute = async ({ params, request }) => {
     }
 
     // Update place
-    const { data: place, error: updateError } = await supabase
+    const { data: updatedPlace, error: updateError } = await supabase
       .from("places")
       .update({
-        ...data,
+        name: data.name,
+        start_date: data.start_date,
+        end_date: data.end_date,
+        note: data.note,
         updated_at: new Date().toISOString(),
       })
       .eq("id", placeId)
@@ -108,7 +114,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
       });
     }
 
-    return new Response(JSON.stringify(place), {
+    return new Response(JSON.stringify(updatedPlace), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
@@ -121,7 +127,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
   }
 };
 
-export const DELETE: APIRoute = async ({ params }) => {
+export const DELETE: APIRoute = async ({ params, locals }) => {
   try {
     const { planId, placeId } = params;
     if (!planId || !placeId) {
@@ -131,12 +137,15 @@ export const DELETE: APIRoute = async ({ params }) => {
       });
     }
 
+    // Get user ID from middleware
+    const userId = getUserIdFromLocals(locals);
+
     // First check if the plan exists and belongs to the user
     const { data: plan, error: planError } = await supabase
       .from("generated_user_plans")
       .select("id")
       .eq("id", planId)
-      .eq("user_id", DEFAULT_USER_ID)
+      .eq("user_id", userId)
       .is("deleted_at", null)
       .single();
 

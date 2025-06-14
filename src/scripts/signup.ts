@@ -4,19 +4,23 @@ import { AuthLayout } from '../components/auth/AuthLayout';
 import { SignupForm } from '../components/auth/SignupForm';
 import type { SignupFormData } from '../types/auth';
 
-// Mock funkcje - w przyszłości będą zastąpione prawdziwymi wywołaniami API
+// Prawdziwa funkcja rejestracji przez API
 const handleSignup = async (data: SignupFormData): Promise<void> => {
-  console.log('Signup attempt:', data);
-  
-  // Symulacja opóźnienia API
-  await new Promise(resolve => setTimeout(resolve, 1500));
-  
-  // Symulacja błędu dla demonstracji
-  if (data.email === 'taken@example.com') {
-    throw new Error('This email address is already registered');
+  const response = await fetch('/api/auth/signup', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(result.error || 'Registration failed');
   }
-  
-  // Symulacja sukcesu - przekierowanie do logowania
+
+  // Przekierowanie do /plans zgodnie z wymaganiami
   setTimeout(() => {
     window.location.href = '/plans';
   }, 2000);

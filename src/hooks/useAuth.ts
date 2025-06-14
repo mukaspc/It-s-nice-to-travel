@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import type { AuthState } from '../types/landing';
+import { supabase as getSupabaseClient } from '../db/supabase.client';
+import type { AuthState, User } from '../types/landing';
 
 /**
  * Custom hook do zarządzania stanem uwierzytelnienia
- * Na razie implementacja mockowa - integracja z Supabase Auth zostanie dodana później
+ * Integracja z Supabase Auth
  */
 export const useAuth = () => {
   const [authState, setAuthState] = useState<AuthState>({
@@ -14,50 +15,130 @@ export const useAuth = () => {
   });
 
   useEffect(() => {
-    // Symulacja sprawdzenia stanu uwierzytelnienia
-    // TODO: Zastąpić integracją z Supabase Auth
-    const checkAuthStatus = async () => {
-      try {
-        // Symulacja delay sprawdzania auth
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Mockowe sprawdzenie - na razie zawsze niezalogowany
-        setAuthState({
-          isAuthenticated: false,
-          isLoading: false,
-          error: undefined,
-          user: undefined
-        });
-      } catch (error) {
-        setAuthState({
-          isAuthenticated: false,
-          isLoading: false,
-          error: 'Błąd podczas sprawdzania stanu uwierzytelnienia',
-          user: undefined
-        });
-      }
-    };
+    // Sprawdź początkową sesję
+    checkSession();
+    
+    // Nasłuchuj zmian stanu uwierzytelnienia
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      // Jeśli Supabase nie jest dostępny, ustaw stan jako niezalogowany
+      setAuthState({
+        isAuthenticated: false,
+        isLoading: false,
+        error: undefined, // Nie traktujemy tego jako błąd
+        user: undefined
+      });
+      return;
+    }
 
-    checkAuthStatus();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          setAuthState({
+            isAuthenticated: true,
+            isLoading: false,
+            user: mapSupabaseUser(session.user),
+            error: undefined
+          });
+        } else if (event === 'SIGNED_OUT') {
+          setAuthState({
+            isAuthenticated: false,
+            isLoading: false,
+            user: undefined,
+            error: undefined
+          });
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  const checkSession = async () => {
+    try {
+      const supabase = getSupabaseClient();
+      if (!supabase) {
+        // Jeśli Supabase nie jest dostępny, ustaw stan jako niezalogowany
+        setAuthState({
+          isAuthenticated: false,
+          isLoading: false,
+          user: undefined,
+          error: undefined
+        });
+        return;
+      }
+
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      setAuthState({
+        isAuthenticated: !!session,
+        isLoading: false,
+        user: session ? mapSupabaseUser(session.user) : undefined,
+        error: undefined
+      });
+    } catch (error) {
+      setAuthState({
+        isAuthenticated: false,
+        isLoading: false,
+        user: undefined,
+        error: 'Error checking session'
+      });
+    }
+  };
 
   const logout = async () => {
     try {
-      // TODO: Implementacja wylogowania z Supabase
-      setAuthState(prevState => ({
-        ...prevState,
+      const supabase = getSupabaseClient();
+      if (!supabase) {
+        throw new Error('Supabase client not available');
+      }
+
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        throw new Error(mapSupabaseError(error.message));
+      }
+      
+      setAuthState({
         isAuthenticated: false,
+        isLoading: false,
         user: undefined,
         error: undefined
-      }));
+      });
     } catch (error) {
       setAuthState(prevState => ({
         ...prevState,
-        error: 'Wystąpił błąd podczas wylogowywania'
+        error: 'Error during logout'
       }));
       throw error;
     }
   };
 
   return { authState, logout };
-}; 
+};
+
+/**
+ * Mapuje użytkownika Supabase na lokalny typ User
+ */
+function mapSupabaseUser(supabaseUser: any): User {
+  return {
+    id: supabaseUser.id,
+    email: supabaseUser.email || ''
+  };
+}
+
+/**
+ * Mapuje błędy Supabase na przyjazne komunikaty
+ */
+function mapSupabaseError(message: string): string {
+  if (message.includes('Invalid login credentials')) {
+    return 'Invalid email or password';
+  }
+  if (message.includes('User already registered')) {
+    return 'An account with this email already exists';
+  }
+  if (message.includes('Password should be at least')) {
+    return 'Password does not meet security requirements';
+  }
+  return message;
+} 

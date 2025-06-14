@@ -24,4 +24,18 @@ export class ForbiddenError extends Error {
     super(message);
     this.name = 'ForbiddenError';
   }
+}
+
+export class UnauthorizedError extends Error {
+  constructor(message: string = 'Unauthorized') {
+    super(message);
+    this.name = 'UnauthorizedError';
+  }
+}
+
+export class AuthenticationError extends Error {
+  constructor(message: string = 'Authentication failed') {
+    super(message);
+    this.name = 'AuthenticationError';
+  }
 } 
