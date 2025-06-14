@@ -3,39 +3,52 @@ import { createRoot } from 'react-dom/client';
 import { AuthLayout } from '../components/auth/AuthLayout';
 import { ForgotPasswordForm } from '../components/auth/ForgotPasswordForm';
 import { ResetPasswordForm } from '../components/auth/ResetPasswordForm';
+import { getSupabaseClient, initializeSupabaseClient } from '../db/supabase.client';
 import type { ForgotPasswordFormData, ResetPasswordFormData } from '../types/auth';
 
 // Funkcja do pobrania tokenu z URL
 const getTokenFromUrl = (): string | null => {
   const urlParams = new URLSearchParams(window.location.search);
-  // Sprawdzamy różne parametry tokenów zgodnie ze specyfikacją
+  // Sprawdzamy różne parametry tokenów zgodnie ze specyfikacją Supabase
   return urlParams.get('access_token') || urlParams.get('token');
 };
 
-// Mock funkcje - w przyszłości będą zastąpione prawdziwymi wywołaniami API
+// Funkcja wysyłania emaila z resetem hasła
 const handleForgotPassword = async (data: ForgotPasswordFormData): Promise<void> => {
-  console.log('Forgot password request:', data);
+  const supabase = getSupabaseClient();
   
-  // Symulacja opóźnienia API
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Nie symulujemy błędów dla bezpieczeństwa - zawsze sukces zgodnie ze specyfikacją
-  console.log('Password reset email sent successfully');
+  if (!supabase) {
+    throw new Error('Supabase client not available');
+  }
+
+  const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
+    redirectTo: `${window.location.origin}/password-reset`,
+  });
+
+  if (error) {
+    throw new Error(error.message || 'Failed to send reset email');
+  }
+
+  // Sukces - nie ujawniamy czy email istnieje w systemie dla bezpieczeństwa
 };
 
+// Funkcja resetowania hasła z tokenem
 const handleResetPassword = async (data: ResetPasswordFormData): Promise<void> => {
-  console.log('Reset password attempt:', data);
+  const supabase = getSupabaseClient();
   
-  // Symulacja opóźnienia API
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Symulacja błędu dla demonstracji (token expired)
-  const token = getTokenFromUrl();
-  if (token === 'expired') {
-    throw new Error('Reset link has expired. Please request a new one.');
+  if (!supabase) {
+    throw new Error('Supabase client not available');
   }
-  
-  // Symulacja sukcesu - przekierowanie do logowania
+
+  const { error } = await supabase.auth.updateUser({
+    password: data.password
+  });
+
+  if (error) {
+    throw new Error(error.message || 'Failed to reset password');
+  }
+
+  // Sukces - przekierowanie do logowania po krótkim opóźnieniu
   setTimeout(() => {
     window.location.href = '/login?message=password-reset-success';
   }, 2000);
@@ -48,9 +61,18 @@ const handleBackToLogin = (): void => {
 // Inicjalizacja React aplikacji
 document.addEventListener('DOMContentLoaded', () => {
   const container = document.getElementById('password-reset-page');
+  const supabaseUrl = container?.getAttribute('data-supabase-url');
+  const supabaseKey = container?.getAttribute('data-supabase-key');
   const token = getTokenFromUrl();
   
   if (container) {
+    // Inicjalizuj klienta Supabase jeśli konfiguracja jest dostępna
+    if (supabaseUrl && supabaseKey) {
+      initializeSupabaseClient(supabaseUrl, supabaseKey);
+    } else {
+      console.warn('Supabase configuration not available - password reset will not work');
+    }
+
     const root = createRoot(container);
     
     let authLayoutElement;
