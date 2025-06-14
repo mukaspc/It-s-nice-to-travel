@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Progress } from '../ui/progress';
 import { Button } from '../ui/button';
 import { ArrowLeft, Timer, Loader2 } from 'lucide-react';
+import { useNavigation } from '../../hooks/useNavigation';
 import type { GeneratePlanResponseDTO } from '../../types';
 
 interface GenerationProgressProps {
@@ -14,6 +15,7 @@ export function GenerationProgress({ planId }: GenerationProgressProps) {
   const [error, setError] = useState<string | null>(null);
   const [estimatedTime, setEstimatedTime] = useState<number | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const { navigateToPlans } = useNavigation();
 
   useEffect(() => {
     const startGeneration = async () => {
@@ -79,11 +81,15 @@ export function GenerationProgress({ planId }: GenerationProgressProps) {
     return () => clearInterval(interval);
   }, [planId, isGenerating]);
 
+  const handleBackToPlans = () => {
+    navigateToPlans();
+  };
+
   if (error) {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <Button variant="outline" onClick={() => window.location.href = '/plans'}>
+          <Button variant="outline" onClick={handleBackToPlans}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Plans
           </Button>
@@ -105,7 +111,7 @@ export function GenerationProgress({ planId }: GenerationProgressProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <Button variant="outline" onClick={() => window.location.href = '/plans'}>
+        <Button variant="outline" onClick={handleBackToPlans}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Plans
         </Button>

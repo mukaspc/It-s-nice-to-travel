@@ -24,7 +24,10 @@ export const POST: APIRoute = async ({ params, request, locals, cookies }) => {
     });
 
     const service = new AIPlanGenerationService();
-    const result = await service.initializeGeneration({ planId, userId });
+    const result = await service.initializeGeneration(
+      { planId, userId },
+      { headers: request.headers, cookies }
+    );
 
     return new Response(
       JSON.stringify(result),

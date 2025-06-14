@@ -1,10 +1,11 @@
 import type { GeneratePlanCommand, GeneratePlanResponseDTO, PlanDetailDTO, GeneratedPlanDTO } from '../types';
 import { ValidationError, ConflictError, NotFoundError, ForbiddenError } from '../utils/errors';
-import { supabase } from '../db/supabase.client';
+import { createSupabaseServerInstance } from '../db/supabase.client';
 import { logger } from '../utils/logger';
 import type { Json } from '../db/database.types';
 import { OpenRouterService } from '../lib/openrouter.service';
 import { GooglePlacesService } from './google-places.service';
+import type { AstroCookies } from 'astro';
 
 const INITIAL_ESTIMATED_TIME = 90; // 90 seconds
 const TIME_UPDATE_INTERVAL = 5000; // 5 seconds in milliseconds
@@ -33,14 +34,19 @@ export class AIPlanGenerationService {
     this.googlePlaces = new GooglePlacesService();
   }
 
-  async initializeGeneration(command: GeneratePlanCommand): Promise<GeneratePlanResponseDTO> {
+  async initializeGeneration(
+    command: GeneratePlanCommand, 
+    context: { headers: Headers; cookies: AstroCookies }
+  ): Promise<GeneratePlanResponseDTO> {
     logger.info('Initializing plan generation', { planId: command.planId, userId: command.userId });
     
+    const supabase = createSupabaseServerInstance(context);
+    
     // Validate the plan and user access
-    const plan = await this.validatePlan(command.planId, command.userId);
+    const plan = await this.validatePlan(command.planId, command.userId, supabase);
     
     // Check if generation is already in progress
-    const isInProgress = await this.isGenerationInProgress(command.planId);
+    const isInProgress = await this.isGenerationInProgress(command.planId, supabase);
     if (isInProgress) {
       logger.warn('Generation already in progress', { planId: command.planId });
       throw new ConflictError('Generation already in progress for this plan');
@@ -103,13 +109,13 @@ export class AIPlanGenerationService {
     }
 
     // Start the generation process in the background
-    this.startGenerationProcess(plan, generationRecord.id)
+    this.startGenerationProcess(plan, generationRecord.id, context)
       .catch(error => {
         logger.error('Generation process failed', {
           planId: command.planId,
           error: error instanceof Error ? error.message : JSON.stringify(error)
         });
-        this.updateGenerationStatus(generationRecord.id, 'failed', 0);
+        this.updateGenerationStatus(generationRecord.id, 'failed', 0, context);
       });
 
     logger.info('Generation initialized successfully', { 
@@ -125,7 +131,7 @@ export class AIPlanGenerationService {
     };
   }
 
-  private async validatePlan(planId: string, userId: string): Promise<PlanDetailDTO> {
+  private async validatePlan(planId: string, userId: string, supabase: any): Promise<PlanDetailDTO> {
     logger.debug('Validating plan', { planId, userId });
     
     // Fetch plan with places
@@ -164,7 +170,7 @@ export class AIPlanGenerationService {
     return plan as PlanDetailDTO;
   }
 
-  private async isGenerationInProgress(planId: string): Promise<boolean> {
+  private async isGenerationInProgress(planId: string, supabase: any): Promise<boolean> {
     logger.debug('Checking if generation is in progress', { planId });
     
     const { data, error } = await supabase
@@ -219,8 +225,14 @@ export class AIPlanGenerationService {
     return enrichedContent;
   }
 
-  private async startGenerationProcess(plan: PlanDetailDTO, generationId: string): Promise<void> {
+  private async startGenerationProcess(
+    plan: PlanDetailDTO, 
+    generationId: string, 
+    context: { headers: Headers; cookies: AstroCookies }
+  ): Promise<void> {
     logger.info('Starting generation process', { planId: plan.id });
+
+    const supabase = createSupabaseServerInstance(context);
 
     // Start the timer update interval
     const startTime = Date.now();
@@ -228,7 +240,7 @@ export class AIPlanGenerationService {
       const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
       const remainingTime = Math.max(0, INITIAL_ESTIMATED_TIME - elapsedSeconds);
       
-      await this.updateGenerationStatus(generationId, 'processing', remainingTime);
+      await this.updateGenerationStatus(generationId, 'processing', remainingTime, context);
 
       if (remainingTime === 0) {
         clearInterval(updateInterval);
@@ -343,7 +355,7 @@ You MUST respond with a valid JSON object in the following format:
       });
       
       // Update generation status to failed
-      await this.updateGenerationStatus(generationId, 'failed', 0)
+      await this.updateGenerationStatus(generationId, 'failed', 0, context)
         .catch(updateError => {
           logger.error('Failed to update generation status', {
             generationId,
@@ -358,8 +370,11 @@ You MUST respond with a valid JSON object in the following format:
   private async updateGenerationStatus(
     generationId: string, 
     status: 'completed' | 'processing' | 'failed',
-    estimatedTimeRemaining: number
+    estimatedTimeRemaining: number,
+    context: { headers: Headers; cookies: AstroCookies }
   ): Promise<void> {
+    const supabase = createSupabaseServerInstance(context);
+    
     const { error } = await supabase
       .from('generated_ai_plans')
       .update({ 
