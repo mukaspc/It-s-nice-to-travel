@@ -37,7 +37,7 @@ export const GET: APIRoute = async ({ params, request, locals, cookies }) => {
     // Get the generation status
     const { data: generationStatus, error: statusError } = await supabaseClient
       .from('generated_ai_plans')
-      .select('status, progress, estimated_time_remaining')
+      .select('status, estimated_time_remaining')
       .eq('plan_id', planId)
       .order('created_at', { ascending: false })
       .limit(1)
@@ -47,10 +47,15 @@ export const GET: APIRoute = async ({ params, request, locals, cookies }) => {
       throw new NotFoundError('No generation process found for this plan');
     }
 
+    // Calculate progress based on estimated time remaining
+    const initialTime = 90; // 90 seconds initial estimate
+    const timeRemaining = generationStatus.estimated_time_remaining || 0;
+    const progress = Math.max(0, Math.min(100, ((initialTime - timeRemaining) / initialTime) * 100));
+
     return new Response(
       JSON.stringify({
         status: generationStatus.status,
-        progress: generationStatus.progress,
+        progress: Math.round(progress),
         estimated_time_remaining: generationStatus.estimated_time_remaining
       }),
       { 

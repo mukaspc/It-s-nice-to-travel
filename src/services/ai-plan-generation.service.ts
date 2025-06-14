@@ -316,7 +316,7 @@ You MUST respond with a valid JSON object in the following format:
         .from('generated_ai_plans')
         .update({ 
           status: 'completed',
-          content: content as unknown as Json,
+          content: enrichedContent as unknown as Json,
           estimated_time_remaining: 0
         })
         .eq('id', generationId);

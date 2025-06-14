@@ -21,8 +21,10 @@ export interface Database {
           people_count: number;
           note: string | null;
           travel_preferences: string | null;
+          status: string;
           created_at: string;
           updated_at: string;
+          deleted_at: string | null;
         };
         Insert: {
           id?: string;
@@ -33,8 +35,10 @@ export interface Database {
           people_count: number;
           note?: string | null;
           travel_preferences?: string | null;
+          status?: string;
           created_at?: string;
           updated_at?: string;
+          deleted_at?: string | null;
         };
         Update: {
           id?: string;
@@ -45,8 +49,10 @@ export interface Database {
           people_count?: number;
           note?: string | null;
           travel_preferences?: string | null;
+          status?: string;
           created_at?: string;
           updated_at?: string;
+          deleted_at?: string | null;
         };
       };
       places: {
@@ -87,6 +93,7 @@ export interface Database {
           plan_id: string;
           content: Json;
           status: GenerationStatus;
+          estimated_time_remaining: number;
           created_at: string;
           updated_at: string;
         };
@@ -95,6 +102,7 @@ export interface Database {
           plan_id: string;
           content: Json;
           status?: GenerationStatus;
+          estimated_time_remaining?: number;
           created_at?: string;
           updated_at?: string;
         };
@@ -103,6 +111,7 @@ export interface Database {
           plan_id?: string;
           content?: Json;
           status?: GenerationStatus;
+          estimated_time_remaining?: number;
           created_at?: string;
           updated_at?: string;
         };

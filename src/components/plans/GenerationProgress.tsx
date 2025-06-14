@@ -10,11 +10,18 @@ interface GenerationProgressProps {
   planId: string;
 }
 
+interface GenerationStatusResponse {
+  status: 'processing' | 'completed' | 'failed';
+  progress: number;
+  estimated_time_remaining: number;
+}
+
 export function GenerationProgress({ planId }: GenerationProgressProps) {
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [estimatedTime, setEstimatedTime] = useState<number | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [status, setStatus] = useState<'processing' | 'completed' | 'failed' | null>(null);
   const { navigateToPlans } = useNavigation();
 
   useEffect(() => {
@@ -45,11 +52,10 @@ export function GenerationProgress({ planId }: GenerationProgressProps) {
 
     const checkStatus = async () => {
       try {
-        const response = await fetch(`/api/plans/${planId}/generated`);
+        const response = await fetch(`/api/plans/${planId}/generate/status`);
         
         if (response.status === 404) {
-          // Plan is still generating
-          setProgress((prev) => Math.min(prev + 10, 90)); // Increment progress but cap at 90%
+          // Generation not started yet or no status available
           return false;
         }
 
@@ -58,23 +64,41 @@ export function GenerationProgress({ planId }: GenerationProgressProps) {
           throw new Error(errorData.error || 'Failed to check generation status');
         }
 
-        // Plan is ready
-        setProgress(100);
-        return true;
+        const statusData: GenerationStatusResponse = await response.json();
+        
+        setProgress(statusData.progress);
+        setEstimatedTime(statusData.estimated_time_remaining);
+        setStatus(statusData.status);
+
+        // If generation is completed, redirect to view page
+        if (statusData.status === 'completed') {
+          setTimeout(() => {
+            window.location.href = `/plans/${planId}/view`;
+          }, 1000);
+          return true;
+        }
+
+        // If generation failed, show error
+        if (statusData.status === 'failed') {
+          setError('Plan generation failed. Please try again.');
+          return true;
+        }
+
+        return false;
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unexpected error occurred');
         return false;
       }
     };
 
+    // Check status immediately
+    checkStatus();
+
+    // Then check every 2 seconds
     const interval = setInterval(async () => {
       const isComplete = await checkStatus();
       if (isComplete) {
         clearInterval(interval);
-        // Redirect to the view page after a short delay
-        setTimeout(() => {
-          window.location.href = `/plans/${planId}/view`;
-        }, 1000);
       }
     }, 2000);
 
@@ -128,14 +152,20 @@ export function GenerationProgress({ planId }: GenerationProgressProps) {
           <div className="space-y-2">
             <Progress value={progress} className="h-2" />
             <p className="text-sm text-muted-foreground text-center">
-              {progress < 100 ? 'Generating your perfect travel plan...' : 'Generation complete!'}
+              {progress < 100 ? `Generating your perfect travel plan... ${progress}%` : 'Generation complete!'}
             </p>
           </div>
 
-          {estimatedTime && progress < 100 && (
+          {estimatedTime !== null && estimatedTime > 0 && progress < 100 && (
             <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
               <Timer className="h-4 w-4" />
-              <span>Estimated time remaining: {Math.ceil((estimatedTime * (100 - progress)) / 100)} seconds</span>
+              <span>Estimated time remaining: {Math.ceil(estimatedTime)} seconds</span>
+            </div>
+          )}
+
+          {status === 'processing' && (
+            <div className="text-center text-sm text-muted-foreground">
+              <p>Our AI is crafting your personalized itinerary...</p>
             </div>
           )}
         </CardContent>

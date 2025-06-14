@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { ArrowLeft, MapPin, Clock, Utensils } from 'lucide-react';
+import { useNavigation } from '../../hooks/useNavigation';
 import type { GeneratedPlanDTO } from '../../types';
 
 interface GeneratedPlanViewProps {
@@ -12,16 +13,38 @@ export function GeneratedPlanView({ planId }: GeneratedPlanViewProps) {
   const [plan, setPlan] = useState<GeneratedPlanDTO | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { navigateToPlans } = useNavigation();
 
   useEffect(() => {
+    // Reset state when planId changes
+    setPlan(null);
+    setError(null);
+    setIsLoading(true);
+    
     const fetchPlan = async () => {
       try {
         const response = await fetch(`/api/plans/${planId}/generated`);
+        
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.error || 'Failed to fetch plan');
         }
+        
         const data = await response.json();
+        
+        // Check if data has the expected structure
+        if (!data.content) {
+          throw new Error('Plan data is missing content field');
+        }
+        
+        if (!data.content.places || !Array.isArray(data.content.places)) {
+          throw new Error('Plan content is missing places array');
+        }
+        
+        if (data.content.places.length === 0) {
+          throw new Error('Plan has no places data');
+        }
+        
         setPlan(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unexpected error occurred');
@@ -30,8 +53,14 @@ export function GeneratedPlanView({ planId }: GeneratedPlanViewProps) {
       }
     };
 
-    fetchPlan();
+    if (planId) {
+      fetchPlan();
+    }
   }, [planId]);
+
+  const handleBackToPlans = () => {
+    navigateToPlans();
+  };
 
   if (isLoading) {
     return (
@@ -60,7 +89,7 @@ export function GeneratedPlanView({ planId }: GeneratedPlanViewProps) {
     return (
       <div className="text-center py-8">
         <p className="text-destructive mb-4">{error}</p>
-        <Button variant="outline" onClick={() => window.location.href = '/plans'}>
+        <Button variant="outline" onClick={handleBackToPlans}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Plans
         </Button>
@@ -69,13 +98,34 @@ export function GeneratedPlanView({ planId }: GeneratedPlanViewProps) {
   }
 
   if (!plan) {
-    return null;
+    return (
+      <div className="text-center py-8">
+        <p className="text-muted-foreground mb-4">No plan data available</p>
+        <Button variant="outline" onClick={handleBackToPlans}>
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Plans
+        </Button>
+      </div>
+    );
+  }
+
+  // Additional safety checks
+  if (!plan.content || !plan.content.places || plan.content.places.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-muted-foreground mb-4">Plan content is not available</p>
+        <Button variant="outline" onClick={handleBackToPlans}>
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Plans
+        </Button>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <Button variant="outline" onClick={() => window.location.href = '/plans'}>
+        <Button variant="outline" onClick={handleBackToPlans}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Plans
         </Button>
