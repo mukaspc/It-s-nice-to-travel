@@ -8,12 +8,22 @@ export const prerender = false;
 export const GET: APIRoute = async ({ params, request, locals, cookies }) => {
   try {
     const planId = params.planId;
-    const userId = getUserIdFromLocals(locals);
 
     if (!planId) {
       return new Response(
         JSON.stringify({ error: 'Plan ID is required' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    let userId;
+    try {
+      userId = getUserIdFromLocals(locals);
+    } catch (authError) {
+      console.error('Auth error in status endpoint:', authError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
