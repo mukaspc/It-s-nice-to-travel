@@ -133,5 +133,3 @@ All features will be available for free after registration, according to the fre
 ## License
 
 [MIT License](LICENSE)
-
-*Note: This project is currently under development.*
