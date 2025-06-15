@@ -16,7 +16,11 @@
     "format": "prettier --write .",
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:headed": "playwright test --headed"
   },
   "dependencies": {
     "@astrojs/node": "^6.0.0",
@@ -50,6 +54,7 @@
   },
   "devDependencies": {
     "@astrojs/ts-plugin": "^1.10.4",
+    "@playwright/test": "^1.53.0",
     "@testing-library/dom": "^9.3.4",
     "@testing-library/jest-dom": "^6.4.0",
     "@testing-library/react": "^14.2.0",
@@ -59,6 +64,7 @@
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-react": "^4.2.0",
+    "@vitest/coverage-v8": "^1.6.1",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-astro": "^0.31.0",
