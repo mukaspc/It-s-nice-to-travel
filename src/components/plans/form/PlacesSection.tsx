@@ -23,9 +23,8 @@ export function PlacesSection({ planId, planStartDate, planEndDate }: PlacesSect
 
   useEffect(() => {
     // Fetch places only once on component mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     fetchPlaces();
-  }, []);
+  }, [fetchPlaces]);
 
   const handleAddClick = (e: React.MouseEvent) => {
     e.preventDefault();

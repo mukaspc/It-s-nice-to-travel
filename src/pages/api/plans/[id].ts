@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import type { PlanDTO } from "../../../types";
+import type { PlanDTO, PlaceDTO } from "../../../types";
 import { createSupabaseServerInstance } from "../../../db/supabase.client";
 import { getUserIdFromLocals } from "../../../utils/auth";
 
@@ -163,7 +163,7 @@ export const GET: APIRoute = async ({ params, request, locals, cookies }) => {
     }
 
     // Transform response to match API schema
-    const response: PlanDTO & { places: any[]; has_generated_plan: boolean } = {
+    const response: PlanDTO & { places: PlaceDTO[]; has_generated_plan: boolean } = {
       ...plan,
       has_generated_plan: Array.isArray(plan.has_generated_plan) && plan.has_generated_plan.length > 0,
     };

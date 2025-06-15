@@ -1,9 +1,11 @@
 import type { UseFormReturn } from "react-hook-form";
+import { z } from "zod";
 import { Card, CardHeader, CardTitle, CardContent } from "../../ui/card";
 import { FormFieldComponent } from "../../ui/form-field";
+import { planFormSchema } from "./schema";
 
 interface BasicInfoSectionProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<z.infer<typeof planFormSchema>>;
 }
 
 export function BasicInfoSection({ form }: BasicInfoSectionProps) {

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase as getSupabaseClient } from "../db/supabase.client";
 import type { AuthState, User } from "../types/landing";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 /**
  * Custom hook do zarządzania stanem uwierzytelnienia
@@ -110,6 +111,7 @@ export const useAuth = () => {
         });
       }
     } catch (error) {
+      console.error(error);
       setAuthState({
         isAuthenticated: false,
         isLoading: false,
@@ -156,6 +158,7 @@ export const useAuth = () => {
         error: error ? "Authentication verification failed" : undefined,
       });
     } catch (error) {
+      console.error(error);
       setAuthState({
         isAuthenticated: false,
         isLoading: false,
@@ -204,7 +207,7 @@ export const useAuth = () => {
 /**
  * Mapuje użytkownika Supabase na lokalny typ User
  */
-function mapSupabaseUser(supabaseUser: any): User {
+function mapSupabaseUser(supabaseUser: SupabaseUser): User {
   return {
     id: supabaseUser.id,
     email: supabaseUser.email || "",

@@ -1,19 +1,17 @@
 import { useState } from "react";
-import type { FieldErrors } from "../types/auth";
-
 /**
  * Custom hook do obsługi formularzy z walidacją
  */
-export const useForm = <T extends Record<string, any>>(
+export const useForm = <T extends Record<string, unknown>>(
   initialValues: T,
-  validationRules?: Partial<Record<keyof T, (value: any) => string | undefined>>
+  validationRules?: Partial<Record<keyof T, (value: T[keyof T]) => string | undefined>>
 ) => {
   const [values, setValues] = useState<T>(initialValues);
   const [errors, setErrors] = useState<Partial<Record<keyof T, string>>>({});
   const [touched, setTouched] = useState<Partial<Record<keyof T, boolean>>>({});
 
   // Ustawienie wartości pola
-  const setValue = (name: keyof T, value: any) => {
+  const setValue = (name: keyof T, value: T[keyof T]) => {
     setValues((prev) => ({ ...prev, [name]: value }));
 
     // Walidacja przy zmianie wartości jeśli pole było już dotknięte

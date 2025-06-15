@@ -12,7 +12,7 @@ interface PlansLayoutViewProps {
  */
 export const PlansLayoutView: React.FC<PlansLayoutViewProps> = ({ children }) => {
   const { authState, logout } = useAuth();
-  const { navigateToLogin, navigateToSignup, navigateToPlans, scrollToTop } = useNavigation();
+  const { navigateToLogin, navigateToSignup, navigateToPlans } = useNavigation();
 
   const handleLogin = () => {
     navigateToLogin();

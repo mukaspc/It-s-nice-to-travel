@@ -53,7 +53,7 @@ const FormControl = React.forwardRef<React.ElementRef<typeof Slot>, React.Compon
 FormControl.displayName = "FormControl";
 
 const FormMessage = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
-  ({ className, children, ...props }, ref) => {
+  ({ className, ...props }, ref) => {
     const formContext = useFormContext();
     const { name } = React.useContext(FormFieldContext);
 

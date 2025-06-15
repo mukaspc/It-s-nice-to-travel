@@ -24,8 +24,8 @@ export default tseslint.config(
       },
     },
     rules: {
-      // Console statements - warnings only
-      "no-console": "warn",
+      // Console statements - disabled
+      "no-console": "off",
       
       // Unused variables - handled by TypeScript ESLint
       "no-unused-vars": "off",

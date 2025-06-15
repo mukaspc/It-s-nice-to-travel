@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Check, X } from "lucide-react";
-import { Command as CommandPrimitive } from "cmdk";
 import { Badge } from "./badge";
 import { Command, CommandEmpty, CommandGroup, CommandInput } from "./command";
 import { cn } from "../../lib/utils";

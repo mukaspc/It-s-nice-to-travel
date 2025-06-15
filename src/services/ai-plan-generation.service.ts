@@ -1,8 +1,10 @@
-import type { GeneratePlanCommand, GeneratePlanResponseDTO, PlanDetailDTO, GeneratedPlanDTO } from "../types";
+import type { GeneratePlanCommand, GeneratePlanResponseDTO, PlanDetailDTO, GeneratedPlanContentDTO } from "../types";
 import { ValidationError, ConflictError, NotFoundError, ForbiddenError } from "../utils/errors";
 import { createSupabaseServerInstance } from "../db/supabase.client";
 import { logger } from "../utils/logger";
 import type { Json } from "../db/database.types";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "../db/database.types";
 import { OpenRouterService } from "../lib/openrouter.service";
 import { GooglePlacesService } from "./google-places.service";
 import type { AstroCookies } from "astro";
@@ -61,7 +63,7 @@ export class AIPlanGenerationService {
 
     // Check if there's an existing generated plan
     logger.debug("Checking for existing generated plan", { planId: command.planId });
-    const { data: existingPlan, error: existingPlanError } = await supabase
+    const { data: existingPlan } = await supabase
       .from("generated_ai_plans")
       .select("id")
       .eq("plan_id", command.planId)
@@ -137,7 +139,7 @@ export class AIPlanGenerationService {
     };
   }
 
-  private async validatePlan(planId: string, userId: string, supabase: any): Promise<PlanDetailDTO> {
+  private async validatePlan(planId: string, userId: string, supabase: SupabaseClient<Database>): Promise<PlanDetailDTO> {
     logger.debug("Validating plan", { planId, userId });
 
     // Fetch plan with places
@@ -178,7 +180,7 @@ export class AIPlanGenerationService {
     return plan as PlanDetailDTO;
   }
 
-  private async isGenerationInProgress(planId: string, supabase: any): Promise<boolean> {
+  private async isGenerationInProgress(planId: string, supabase: SupabaseClient<Database>): Promise<boolean> {
     logger.debug("Checking if generation is in progress", { planId });
 
     const { data, error } = await supabase
@@ -205,7 +207,7 @@ export class AIPlanGenerationService {
     return isInProgress;
   }
 
-  private async enrichContentWithImages(content: any, location: string): Promise<any> {
+  private async enrichContentWithImages(content: GeneratedPlanContentDTO, location: string): Promise<GeneratedPlanContentDTO> {
     const enrichedContent = { ...content };
 
     for (const place of enrichedContent.places) {

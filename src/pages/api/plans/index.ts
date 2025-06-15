@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { APIRoute } from "astro";
-import type { PlanListItemDTO, PlanListResponseDTO, PlanStatus } from "../../../types";
+import type { PlanListResponseDTO, PlanStatus } from "../../../types";
 import { createSupabaseServerInstance } from "../../../db/supabase.client";
 import { getUserIdFromLocals } from "../../../utils/auth";
 

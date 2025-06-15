@@ -1,5 +1,3 @@
-import type { Database } from "./db/database.types";
-
 /**
  * Plan status type
  */

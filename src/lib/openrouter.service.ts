@@ -14,6 +14,17 @@ import type {
   CacheOptions,
 } from "./openrouter.types";
 
+// Internal types for API responses
+interface ModelApiResponse {
+  id: string;
+  name: string;
+  context_length: number;
+  pricing: {
+    prompt: number;
+    completion: number;
+  };
+}
+
 const MAX_RETRIES = 3;
 const INITIAL_RETRY_DELAY = 1000; // 1 second
 const DEFAULT_CACHE_OPTIONS: CacheOptions = {
@@ -233,7 +244,7 @@ export class OpenRouterService {
     });
 
     const data = await response.json();
-    return data.data.map((model: any) => ({
+    return data.data.map((model: ModelApiResponse) => ({
       id: model.id,
       name: model.name,
       maxTokens: model.context_length,

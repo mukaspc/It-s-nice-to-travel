@@ -1,6 +1,5 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import type { PlaceDTO } from "../../../../../types";
 import { createSupabaseServerInstance } from "../../../../../db/supabase.client";
 import { getUserIdFromLocals } from "../../../../../utils/auth";
 

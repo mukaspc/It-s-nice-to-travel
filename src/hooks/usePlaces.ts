@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import type { PlaceDTO, CreatePlaceCommandDTO, UpdatePlaceCommandDTO } from "../types";
 
 interface UsePlacesProps {
@@ -10,7 +10,7 @@ export function usePlaces({ planId }: UsePlacesProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>();
 
-  const fetchPlaces = async () => {
+  const fetchPlaces = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(undefined);
@@ -25,7 +25,7 @@ export function usePlaces({ planId }: UsePlacesProps) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [planId]);
 
   const createPlace = async (data: CreatePlaceCommandDTO) => {
     try {

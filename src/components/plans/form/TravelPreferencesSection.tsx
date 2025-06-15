@@ -1,12 +1,14 @@
 import { useEffect, useMemo } from "react";
 import type { UseFormReturn } from "react-hook-form";
+import { z } from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 import { FormField, FormItem, FormLabel, FormMessage } from "../../ui/form";
 import { MultiSelect, type Option } from "../../ui/multi-select";
 import { useTravelPreferences } from "../../../hooks/useTravelPreferences";
+import { planFormSchema } from "./schema";
 
 interface TravelPreferencesSectionProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<z.infer<typeof planFormSchema>>;
 }
 
 export function TravelPreferencesSection({ form }: TravelPreferencesSectionProps) {

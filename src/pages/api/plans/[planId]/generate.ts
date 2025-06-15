@@ -1,5 +1,4 @@
 import type { APIRoute } from "astro";
-import { createSupabaseServerInstance } from "../../../../db/supabase.client";
 import { AIPlanGenerationService } from "../../../../services/ai-plan-generation.service";
 import { getUserIdFromLocals } from "../../../../utils/auth";
 import { ValidationError, ConflictError, NotFoundError, ForbiddenError } from "../../../../utils/errors";
@@ -17,11 +16,6 @@ export const POST: APIRoute = async ({ params, request, locals, cookies }) => {
     }
 
     const userId = getUserIdFromLocals(locals);
-
-    const supabaseClient = createSupabaseServerInstance({
-      headers: request.headers,
-      cookies,
-    });
 
     const service = new AIPlanGenerationService();
     const result = await service.initializeGeneration({ planId, userId }, { headers: request.headers, cookies });

@@ -1,10 +1,9 @@
 import type { APIRoute } from "astro";
 import { createSupabaseServerInstance } from "../../../../db/supabase.client";
-import { getUserIdFromLocals } from "../../../../utils/auth";
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ params, request, locals, cookies }) => {
+export const GET: APIRoute = async ({ params, request, cookies }) => {
   try {
     const planId = params.planId;
     if (!planId) {
@@ -13,8 +12,6 @@ export const GET: APIRoute = async ({ params, request, locals, cookies }) => {
         headers: { "Content-Type": "application/json" },
       });
     }
-
-    const userId = getUserIdFromLocals(locals);
 
     const supabaseClient = createSupabaseServerInstance({
       headers: request.headers,

@@ -46,7 +46,7 @@ export function PlanGenerationStatus({ planId }: Props) {
     return () => {
       eventSource.close();
     };
-  }, [planId]);
+  }, [planId, navigate]);
 
   if (error) {
     return (
