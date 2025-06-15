@@ -10,28 +10,38 @@ import type { AstroCookies } from 'astro';
 const INITIAL_ESTIMATED_TIME = 90; // 90 seconds
 const TIME_UPDATE_INTERVAL = 5000; // 5 seconds in milliseconds
 
-const openRouterApiKey = import.meta.env.OPENROUTER_API_KEY;
-if (!openRouterApiKey) {
-  throw new Error('Missing OPENROUTER_API_KEY environment variable');
-}
-
 export class AIPlanGenerationService {
   private readonly openRouter: OpenRouterService;
   private readonly googlePlaces: GooglePlacesService;
 
-  constructor() {
-    this.openRouter = new OpenRouterService({
-      apiKey: openRouterApiKey,
-      siteUrl: 'https://it-is-nice-to-travel.com',
-      siteName: 'It Is Nice To Travel',
-      defaultModel: 'openai/gpt-4o-mini',
-      cacheOptions: {
-        enabled: false,
-        ttl: 3600,
-        maxSize: 100
+  constructor(
+    openRouterService?: OpenRouterService,
+    googlePlacesService?: GooglePlacesService
+  ) {
+    // Allow dependency injection for testing
+    if (openRouterService && googlePlacesService) {
+      this.openRouter = openRouterService;
+      this.googlePlaces = googlePlacesService;
+    } else {
+      // Production setup with environment validation
+      const openRouterApiKey = import.meta.env.OPENROUTER_API_KEY;
+      if (!openRouterApiKey) {
+        throw new Error('Missing OPENROUTER_API_KEY environment variable');
       }
-    });
-    this.googlePlaces = new GooglePlacesService();
+
+      this.openRouter = new OpenRouterService({
+        apiKey: openRouterApiKey,
+        siteUrl: 'https://it-is-nice-to-travel.com',
+        siteName: 'It Is Nice To Travel',
+        defaultModel: 'openai/gpt-4o-mini',
+        cacheOptions: {
+          enabled: false,
+          ttl: 3600,
+          maxSize: 100
+        }
+      });
+      this.googlePlaces = new GooglePlacesService();
+    }
   }
 
   async initializeGeneration(
@@ -306,7 +316,7 @@ You MUST respond with a valid JSON object in the following format:
         : response.choices[0].message.content;
 
       // Enrich content with real images
-      const enrichedContent = await this.enrichContentWithImages(content, 'Poland');
+      const enrichedContent = await this.enrichContentWithImages(content, '');
 
       // Clear the interval before updating the final status
       clearInterval(updateInterval);

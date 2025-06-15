@@ -3,6 +3,19 @@ import type { Mock } from 'vitest';
 
 // Mock factory for Supabase client
 export const createMockSupabaseClient = () => {
+  const queryBuilder = {
+    select: vi.fn().mockReturnThis(),
+    insert: vi.fn().mockReturnThis(),
+    update: vi.fn().mockReturnThis(),
+    delete: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+    order: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockReturnThis(),
+    single: vi.fn(),
+    maybeSingle: vi.fn(),
+    then: vi.fn(),
+  };
+
   return {
     auth: {
       signUp: vi.fn(),
@@ -12,17 +25,7 @@ export const createMockSupabaseClient = () => {
       getSession: vi.fn(),
       onAuthStateChange: vi.fn(),
     },
-    from: vi.fn(() => ({
-      select: vi.fn().mockReturnThis(),
-      insert: vi.fn().mockReturnThis(),
-      update: vi.fn().mockReturnThis(),
-      delete: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      order: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockReturnThis(),
-      single: vi.fn(),
-      then: vi.fn(),
-    })),
+    from: vi.fn(() => queryBuilder),
   };
 };
 
