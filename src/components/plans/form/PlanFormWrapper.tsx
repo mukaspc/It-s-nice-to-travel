@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
+import { z } from "zod";
 import { Button } from "../../ui/button";
 import { Form } from "../../ui/form";
 import { BasicInfoSection } from "./BasicInfoSection";
@@ -11,9 +12,11 @@ import { planFormSchema } from "./schema";
 import type { PlanDTO } from "../../../types";
 import { useToast } from "../../ui/use-toast";
 
+type PlanFormData = z.infer<typeof planFormSchema>;
+
 interface PlanFormWrapperProps {
   initialData?: PlanDTO;
-  onSubmit: (data: any) => Promise<{ success: boolean; error?: string }>;
+  onSubmit: (data: PlanFormData) => Promise<{ success: boolean; error?: string }>;
 }
 
 export function PlanFormWrapper({ initialData, onSubmit }: PlanFormWrapperProps) {
@@ -33,17 +36,15 @@ export function PlanFormWrapper({ initialData, onSubmit }: PlanFormWrapperProps)
     },
   });
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: PlanFormData) => {
     try {
       setIsSubmitting(true);
       const result = await onSubmit(data);
-      
+
       if (result.success) {
         toast({
           title: "Success",
-          description: initialData 
-            ? "Travel plan updated successfully" 
-            : "Travel plan created successfully",
+          description: initialData ? "Travel plan updated successfully" : "Travel plan created successfully",
         });
         navigate("/plans");
       } else {
@@ -54,6 +55,7 @@ export function PlanFormWrapper({ initialData, onSubmit }: PlanFormWrapperProps)
         });
       }
     } catch (error) {
+      console.error(error);
       toast({
         title: "Error",
         description: "An unexpected error occurred",
@@ -69,15 +71,16 @@ export function PlanFormWrapper({ initialData, onSubmit }: PlanFormWrapperProps)
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <BasicInfoSection form={form} />
         <TravelPreferencesSection form={form} />
-        <PlacesSection form={form} />
-        
+        {initialData && (
+          <PlacesSection 
+            planId={initialData.id} 
+            planStartDate={form.watch("start_date") || initialData.start_date}
+            planEndDate={form.watch("end_date") || initialData.end_date}
+          />
+        )}
+
         <div className="flex justify-end space-x-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => navigate("/plans")}
-            disabled={isSubmitting}
-          >
+          <Button type="button" variant="outline" onClick={() => navigate("/plans")} disabled={isSubmitting}>
             Cancel
           </Button>
           <Button type="submit" disabled={isSubmitting}>
@@ -86,12 +89,14 @@ export function PlanFormWrapper({ initialData, onSubmit }: PlanFormWrapperProps)
                 <span className="loading loading-spinner loading-sm mr-2"></span>
                 {initialData ? "Updating..." : "Creating..."}
               </>
+            ) : initialData ? (
+              "Update Plan"
             ) : (
-              initialData ? "Update Plan" : "Create Plan"
+              "Create Plan"
             )}
           </Button>
         </div>
       </form>
     </Form>
   );
-} 
+}

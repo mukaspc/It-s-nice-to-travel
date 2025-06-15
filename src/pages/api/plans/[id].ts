@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import type { PlanDTO } from "../../../types";
+import type { PlanDTO, PlaceDTO } from "../../../types";
 import { createSupabaseServerInstance } from "../../../db/supabase.client";
 import { getUserIdFromLocals } from "../../../utils/auth";
 
@@ -24,10 +24,10 @@ export const PUT: APIRoute = async ({ params, request, locals, cookies }) => {
     }
 
     const userId = getUserIdFromLocals(locals);
-    
+
     const supabaseClient = createSupabaseServerInstance({
       headers: request.headers,
-      cookies
+      cookies,
     });
 
     // Check if plan exists and belongs to user, and get current status
@@ -73,7 +73,7 @@ export const PUT: APIRoute = async ({ params, request, locals, cookies }) => {
       ...data,
       updated_at: new Date().toISOString(),
       // Change status to draft if plan was previously generated
-      status: existingPlan.status === "generated" ? "draft" : existingPlan.status
+      status: existingPlan.status === "generated" ? "draft" : existingPlan.status,
     };
 
     // Update plan
@@ -95,10 +95,7 @@ export const PUT: APIRoute = async ({ params, request, locals, cookies }) => {
 
     // If plan was generated, delete the generated AI plan
     if (existingPlan.status === "generated") {
-      const { error: deleteError } = await supabaseClient
-        .from("generated_ai_plans")
-        .delete()
-        .eq("plan_id", planId);
+      const { error: deleteError } = await supabaseClient.from("generated_ai_plans").delete().eq("plan_id", planId);
 
       if (deleteError) {
         console.error("Failed to delete generated AI plan:", deleteError);
@@ -130,20 +127,22 @@ export const GET: APIRoute = async ({ params, request, locals, cookies }) => {
     }
 
     const userId = getUserIdFromLocals(locals);
-    
+
     const supabaseClient = createSupabaseServerInstance({
       headers: request.headers,
-      cookies
+      cookies,
     });
 
     // 3. Fetch plan with places and check access
     const { data: plan, error } = await supabaseClient
       .from("generated_user_plans")
-      .select(`
+      .select(
+        `
         *,
         places(*),
         has_generated_plan:generated_ai_plans(id)
-      `)
+      `
+      )
       .eq("id", planId)
       .eq("user_id", userId)
       .single();
@@ -164,7 +163,7 @@ export const GET: APIRoute = async ({ params, request, locals, cookies }) => {
     }
 
     // Transform response to match API schema
-    const response: PlanDTO & { places: any[]; has_generated_plan: boolean } = {
+    const response: PlanDTO & { places: PlaceDTO[]; has_generated_plan: boolean } = {
       ...plan,
       has_generated_plan: Array.isArray(plan.has_generated_plan) && plan.has_generated_plan.length > 0,
     };
@@ -193,10 +192,10 @@ export const DELETE: APIRoute = async ({ params, request, locals, cookies }) => 
     }
 
     const userId = getUserIdFromLocals(locals);
-    
+
     const supabaseClient = createSupabaseServerInstance({
       headers: request.headers,
-      cookies
+      cookies,
     });
 
     // First check if the plan exists and belongs to the user
@@ -239,4 +238,4 @@ export const DELETE: APIRoute = async ({ params, request, locals, cookies }) => 
       headers: { "Content-Type": "application/json" },
     });
   }
-}; 
+};

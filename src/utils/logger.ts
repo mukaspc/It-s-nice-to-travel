@@ -1,4 +1,4 @@
-type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+type LogLevel = "debug" | "info" | "warn" | "error";
 
 interface LogMessage {
   level: LogLevel;
@@ -25,27 +25,27 @@ class Logger {
       level,
       message,
       timestamp: new Date().toISOString(),
-      context
+      context,
     };
   }
 
   private log(level: LogLevel, message: string, context?: Record<string, unknown>) {
     const formattedMessage = this.formatMessage(level, message, context);
-    
+
     if (this.isDevelopment) {
       // In development, log to console with colors
       const colorize = (msg: string, color: string) => `\x1b[${color}m${msg}\x1b[0m`;
       const colors = {
-        debug: '36', // cyan
-        info: '32',  // green
-        warn: '33',  // yellow
-        error: '31'  // red
+        debug: "36", // cyan
+        info: "32", // green
+        warn: "33", // yellow
+        error: "31", // red
       };
 
       console.log(
         colorize(`[${formattedMessage.timestamp}] ${level.toUpperCase()}:`, colors[level]),
         message,
-        context || ''
+        context || ""
       );
     } else {
       // In production, log structured JSON
@@ -54,20 +54,20 @@ class Logger {
   }
 
   debug(message: string, context?: Record<string, unknown>) {
-    this.log('debug', message, context);
+    this.log("debug", message, context);
   }
 
   info(message: string, context?: Record<string, unknown>) {
-    this.log('info', message, context);
+    this.log("info", message, context);
   }
 
   warn(message: string, context?: Record<string, unknown>) {
-    this.log('warn', message, context);
+    this.log("warn", message, context);
   }
 
   error(message: string, context?: Record<string, unknown>) {
-    this.log('error', message, context);
+    this.log("error", message, context);
   }
 }
 
-export const logger = Logger.getInstance(); 
+export const logger = Logger.getInstance();

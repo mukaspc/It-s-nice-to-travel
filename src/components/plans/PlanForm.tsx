@@ -44,9 +44,6 @@ export function PlanForm({ initialData, onSubmit, onCancel }: PlanFormProps) {
     try {
       setIsSubmitting(true);
       await onSubmit(data);
-    } catch (error) {
-      // Error will be handled by the parent component
-      throw error;
     } finally {
       setIsSubmitting(false);
     }
@@ -74,4 +71,4 @@ export function PlanForm({ initialData, onSubmit, onCancel }: PlanFormProps) {
       </div>
     </form>
   );
-} 
+}

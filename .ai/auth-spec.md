@@ -15,6 +15,7 @@ Moduł uwierzytelniania dla aplikacji "It's nice to travel" oparty jest na integ
 
 **Uwaga dotycząca pola potwierdzenia hasła w rejestracji:**
 PRD zawiera sprzeczne wymagania:
+
 - US-000 wymaga: "adres email, hasła i potwierdzenia hasła"
 - US-001 wymaga: "adres e-mail, hasło"
 - Sekcja 3.1 wymaga: "adres e-mail, hasła"
@@ -31,24 +32,28 @@ PRD nie wymaga weryfikacji emaila, ale Supabase domyślnie ją włącza. Dla MVP
 #### 2.1.1 Strony Astro (Server-Side)
 
 **src/pages/login.astro**
+
 - Odpowiedzialność: Renderowanie strony logowania po stronie serwera
 - Layout: Wykorzystuje `Layout.astro` z konfiguracją meta tagów SEO
 - Integracja: Ładuje React komponent przez `login.ts` script
 - Hydratacja: Client-side hydratacja komponentu `LoginForm`
 
 **src/pages/signup.astro**
+
 - Odpowiedzialność: Renderowanie strony rejestracji
 - Layout: Wspólny layout z meta tagami i konfiguracją
 - Integracja: Script `signup.ts` inicjalizuje React komponenty
 - Hydratacja: Komponent `SignupForm` z walidacją client-side
 
 **src/pages/password-reset.astro**
+
 - Odpowiedzialność: Strona odzyskiwania hasła (dwufunkcyjna)
 - Logika: Rozróżnia tryb żądania resetu od ustawiania nowego hasła
 - Token: Sprawdza parametr URL `?token=` dla trybu resetowania
 - Komponenty: `ForgotPasswordForm` lub `ResetPasswordForm`
 
 **src/pages/profile.astro** (nowa strona do implementacji)
+
 - Odpowiedzialność: Panel edycji profilu użytkownika
 - Ochrona: Wymaga uwierzytelnienia (middleware redirect)
 - Funkcje: Zmiana hasła, aktualizacja danych profilu
@@ -57,12 +62,14 @@ PRD nie wymaga weryfikacji emaila, ale Supabase domyślnie ją włącza. Dla MVP
 #### 2.1.2 Komponenty React (Client-Side)
 
 **src/components/auth/AuthLayout.tsx**
+
 - Odpowiedzialność: Wspólny layout dla wszystkich formularzy uwierzytelniania
 - Elementy: Logo, nagłówki, kontener formularza
 - Stylowanie: Tailwind z responsywnym designem
 - Props: `title`, `description`, `children`
 
 **src/components/auth/LoginForm.tsx**
+
 - Odpowiedzialność: Formularz logowania z walidacją
 - Pola: Email, hasło
 - Funkcje: "Zapomniałem hasła", opcja "Zapamiętaj mnie"
@@ -70,6 +77,7 @@ PRD nie wymaga weryfikacji emaila, ale Supabase domyślnie ją włącza. Dla MVP
 - Integracja: Supabase Auth przez `signInWithPassword`
 
 **src/components/auth/SignupForm.tsx**
+
 - Odpowiedzialność: Formularz rejestracji zgodny z US-001
 - Pola: Email, hasło (BEZ potwierdzenia hasła)
 - Walidacja: Format email, siła hasła (min 8 znaków, 1 duża litera, 1 cyfra)
@@ -77,6 +85,7 @@ PRD nie wymaga weryfikacji emaila, ale Supabase domyślnie ją włącza. Dla MVP
 - Integracja: Supabase Auth przez `signUp` bez wymagania weryfikacji emaila
 
 **src/components/auth/ForgotPasswordForm.tsx**
+
 - Odpowiedzialność: Formularz żądania resetu hasła
 - Pole: Email użytkownika
 - Funkcja: Wysłanie emaila z linkiem resetującym
@@ -84,6 +93,7 @@ PRD nie wymaga weryfikacji emaila, ale Supabase domyślnie ją włącza. Dla MVP
 - Integracja: `resetPasswordForEmail`
 
 **src/components/auth/ResetPasswordForm.tsx**
+
 - Odpowiedzialność: Formularz ustawiania nowego hasła
 - Pola: Nowe hasło, potwierdzenie (tutaj potwierdzenie jest uzasadnione)
 - Token: Ukryte pole z tokenem z URL
@@ -91,6 +101,7 @@ PRD nie wymaga weryfikacji emaila, ale Supabase domyślnie ją włącza. Dla MVP
 - Integracja: `updateUser` z token verification
 
 **src/components/auth/ProfileForm.tsx** (do implementacji)
+
 - Odpowiedzialność: Edycja profilu zalogowanego użytkownika
 - Pola: Stare hasło, nowe hasło, potwierdzenie nowego hasła
 - Funkcje: Walidacja obecnego hasła przed zmianą
@@ -100,17 +111,20 @@ PRD nie wymaga weryfikacji emaila, ale Supabase domyślnie ją włącza. Dla MVP
 ### 2.2 Wspólne komponenty pomocnicze
 
 **src/components/auth/FormField.tsx**
+
 - Odpowiedzialność: Uniwersalne pole formularza z walidacją
 - Typy: Text, email, password z różnymi wariantami
 - Stany: Error, success, loading, disabled
 - Accessibility: ARIA labels, proper focus management
 
 **src/components/auth/ErrorMessage.tsx**
+
 - Odpowiedzialność: Wyświetlanie komunikatów błędów
 - Stylowanie: Czerwone tło z ikoną ostrzeżenia
 - Animacje: Fade-in/out transitions
 
 **src/components/auth/SuccessMessage.tsx**
+
 - Odpowiedzialność: Komunikaty sukcesu operacji
 - Stylowanie: Zielone tło z ikoną potwierdzenia
 - Auto-hide: Automatyczne znikanie po określonym czasie
@@ -120,6 +134,7 @@ PRD nie wymaga weryfikacji emaila, ale Supabase domyślnie ją włącza. Dla MVP
 #### 2.3.1 Aktualizacja Header.tsx
 
 **Nowe stany nawigacji:**
+
 ```typescript
 interface HeaderAuthState {
   isLoading: boolean;
@@ -129,6 +144,7 @@ interface HeaderAuthState {
 ```
 
 **Warunki renderowania:**
+
 - `isLoading === true`: Skeleton loader w miejscu nawigacji
 - `isAuthenticated === false`: `UnauthenticatedNav` z przyciskami Login/Signup
 - `isAuthenticated === true`: `AuthenticatedNav` z dropdown użytkownika
@@ -136,6 +152,7 @@ interface HeaderAuthState {
 #### 2.3.2 Rozszerzenie UnauthenticatedNav.tsx
 
 **Nowe przyciski:**
+
 - Login Button: Przekierowanie do `/login`
 - Signup Button: Przekierowanie do `/signup`
 - Responsywność: Mobile-first design z collapsed menu
@@ -143,6 +160,7 @@ interface HeaderAuthState {
 #### 2.3.3 Aktualizacja AuthenticatedNav.tsx
 
 **UserDropdown komponenty:**
+
 - User avatar/ikona z inicjałami lub domyślną ikoną
 - Dropdown menu z opcjami:
   - "My plans" → `/plans` (jako "panel użytkownika")
@@ -153,51 +171,58 @@ interface HeaderAuthState {
 #### 2.4.1 Reguły walidacji
 
 **Walidacja email:**
+
 ```typescript
 email: (value: string): string | undefined => {
-  if (!value) return 'Email is required';
+  if (!value) return "Email is required";
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-    return 'Please enter a valid email address';
+    return "Please enter a valid email address";
   }
   return undefined;
-}
+};
 ```
 
 **Walidacja hasła:**
+
 ```typescript
 password: (value: string): string | undefined => {
-  if (!value) return 'Password is required';
-  if (value.length < 8) return 'Password must be at least 8 characters long';
-  if (!/(?=.*[A-Z])/.test(value)) return 'Password must contain at least one uppercase letter';
-  if (!/(?=.*\d)/.test(value)) return 'Password must contain at least one number';
+  if (!value) return "Password is required";
+  if (value.length < 8) return "Password must be at least 8 characters long";
+  if (!/(?=.*[A-Z])/.test(value)) return "Password must contain at least one uppercase letter";
+  if (!/(?=.*\d)/.test(value)) return "Password must contain at least one number";
   return undefined;
-}
+};
 ```
 
 #### 2.4.2 Scenariusze błędów
 
 **Logowanie:**
+
 - Nieprawidłowe dane: "Invalid email or password"
 - Brak konta: "No account found with this email address"
 - Rate limiting: "Too many attempts. Please try again in X minutes"
 
 **Rejestracja:**
+
 - Email zajęty: "An account with this email already exists"
 - Słabe hasło: Szczegółowe komunikaty o wymaganiach
 - Błąd rejestracji: "An error occurred while creating your account"
 
 **Reset hasła:**
+
 - Komunikat uniwersalny: "If an account exists, we'll send password reset instructions"
 - Token expired: "Password reset link has expired. Please request a new one"
 - Token invalid: "Invalid password reset link"
 
 **Edycja profilu:**
+
 - Błędne stare hasło: "Current password is incorrect"
 - Sukces: "Profile updated successfully"
 
 ### 2.5 Obsługa stanów ładowania i loading states
 
 **Loading patterns:**
+
 - Formularz: Przyciski z spinner icon i disabled state
 - Nawigacja: Skeleton loader podczas sprawdzania auth
 - Przekierowania: Loading screen z progress indicator
@@ -212,6 +237,7 @@ password: (value: string): string | undefined => {
 **Endpoint:** `POST /api/auth/login`
 **Odpowiedzialność:** Logowanie użytkownika przez Supabase Auth
 **Request Body:**
+
 ```typescript
 interface LoginRequest {
   email: string;
@@ -221,6 +247,7 @@ interface LoginRequest {
 ```
 
 **Response:**
+
 ```typescript
 interface LoginResponse {
   success: boolean;
@@ -231,23 +258,24 @@ interface LoginResponse {
 ```
 
 **Implementacja:**
+
 ```typescript
 export const POST: APIRoute = async ({ request }) => {
   const { email, password, rememberMe } = await request.json();
-  
+
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
-  
+
   if (error) return errorResponse(error);
-  
+
   // Set session cookie for SSR (jeśli rememberMe)
   const response = successResponse(data);
   if (rememberMe) {
-    response.headers.set('Set-Cookie', sessionCookie(data.session));
+    response.headers.set("Set-Cookie", sessionCookie(data.session));
   }
-  
+
   return response;
 };
 ```
@@ -257,6 +285,7 @@ export const POST: APIRoute = async ({ request }) => {
 **Endpoint:** `POST /api/auth/signup`
 **Odpowiedzialność:** Rejestracja nowego użytkownika
 **Request Body:**
+
 ```typescript
 interface SignupRequest {
   email: string;
@@ -265,6 +294,7 @@ interface SignupRequest {
 ```
 
 **Response:**
+
 ```typescript
 interface SignupResponse {
   success: boolean;
@@ -275,24 +305,25 @@ interface SignupResponse {
 ```
 
 **Implementacja:**
+
 ```typescript
 export const POST: APIRoute = async ({ request }) => {
   const { email, password } = await request.json();
-  
+
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       // Wyłączamy weryfikację emaila dla MVP
       emailRedirectTo: undefined,
-    }
+    },
   });
-  
+
   if (error) return errorResponse(error);
-  
+
   return successResponse({
     user: data.user,
-    message: 'Account created successfully'
+    message: "Account created successfully",
   });
 };
 ```
@@ -302,6 +333,7 @@ export const POST: APIRoute = async ({ request }) => {
 **Endpoint:** `POST /api/auth/forgot-password`
 **Odpowiedzialność:** Wysłanie emaila z linkiem do resetu hasła
 **Request Body:**
+
 ```typescript
 interface ForgotPasswordRequest {
   email: string;
@@ -309,17 +341,18 @@ interface ForgotPasswordRequest {
 ```
 
 **Implementacja:**
+
 ```typescript
 export const POST: APIRoute = async ({ request }) => {
   const { email } = await request.json();
-  
+
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${Astro.url.origin}/password-reset`,
   });
-  
+
   // Security: zawsze zwracamy sukces, niezależnie czy email istnieje
-  return successResponse({ 
-    message: 'If an account exists, we\'ll send password reset instructions' 
+  return successResponse({
+    message: "If an account exists, we'll send password reset instructions",
   });
 };
 ```
@@ -329,6 +362,7 @@ export const POST: APIRoute = async ({ request }) => {
 **Endpoint:** `POST /api/auth/reset-password`
 **Odpowiedzialność:** Ustawienie nowego hasła z tokenem
 **Request Body:**
+
 ```typescript
 interface ResetPasswordRequest {
   token: string;
@@ -337,19 +371,20 @@ interface ResetPasswordRequest {
 ```
 
 **Implementacja:**
+
 ```typescript
 export const POST: APIRoute = async ({ request }) => {
   const { token, password } = await request.json();
-  
+
   // Verify token and set new password
   const { data, error } = await supabase.auth.updateUser({
-    password: password
+    password: password,
   });
-  
+
   if (error) return errorResponse(error);
-  
+
   return successResponse({
-    message: 'Password reset successfully'
+    message: "Password reset successfully",
   });
 };
 ```
@@ -359,15 +394,16 @@ export const POST: APIRoute = async ({ request }) => {
 **Endpoint:** `POST /api/auth/logout`
 **Odpowiedzialność:** Wylogowanie użytkownika
 **Implementacja:**
+
 ```typescript
 export const POST: APIRoute = async ({ request, locals }) => {
   const { error } = await locals.supabase.auth.signOut();
-  
+
   if (error) return errorResponse(error);
-  
-  const response = successResponse({ message: 'Logged out successfully' });
-  response.headers.set('Set-Cookie', 'session=; Max-Age=0; Path=/');
-  
+
+  const response = successResponse({ message: "Logged out successfully" });
+  response.headers.set("Set-Cookie", "session=; Max-Age=0; Path=/");
+
   return response;
 };
 ```
@@ -377,6 +413,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 **Endpoint:** `PUT /api/auth/profile`
 **Odpowiedzialność:** Aktualizacja profilu użytkownika
 **Request Body:**
+
 ```typescript
 interface UpdateProfileRequest {
   currentPassword: string;
@@ -385,32 +422,33 @@ interface UpdateProfileRequest {
 ```
 
 **Implementacja:**
+
 ```typescript
 export const PUT: APIRoute = async ({ request, locals }) => {
   const { currentPassword, newPassword } = await request.json();
-  
+
   // Verify current password
   const user = await requireAuth(request);
   const { error: verifyError } = await locals.supabase.auth.signInWithPassword({
     email: user.email,
-    password: currentPassword
+    password: currentPassword,
   });
-  
+
   if (verifyError) {
-    return errorResponse('Current password is incorrect');
+    return errorResponse("Current password is incorrect");
   }
-  
+
   // Update password if provided
   if (newPassword) {
     const { error } = await locals.supabase.auth.updateUser({
-      password: newPassword
+      password: newPassword,
     });
-    
+
     if (error) return errorResponse(error);
   }
-  
+
   return successResponse({
-    message: 'Profile updated successfully'
+    message: "Profile updated successfully",
   });
 };
 ```
@@ -420,38 +458,42 @@ export const PUT: APIRoute = async ({ request, locals }) => {
 #### 3.2.1 Aktualizacja src/middleware/index.ts
 
 **Nowe funkcjonalności:**
+
 ```typescript
 export const onRequest = defineMiddleware(async (context, next) => {
   const supabase = createClient(supabaseUrl, supabaseKey);
   context.locals.supabase = supabase;
-  
+
   // Get session from cookie or Authorization header
   const sessionToken = getSessionToken(context.request);
-  
+
   if (sessionToken) {
-    const { data: { user }, error } = await supabase.auth.getUser(sessionToken);
-    
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser(sessionToken);
+
     if (!error && user) {
       context.locals.user = {
         id: user.id,
         email: user.email!,
-        createdAt: user.created_at
+        createdAt: user.created_at,
       };
     }
   }
-  
+
   // Check if route requires authentication
   if (isProtectedRoute(context.url.pathname)) {
     if (!context.locals.user) {
-      return context.redirect('/login?redirect=' + encodeURIComponent(context.url.pathname));
+      return context.redirect("/login?redirect=" + encodeURIComponent(context.url.pathname));
     }
   }
-  
+
   // Check if authenticated user accesses auth pages
   if (isAuthRoute(context.url.pathname) && context.locals.user) {
-    return context.redirect('/plans');
+    return context.redirect("/plans");
   }
-  
+
   return next();
 });
 ```
@@ -459,33 +501,37 @@ export const onRequest = defineMiddleware(async (context, next) => {
 #### 3.2.2 Utilities dla middleware
 
 **src/utils/auth.ts:**
+
 ```typescript
 export async function getUserIdFromRequest(request: Request): Promise<string> {
-  const authHeader = request.headers.get('Authorization');
-  const sessionCookie = getCookie(request, 'session');
-  
-  const token = authHeader?.replace('Bearer ', '') || sessionCookie;
-  
+  const authHeader = request.headers.get("Authorization");
+  const sessionCookie = getCookie(request, "session");
+
+  const token = authHeader?.replace("Bearer ", "") || sessionCookie;
+
   if (!token) {
-    throw new UnauthorizedError('Token not provided');
+    throw new UnauthorizedError("Token not provided");
   }
-  
-  const { data: { user }, error } = await supabase.auth.getUser(token);
-  
+
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser(token);
+
   if (error || !user) {
-    throw new UnauthorizedError('Invalid token');
+    throw new UnauthorizedError("Invalid token");
   }
-  
+
   return user.id;
 }
 
 export function isProtectedRoute(pathname: string): boolean {
-  const protectedRoutes = ['/plans', '/profile', '/api/plans', '/api/user'];
-  return protectedRoutes.some(route => pathname.startsWith(route));
+  const protectedRoutes = ["/plans", "/profile", "/api/plans", "/api/user"];
+  return protectedRoutes.some((route) => pathname.startsWith(route));
 }
 
 export function isAuthRoute(pathname: string): boolean {
-  const authRoutes = ['/login', '/signup', '/password-reset'];
+  const authRoutes = ["/login", "/signup", "/password-reset"];
   return authRoutes.includes(pathname);
 }
 ```
@@ -495,42 +541,46 @@ export function isAuthRoute(pathname: string): boolean {
 #### 3.3.1 Zod schemas
 
 **src/schemas/auth.ts:**
+
 ```typescript
-import { z } from 'zod';
+import { z } from "zod";
 
 export const LoginSchema = z.object({
-  email: z.string().email('Invalid email format'),
-  password: z.string().min(1, 'Password is required'),
-  rememberMe: z.boolean().optional()
+  email: z.string().email("Invalid email format"),
+  password: z.string().min(1, "Password is required"),
+  rememberMe: z.boolean().optional(),
 });
 
 export const SignupSchema = z.object({
-  email: z.string().email('Invalid email format'),
-  password: z.string()
-    .min(8, 'Password must be at least 8 characters long')
-    .regex(/(?=.*[A-Z])/, 'Password must contain at least one uppercase letter')
-    .regex(/(?=.*\d)/, 'Password must contain at least one number')
+  email: z.string().email("Invalid email format"),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters long")
+    .regex(/(?=.*[A-Z])/, "Password must contain at least one uppercase letter")
+    .regex(/(?=.*\d)/, "Password must contain at least one number"),
 });
 
 export const ForgotPasswordSchema = z.object({
-  email: z.string().email('Invalid email format')
+  email: z.string().email("Invalid email format"),
 });
 
 export const ResetPasswordSchema = z.object({
-  token: z.string().min(1, 'Token is required'),
-  password: z.string()
-    .min(8, 'Password must be at least 8 characters long')
-    .regex(/(?=.*[A-Z])/, 'Password must contain at least one uppercase letter')
-    .regex(/(?=.*\d)/, 'Password must contain at least one number')
+  token: z.string().min(1, "Token is required"),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters long")
+    .regex(/(?=.*[A-Z])/, "Password must contain at least one uppercase letter")
+    .regex(/(?=.*\d)/, "Password must contain at least one number"),
 });
 
 export const UpdateProfileSchema = z.object({
-  currentPassword: z.string().min(1, 'Current password is required'),
-  newPassword: z.string()
-    .min(8, 'Password must be at least 8 characters long')
-    .regex(/(?=.*[A-Z])/, 'Password must contain at least one uppercase letter')
-    .regex(/(?=.*\d)/, 'Password must contain at least one number')
-    .optional()
+  currentPassword: z.string().min(1, "Current password is required"),
+  newPassword: z
+    .string()
+    .min(8, "Password must be at least 8 characters long")
+    .regex(/(?=.*[A-Z])/, "Password must contain at least one uppercase letter")
+    .regex(/(?=.*\d)/, "Password must contain at least one number")
+    .optional(),
 });
 ```
 
@@ -539,25 +589,26 @@ export const UpdateProfileSchema = z.object({
 #### 3.4.1 Rozszerzenie src/utils/errors.ts
 
 **Nowe klasy błędów:**
+
 ```typescript
 export class UnauthorizedError extends Error {
-  constructor(message: string = 'Unauthorized') {
+  constructor(message: string = "Unauthorized") {
     super(message);
-    this.name = 'UnauthorizedError';
+    this.name = "UnauthorizedError";
   }
 }
 
 export class AuthenticationError extends Error {
-  constructor(message: string = 'Authentication failed') {
+  constructor(message: string = "Authentication failed") {
     super(message);
-    this.name = 'AuthenticationError';
+    this.name = "AuthenticationError";
   }
 }
 
 export class ValidationError extends Error {
-  constructor(message: string = 'Validation failed') {
+  constructor(message: string = "Validation failed") {
     super(message);
-    this.name = 'ValidationError';
+    this.name = "ValidationError";
   }
 }
 ```
@@ -565,42 +616,55 @@ export class ValidationError extends Error {
 #### 3.4.2 Error handling w endpointach
 
 **Wspólna funkcja obsługi błędów:**
+
 ```typescript
 export function handleAuthError(error: unknown): Response {
   if (error instanceof z.ZodError) {
-    return new Response(JSON.stringify({
-      error: 'Form data is invalid',
-      details: error.errors
-    }), { status: 400 });
+    return new Response(
+      JSON.stringify({
+        error: "Form data is invalid",
+        details: error.errors,
+      }),
+      { status: 400 }
+    );
   }
-  
+
   if (error instanceof UnauthorizedError) {
-    return new Response(JSON.stringify({
-      error: error.message
-    }), { status: 401 });
+    return new Response(
+      JSON.stringify({
+        error: error.message,
+      }),
+      { status: 401 }
+    );
   }
-  
+
   // Supabase Auth errors mapping
-  if (error && typeof error === 'object' && 'message' in error) {
-    return new Response(JSON.stringify({
-      error: mapSupabaseError(error.message as string)
-    }), { status: 400 });
+  if (error && typeof error === "object" && "message" in error) {
+    return new Response(
+      JSON.stringify({
+        error: mapSupabaseError(error.message as string),
+      }),
+      { status: 400 }
+    );
   }
-  
-  return new Response(JSON.stringify({
-    error: 'An unexpected error occurred'
-  }), { status: 500 });
+
+  return new Response(
+    JSON.stringify({
+      error: "An unexpected error occurred",
+    }),
+    { status: 500 }
+  );
 }
 
 function mapSupabaseError(message: string): string {
-  if (message.includes('Invalid login credentials')) {
-    return 'Invalid email or password';
+  if (message.includes("Invalid login credentials")) {
+    return "Invalid email or password";
   }
-  if (message.includes('User already registered')) {
-    return 'An account with this email already exists';
+  if (message.includes("User already registered")) {
+    return "An account with this email already exists";
   }
-  if (message.includes('Password should be at least')) {
-    return 'Password does not meet security requirements';
+  if (message.includes("Password should be at least")) {
+    return "Password does not meet security requirements";
   }
   return message;
 }
@@ -613,9 +677,10 @@ function mapSupabaseError(message: string): string {
 #### 4.1.1 Konfiguracja klienta
 
 **src/lib/supabase.ts:**
+
 ```typescript
-import { createClient } from '@supabase/supabase-js';
-import type { Database } from '../db/database.types';
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "../db/database.types";
 
 const supabaseUrl = import.meta.env.SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.SUPABASE_KEY;
@@ -625,98 +690,98 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
-    flowType: 'pkce'
-  }
+    flowType: "pkce",
+  },
 });
 
 // Client-side auth helper
 export const supabaseAuth = {
-  signIn: (email: string, password: string) => 
-    supabase.auth.signInWithPassword({ email, password }),
-  
+  signIn: (email: string, password: string) => supabase.auth.signInWithPassword({ email, password }),
+
   signUp: (email: string, password: string) =>
-    supabase.auth.signUp({ 
-      email, 
+    supabase.auth.signUp({
+      email,
       password,
       options: {
-        emailRedirectTo: undefined // Wyłączamy weryfikację dla MVP
-      }
+        emailRedirectTo: undefined, // Wyłączamy weryfikację dla MVP
+      },
     }),
-  
+
   signOut: () => supabase.auth.signOut(),
-  
-  resetPassword: (email: string) =>
-    supabase.auth.resetPasswordForEmail(email),
-  
-  updatePassword: (password: string) =>
-    supabase.auth.updateUser({ password }),
-  
+
+  resetPassword: (email: string) => supabase.auth.resetPasswordForEmail(email),
+
+  updatePassword: (password: string) => supabase.auth.updateUser({ password }),
+
   getSession: () => supabase.auth.getSession(),
-  
-  getUser: () => supabase.auth.getUser()
+
+  getUser: () => supabase.auth.getUser(),
 };
 ```
 
 #### 4.1.2 Hook uwierzytelniania
 
 **src/hooks/useAuth.ts:**
+
 ```typescript
-import { useState, useEffect } from 'react';
-import { supabaseAuth } from '../lib/supabase';
-import type { AuthState, User } from '../types/auth';
+import { useState, useEffect } from "react";
+import { supabaseAuth } from "../lib/supabase";
+import type { AuthState, User } from "../types/auth";
 
 export const useAuth = () => {
   const [authState, setAuthState] = useState<AuthState>({
     isAuthenticated: false,
     isLoading: true,
     user: undefined,
-    error: undefined
+    error: undefined,
   });
 
   useEffect(() => {
     // Check initial session
     checkSession();
-    
+
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (event === 'SIGNED_IN' && session) {
-          setAuthState({
-            isAuthenticated: true,
-            isLoading: false,
-            user: mapSupabaseUser(session.user),
-            error: undefined
-          });
-        } else if (event === 'SIGNED_OUT') {
-          setAuthState({
-            isAuthenticated: false,
-            isLoading: false,
-            user: undefined,
-            error: undefined
-          });
-        }
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_IN" && session) {
+        setAuthState({
+          isAuthenticated: true,
+          isLoading: false,
+          user: mapSupabaseUser(session.user),
+          error: undefined,
+        });
+      } else if (event === "SIGNED_OUT") {
+        setAuthState({
+          isAuthenticated: false,
+          isLoading: false,
+          user: undefined,
+          error: undefined,
+        });
       }
-    );
+    });
 
     return () => subscription.unsubscribe();
   }, []);
 
   const checkSession = async () => {
     try {
-      const { data: { session } } = await supabaseAuth.getSession();
-      
+      const {
+        data: { session },
+      } = await supabaseAuth.getSession();
+
       setAuthState({
         isAuthenticated: !!session,
         isLoading: false,
         user: session ? mapSupabaseUser(session.user) : undefined,
-        error: undefined
+        error: undefined,
       });
     } catch (error) {
       setAuthState({
         isAuthenticated: false,
         isLoading: false,
         user: undefined,
-        error: 'Error checking session'
+        error: "Error checking session",
       });
     }
   };
@@ -743,7 +808,7 @@ export const useAuth = () => {
     signIn,
     signUp,
     signOut,
-    checkSession
+    checkSession,
   };
 };
 ```
@@ -753,27 +818,31 @@ export const useAuth = () => {
 #### 4.2.1 Cookie management
 
 **src/utils/cookies.ts:**
+
 ```typescript
 export function setSessionCookie(response: Response, session: Session) {
   const cookie = `session=${session.access_token}; HttpOnly; Secure; SameSite=Lax; Max-Age=${session.expires_in}; Path=/`;
-  response.headers.set('Set-Cookie', cookie);
+  response.headers.set("Set-Cookie", cookie);
 }
 
 export function clearSessionCookie(response: Response) {
-  const cookie = 'session=; HttpOnly; Secure; SameSite=Lax; Max-Age=0; Path=/';
-  response.headers.set('Set-Cookie', cookie);
+  const cookie = "session=; HttpOnly; Secure; SameSite=Lax; Max-Age=0; Path=/";
+  response.headers.set("Set-Cookie", cookie);
 }
 
 export function getSessionFromCookie(request: Request): string | null {
-  const cookieHeader = request.headers.get('Cookie');
+  const cookieHeader = request.headers.get("Cookie");
   if (!cookieHeader) return null;
-  
-  const cookies = cookieHeader.split(';').reduce((acc, cookie) => {
-    const [key, value] = cookie.trim().split('=');
-    acc[key] = value;
-    return acc;
-  }, {} as Record<string, string>);
-  
+
+  const cookies = cookieHeader.split(";").reduce(
+    (acc, cookie) => {
+      const [key, value] = cookie.trim().split("=");
+      acc[key] = value;
+      return acc;
+    },
+    {} as Record<string, string>
+  );
+
   return cookies.session || null;
 }
 ```
@@ -781,28 +850,26 @@ export function getSessionFromCookie(request: Request): string | null {
 #### 4.2.2 Token refresh mechanism
 
 **src/utils/auth-refresh.ts:**
+
 ```typescript
-export async function refreshTokenIfNeeded(
-  session: Session,
-  supabase: SupabaseClient
-): Promise<Session | null> {
+export async function refreshTokenIfNeeded(session: Session, supabase: SupabaseClient): Promise<Session | null> {
   const now = Math.floor(Date.now() / 1000);
   const expiresAt = session.expires_at || 0;
-  
+
   // Refresh token 5 minutes before expiry
   if (expiresAt - now < 300) {
     const { data, error } = await supabase.auth.refreshSession({
-      refresh_token: session.refresh_token
+      refresh_token: session.refresh_token,
     });
-    
+
     if (error) {
-      console.error('Token refresh failed:', error);
+      console.error("Token refresh failed:", error);
       return null;
     }
-    
+
     return data.session;
   }
-  
+
   return session;
 }
 ```
@@ -812,28 +879,29 @@ export async function refreshTokenIfNeeded(
 #### 4.3.1 Auth callback handler
 
 **src/pages/auth/callback.astro:**
+
 ```astro
 ---
 const { searchParams } = Astro.url;
-const error = searchParams.get('error');
-const type = searchParams.get('type');
+const error = searchParams.get("error");
+const type = searchParams.get("type");
 
 if (error) {
   return Astro.redirect(`/login?error=${encodeURIComponent(error)}`);
 }
 
-if (type === 'recovery') {
+if (type === "recovery") {
   // Password reset callback
-  const accessToken = searchParams.get('access_token');
-  const refreshToken = searchParams.get('refresh_token');
-  
+  const accessToken = searchParams.get("access_token");
+  const refreshToken = searchParams.get("refresh_token");
+
   if (accessToken && refreshToken) {
     return Astro.redirect(`/password-reset?access_token=${accessToken}&refresh_token=${refreshToken}`);
   }
 }
 
 // Default redirect to plans
-return Astro.redirect('/plans');
+return Astro.redirect("/plans");
 ---
 ```
 
@@ -842,17 +910,18 @@ return Astro.redirect('/plans');
 #### 4.4.1 Route protection middleware
 
 **src/middleware/auth-guard.ts:**
+
 ```typescript
-import { defineMiddleware } from 'astro:middleware';
+import { defineMiddleware } from "astro:middleware";
 
 export const authGuard = defineMiddleware(async (context, next) => {
   const pathname = context.url.pathname;
-  
+
   // Skip auth check for public routes
   if (isPublicRoute(pathname)) {
     return next();
   }
-  
+
   // Check authentication for protected routes
   if (isProtectedRoute(pathname)) {
     if (!context.locals.user) {
@@ -860,27 +929,27 @@ export const authGuard = defineMiddleware(async (context, next) => {
       return context.redirect(loginUrl);
     }
   }
-  
+
   // Redirect authenticated users from auth pages
   if (isAuthRoute(pathname) && context.locals.user) {
-    return context.redirect('/plans');
+    return context.redirect("/plans");
   }
-  
+
   return next();
 });
 
 function isPublicRoute(pathname: string): boolean {
-  const publicRoutes = ['/', '/about', '/api/health'];
+  const publicRoutes = ["/", "/about", "/api/health"];
   return publicRoutes.includes(pathname);
 }
 
 function isProtectedRoute(pathname: string): boolean {
-  const protectedRoutes = ['/plans', '/profile', '/api/plans', '/api/user'];
-  return protectedRoutes.some(route => pathname.startsWith(route));
+  const protectedRoutes = ["/plans", "/profile", "/api/plans", "/api/user"];
+  return protectedRoutes.some((route) => pathname.startsWith(route));
 }
 
 function isAuthRoute(pathname: string): boolean {
-  const authRoutes = ['/login', '/signup', '/password-reset'];
+  const authRoutes = ["/login", "/signup", "/password-reset"];
   return authRoutes.includes(pathname);
 }
 ```
@@ -888,15 +957,16 @@ function isAuthRoute(pathname: string): boolean {
 #### 4.4.2 API route protection
 
 **Wspólna funkcja dla API endpoints:**
+
 ```typescript
 export async function requireAuth(request: Request): Promise<User> {
   const userId = await getUserIdFromRequest(request);
-  
+
   if (!userId) {
-    throw new UnauthorizedError('Authentication required');
+    throw new UnauthorizedError("Authentication required");
   }
-  
-  return { id: userId, email: '' }; // Basic user info
+
+  return { id: userId, email: "" }; // Basic user info
 }
 ```
 
@@ -905,13 +975,16 @@ export async function requireAuth(request: Request): Promise<User> {
 #### 4.5.1 Ustawienia projektu Supabase
 
 **Wyłączenie weryfikacji emaila:**
+
 - W panelu Supabase: Authentication → Settings → Email Auth → Disable "Confirm email"
 
 **Redirect URLs:**
+
 - Development: `http://localhost:3000/auth/callback`
 - Production: `https://yourdomain.com/auth/callback`
 
 **Email templates:**
+
 - Password reset: Przekierowanie do `/password-reset?access_token={access_token}&refresh_token={refresh_token}`
 
 **RLS Policies:**
@@ -920,6 +993,7 @@ Wszystkie tabele z danymi użytkowników muszą mieć włączone Row Level Secur
 #### 4.5.2 Environment variables
 
 **Wymagane zmienne środowiskowe:**
+
 ```env
 SUPABASE_URL=your_supabase_url
 SUPABASE_KEY=your_supabase_anon_key
@@ -995,6 +1069,7 @@ SUPABASE_KEY=your_supabase_anon_key
 ### 6.2 Supabase RLS
 
 Wszystkie tabele aplikacji mają włączone Row Level Security z politykami:
+
 - Użytkownicy widzą tylko swoje dane
 - Operacje CRUD tylko na własnych zasobach
 
@@ -1010,6 +1085,7 @@ Wszystkie tabele aplikacji mają włączone Row Level Security z politykami:
 ### 7.1 Testy zgodności z User Stories
 
 **US-001 - Rejestracja:**
+
 - Formularz zawiera pola email i hasło (bez potwierdzenia)
 - Walidacja formatu email
 - Walidacja hasła (8+ znaków, 1 duża litera, 1 cyfra)
@@ -1018,6 +1094,7 @@ Wszystkie tabele aplikacji mają włączone Row Level Security z politykami:
 - Komunikat błędu gdy email zajęty
 
 **US-002 - Logowanie:**
+
 - Formularz zawiera pola email i hasło
 - Przycisk "Forgot password"
 - Komunikat błędu przy nieprawidłowych danych
@@ -1025,6 +1102,7 @@ Wszystkie tabele aplikacji mają włączone Row Level Security z politykami:
 - Opcja "Remember me"
 
 **US-003 - Reset hasła:**
+
 - Formularz z polem email
 - Wysłanie emaila z linkiem
 - Link prowadzi do formularza nowego hasła
@@ -1032,6 +1110,7 @@ Wszystkie tabele aplikacji mają włączone Row Level Security z politykami:
 - Możliwość logowania nowym hasłem
 
 **US-004 - Edycja profilu:**
+
 - Możliwość zmiany hasła z podaniem starego
 - Przycisk zapisania zmian
 - Komunikat o pomyślnej aktualizacji
@@ -1076,4 +1155,4 @@ Wszystkie tabele aplikacji mają włączone Row Level Security z politykami:
 - ✅ Nawigacja w prawym górnym rogu
 - ✅ Brak zewnętrznych serwisów logowania
 
-Ten dokument stanowi zaktualizowaną specyfikację techniczną implementacji modułu uwierzytelniania w pełnej zgodności z wymaganiami PRD i najlepszymi praktykami bezpieczeństwa dla aplikacji Astro z Supabase Auth. 
+Ten dokument stanowi zaktualizowaną specyfikację techniczną implementacji modułu uwierzytelniania w pełnej zgodności z wymaganiami PRD i najlepszymi praktykami bezpieczeństwa dla aplikacji Astro z Supabase Auth.

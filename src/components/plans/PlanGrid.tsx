@@ -14,7 +14,17 @@ interface PlanGridProps {
   onEditWithConfirm?: (id: string) => void;
 }
 
-export function PlanGrid({ plans, isLoading, error, onEdit, onDelete, onGenerate, onExplore, onRetry, onEditWithConfirm }: PlanGridProps) {
+export function PlanGrid({
+  plans,
+  isLoading,
+  error,
+  onEdit,
+  onDelete,
+  onGenerate,
+  onExplore,
+  onRetry,
+  onEditWithConfirm,
+}: PlanGridProps) {
   if (error) {
     return (
       <div className="text-center py-8">

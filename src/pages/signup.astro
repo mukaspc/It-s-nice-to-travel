@@ -1,18 +1,20 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import { getSupabaseConfig } from '../db/supabase.client';
+import Layout from "../layouts/Layout.astro";
+import { getSupabaseConfig } from "../db/supabase.client";
 
 // Pobierz konfigurację Supabase
 const supabaseConfig = getSupabaseConfig();
 ---
 
 <Layout title="Sign Up - It's nice to travel">
-  <div 
-    id="signup-page" 
+  <div
+    id="signup-page"
     data-page-type="signup"
     data-supabase-url={supabaseConfig?.supabaseUrl}
     data-supabase-key={supabaseConfig?.supabaseKey}
-  ></div>
-  
+  >
+  </div>
+
   <script src="../scripts/signup.ts"></script>
-</Layout> 
+</Layout>
+

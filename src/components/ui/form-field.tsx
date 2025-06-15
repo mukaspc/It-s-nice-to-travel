@@ -3,8 +3,8 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "./form
 import { Input } from "./input";
 import { Textarea } from "./textarea";
 
-interface FormFieldProps {
-  form: UseFormReturn<any>;
+interface FormFieldProps<T extends Record<string, unknown> = Record<string, unknown>> {
+  form: UseFormReturn<T>;
   name: string;
   label: string;
   type?: "text" | "number" | "date" | "textarea";
@@ -14,7 +14,7 @@ interface FormFieldProps {
   max?: number;
 }
 
-export function FormFieldComponent({
+export function FormFieldComponent<T extends Record<string, unknown> = Record<string, unknown>>({
   form,
   name,
   label,
@@ -23,7 +23,7 @@ export function FormFieldComponent({
   className,
   min,
   max,
-}: FormFieldProps) {
+}: FormFieldProps<T>) {
   return (
     <FormField
       control={form.control}
@@ -57,4 +57,4 @@ export function FormFieldComponent({
       )}
     />
   );
-} 
+}

@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Progress } from '../ui/progress';
-import { Button } from '../ui/button';
-import { ArrowLeft, Timer, Loader2, AlertTriangle } from 'lucide-react';
-import { useNavigation } from '../../hooks/useNavigation';
-import type { GeneratePlanResponseDTO, GeneratedPlanStatusDTO, PlanDetailDTO } from '../../types';
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Progress } from "../ui/progress";
+import { Button } from "../ui/button";
+import { ArrowLeft, Timer, Loader2, AlertTriangle } from "lucide-react";
+import { useNavigation } from "../../hooks/useNavigation";
+import type { GeneratePlanResponseDTO, GeneratedPlanStatusDTO, PlanDetailDTO } from "../../types";
 
 interface GenerationProgressProps {
   planId: string;
@@ -15,7 +15,7 @@ export function GenerationProgress({ planId }: GenerationProgressProps) {
   const [error, setError] = useState<string | null>(null);
   const [estimatedTime, setEstimatedTime] = useState<number | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [status, setStatus] = useState<'processing' | 'completed' | 'failed' | null>(null);
+  const [status, setStatus] = useState<"processing" | "completed" | "failed" | null>(null);
   const { navigateToPlans } = useNavigation();
 
   useEffect(() => {
@@ -23,35 +23,37 @@ export function GenerationProgress({ planId }: GenerationProgressProps) {
       try {
         // First, validate that the plan has places
         const planResponse = await fetch(`/api/plans/${planId}`);
-        
+
         if (!planResponse.ok) {
           const errorData = await planResponse.json();
-          throw new Error(errorData.error || 'Failed to fetch plan details');
+          throw new Error(errorData.error || "Failed to fetch plan details");
         }
 
         const planData: PlanDetailDTO = await planResponse.json();
-        
+
         // Check if plan has places
         if (!planData.places || planData.places.length === 0) {
-          setError('Cannot generate plan: No places have been added to this travel plan. Please add at least one place before generating your itinerary.');
+          setError(
+            "Cannot generate plan: No places have been added to this travel plan. Please add at least one place before generating your itinerary."
+          );
           return;
         }
 
         // If validation passes, start the generation
         const response = await fetch(`/api/plans/${planId}/generate`, {
-          method: 'POST',
+          method: "POST",
         });
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to start generation');
+          throw new Error(errorData.error || "Failed to start generation");
         }
 
         const data: GeneratePlanResponseDTO = await response.json();
         setEstimatedTime(data.estimated_time);
         setIsGenerating(true);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+        setError(err instanceof Error ? err.message : "An unexpected error occurred");
       }
     };
 
@@ -64,7 +66,7 @@ export function GenerationProgress({ planId }: GenerationProgressProps) {
     const checkStatus = async () => {
       try {
         const response = await fetch(`/api/plans/${planId}/generate/status`);
-        
+
         if (response.status === 404) {
           // Generation not started yet or no status available
           return false;
@@ -72,17 +74,17 @@ export function GenerationProgress({ planId }: GenerationProgressProps) {
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to check generation status');
+          throw new Error(errorData.error || "Failed to check generation status");
         }
 
         const statusData: GeneratedPlanStatusDTO = await response.json();
-        
+
         setProgress(statusData.progress);
         setEstimatedTime(statusData.estimated_time_remaining);
         setStatus(statusData.status);
 
         // If generation is completed, redirect to view page
-        if (statusData.status === 'completed') {
+        if (statusData.status === "completed") {
           setTimeout(() => {
             window.location.href = `/plans/${planId}/view`;
           }, 1000);
@@ -90,14 +92,14 @@ export function GenerationProgress({ planId }: GenerationProgressProps) {
         }
 
         // If generation failed, show error
-        if (statusData.status === 'failed') {
-          setError('Plan generation failed. Please try again.');
+        if (statusData.status === "failed") {
+          setError("Plan generation failed. Please try again.");
           return true;
         }
 
         return false;
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+        setError(err instanceof Error ? err.message : "An unexpected error occurred");
         return false;
       }
     };
@@ -143,10 +145,7 @@ export function GenerationProgress({ planId }: GenerationProgressProps) {
                 <Button variant="outline" onClick={handleBackToPlans}>
                   Back to Plans
                 </Button>
-                <Button 
-                  variant="default" 
-                  onClick={() => window.location.href = `/plans/${planId}/edit`}
-                >
+                <Button variant="default" onClick={() => (window.location.href = `/plans/${planId}/edit`)}>
                   Add Places
                 </Button>
               </div>
@@ -177,7 +176,7 @@ export function GenerationProgress({ planId }: GenerationProgressProps) {
           <div className="space-y-2">
             <Progress value={progress} className="h-2" />
             <p className="text-sm text-muted-foreground text-center">
-              {progress < 100 ? `Generating your perfect travel plan... ${progress}%` : 'Generation complete!'}
+              {progress < 100 ? `Generating your perfect travel plan... ${progress}%` : "Generation complete!"}
             </p>
           </div>
 
@@ -188,7 +187,7 @@ export function GenerationProgress({ planId }: GenerationProgressProps) {
             </div>
           )}
 
-          {status === 'processing' && (
+          {status === "processing" && (
             <div className="text-center text-sm text-muted-foreground">
               <p>Our AI is crafting your personalized itinerary...</p>
             </div>
@@ -197,4 +196,4 @@ export function GenerationProgress({ planId }: GenerationProgressProps) {
       </Card>
     </div>
   );
-} 
+}

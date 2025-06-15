@@ -1,39 +1,29 @@
-import React, { useState } from 'react';
-import type { LoginFormProps, LoginFormData, FormState } from '../../types/auth';
-import { useForm, validationRules } from '../../hooks/useForm';
-import { FormField } from './FormField';
-import { ErrorMessage } from './ErrorMessage';
-import { SuccessMessage } from './SuccessMessage';
+import React, { useState } from "react";
+import type { LoginFormProps, LoginFormData, FormState } from "../../types/auth";
+import { useForm, validationRules } from "../../hooks/useForm";
+import { FormField } from "./FormField";
+import { ErrorMessage } from "./ErrorMessage";
+import { SuccessMessage } from "./SuccessMessage";
 
 /**
  * Formularz logowania
  */
-export const LoginForm: React.FC<LoginFormProps> = ({
-  onSubmit,
-  onForgotPassword,
-  onSignupRedirect
-}) => {
+export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, onForgotPassword, onSignupRedirect }) => {
   const [formState, setFormState] = useState<FormState>({
-    isLoading: false
+    isLoading: false,
   });
 
-  const {
-    values,
-    errors,
-    setValue,
-    markAsTouched,
-    validate
-  } = useForm<LoginFormData>(
-    { email: '', password: '', rememberMe: false },
+  const { values, errors, setValue, markAsTouched, validate } = useForm<LoginFormData>(
+    { email: "", password: "", rememberMe: false },
     {
       email: validationRules.email,
-      password: validationRules.password
+      password: validationRules.password,
     }
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validate()) {
       return;
     }
@@ -42,14 +32,14 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
     try {
       await onSubmit(values);
-      setFormState({ 
-        isLoading: false, 
-        success: 'Login successful! Redirecting...' 
+      setFormState({
+        isLoading: false,
+        success: "Login successful! Redirecting...",
       });
     } catch (error) {
       setFormState({
         isLoading: false,
-        error: error instanceof Error ? error.message : 'Login failed. Please try again.'
+        error: error instanceof Error ? error.message : "Login failed. Please try again.",
       });
     }
   };
@@ -67,12 +57,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Komunikaty */}
-      {formState.error && (
-        <ErrorMessage message={formState.error} />
-      )}
-      {formState.success && (
-        <SuccessMessage message={formState.success} />
-      )}
+      {formState.error && <ErrorMessage message={formState.error} />}
+      {formState.success && <SuccessMessage message={formState.success} />}
 
       {/* Pola formularza */}
       <FormField
@@ -80,8 +66,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         type="email"
         name="email"
         value={values.email}
-        onChange={(value) => setValue('email', value)}
-        onBlur={() => markAsTouched('email')}
+        onChange={(value) => setValue("email", value)}
+        onBlur={() => markAsTouched("email")}
         error={errors.email}
         placeholder="Enter your email"
         required
@@ -93,8 +79,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         type="password"
         name="password"
         value={values.password}
-        onChange={(value) => setValue('password', value)}
-        onBlur={() => markAsTouched('password')}
+        onChange={(value) => setValue("password", value)}
+        onBlur={() => markAsTouched("password")}
         error={errors.password}
         placeholder="Enter your password"
         required
@@ -109,7 +95,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             name="remember-me"
             type="checkbox"
             checked={values.rememberMe || false}
-            onChange={(e) => setValue('rememberMe', e.target.checked)}
+            onChange={(e) => setValue("rememberMe", e.target.checked)}
             disabled={formState.isLoading}
             className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
           />
@@ -138,19 +124,23 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           <div className="flex items-center">
             <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
             </svg>
             Signing in...
           </div>
         ) : (
-          'Sign in'
+          "Sign in"
         )}
       </button>
 
       {/* Link do rejestracji */}
       <div className="text-center">
         <p className="text-sm text-gray-600">
-          Don't have an account?{' '}
+          Don't have an account?{" "}
           <button
             type="button"
             onClick={handleSignupClick}
@@ -163,4 +153,4 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       </div>
     </form>
   );
-}; 
+};

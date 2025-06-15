@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface LogoProps {
   onClick?: () => void;
@@ -10,7 +10,7 @@ interface LogoProps {
  */
 export const Logo: React.FC<LogoProps> = ({ onClick, className = "" }) => {
   return (
-    <div 
+    <div
       className={`font-bold text-xl cursor-pointer hover:opacity-80 transition-opacity ${className}`}
       onClick={onClick}
     >
@@ -18,4 +18,4 @@ export const Logo: React.FC<LogoProps> = ({ onClick, className = "" }) => {
       <span className="text-emerald-600 ml-1">to travel</span>
     </div>
   );
-}; 
+};

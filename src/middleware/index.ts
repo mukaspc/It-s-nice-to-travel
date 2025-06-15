@@ -4,14 +4,14 @@ import { isPublicRoute, isProtectedRoute, isAuthRoute } from "../utils/auth-help
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const pathname = context.url.pathname;
-  
+
   // Dla API routes, używamy uproszczonej obsługi auth
-  if (pathname.startsWith('/api/')) {
+  if (pathname.startsWith("/api/")) {
     // Skip auth check dla publicznych API routes
     if (isPublicRoute(pathname)) {
       return next();
     }
-    
+
     // Dla chronionych API routes, sprawdź auth bez ustawiania cookies
     if (isProtectedRoute(pathname)) {
       try {
@@ -19,7 +19,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
           cookies: context.cookies,
           headers: context.request.headers,
         });
-        
+
         const {
           data: { user },
         } = await supabase.auth.getUser();
@@ -31,20 +31,20 @@ export const onRequest = defineMiddleware(async (context, next) => {
           };
         } else {
           // Zwróć 401 dla API routes zamiast przekierowania
-          return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          return new Response(JSON.stringify({ error: "Unauthorized" }), {
             status: 401,
-            headers: { 'Content-Type': 'application/json' }
+            headers: { "Content-Type": "application/json" },
           });
         }
       } catch (error) {
-        console.error('Auth error in API middleware:', error);
-        return new Response(JSON.stringify({ error: 'Authentication failed' }), {
+        console.error("Auth error in API middleware:", error);
+        return new Response(JSON.stringify({ error: "Authentication failed" }), {
           status: 401,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { "Content-Type": "application/json" },
         });
       }
     }
-    
+
     return next();
   }
 
@@ -53,7 +53,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     cookies: context.cookies,
     headers: context.request.headers,
   });
-  
+
   context.locals.supabase = supabase;
 
   // Skip auth check dla ścieżek publicznych
@@ -61,7 +61,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return next();
   }
 
-  // IMPORTANT: Zawsze sprawdzamy sesję użytkownika przed innymi operacjami  
+  // IMPORTANT: Zawsze sprawdzamy sesję użytkownika przed innymi operacjami
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -85,7 +85,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // Przekieruj zalogowanych użytkowników ze stron auth na /plans
   if (isAuthRoute(pathname) && user) {
-    return context.redirect('/plans');
+    return context.redirect("/plans");
   }
 
   return next();

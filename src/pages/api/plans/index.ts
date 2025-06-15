@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { APIRoute } from "astro";
-import type { PlanListItemDTO, PlanListResponseDTO, PlanStatus } from "../../../types";
+import type { PlanListResponseDTO, PlanStatus } from "../../../types";
 import { createSupabaseServerInstance } from "../../../db/supabase.client";
 import { getUserIdFromLocals } from "../../../utils/auth";
 
@@ -74,7 +74,7 @@ export const GET: APIRoute = async ({ request, locals, cookies }) => {
     // 3. Utwórz instancję Supabase dla serwera
     const supabaseClient = createSupabaseServerInstance({
       headers: request.headers,
-      cookies
+      cookies,
     });
 
     // 4. Przygotowanie zapytania do bazy danych
@@ -180,7 +180,7 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
     // 2. Utwórz instancję Supabase dla serwera
     const supabaseClient = createSupabaseServerInstance({
       headers: request.headers,
-      cookies
+      cookies,
     });
 
     // 3. Validate request body

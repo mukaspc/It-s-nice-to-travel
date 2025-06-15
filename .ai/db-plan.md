@@ -3,10 +3,13 @@
 ## 1. Tabele, kolumny, typy danych i ograniczenia
 
 ### auth.users (zarządzane przez Supabase Auth)
+
 Ta tabela jest automatycznie tworzona i zarządzana przez Supabase Auth.
 
 ### travel_preferences
+
 Tabela przechowująca predefiniowane tagi preferencji podróży.
+
 ```sql
 CREATE TABLE travel_preferences (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -23,7 +26,9 @@ EXECUTE FUNCTION trigger_set_updated_at();
 ```
 
 ### generated_user_plans
+
 Główna tabela przechowująca plany podróży utworzone przez użytkowników.
+
 ```sql
 CREATE TYPE plan_status AS ENUM ('draft', 'generated');
 
@@ -57,7 +62,9 @@ CREATE INDEX idx_generated_user_plans_deleted_at ON generated_user_plans(deleted
 ```
 
 ### places
+
 Tabela przechowująca miejsca dodane do planów podróży.
+
 ```sql
 CREATE TABLE places (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -98,7 +105,9 @@ EXECUTE FUNCTION check_places_limit();
 ```
 
 ### generated_ai_plans
+
 Tabela przechowująca wygenerowane przez AI szczegółowe plany podróży.
+
 ```sql
 CREATE TABLE generated_ai_plans (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -122,10 +131,12 @@ CREATE INDEX idx_generated_ai_plans_content ON generated_ai_plans USING GIN (con
 ## 2. Relacje między tabelami
 
 1. **auth.users -> generated_user_plans** (jeden-do-wielu)
+
    - Jeden użytkownik może mieć wiele planów podróży
    - Klucz obcy: `generated_user_plans.user_id` odnosi się do `auth.users.id`
 
 2. **generated_user_plans -> places** (jeden-do-wielu)
+
    - Jeden plan podróży może zawierać wiele miejsc
    - Klucz obcy: `places.plan_id` odnosi się do `generated_user_plans.id`
    - Ograniczenie liczby miejsc do maksymalnie 10 na plan
@@ -149,6 +160,7 @@ CREATE INDEX idx_generated_ai_plans_content ON generated_ai_plans USING GIN (con
 Poniżej znajdują się zasady RLS, które powinny zostać zastosowane w Supabase dla odpowiednich tabel:
 
 ### generated_user_plans
+
 ```sql
 -- Włączenie RLS
 ALTER TABLE generated_user_plans ENABLE ROW LEVEL SECURITY;
@@ -172,6 +184,7 @@ WITH CHECK (auth.uid() = user_id AND deleted_at IS NULL);
 ```
 
 ### places
+
 ```sql
 -- Włączenie RLS
 ALTER TABLE places ENABLE ROW LEVEL SECURITY;
@@ -222,6 +235,7 @@ FOR DELETE USING (
 ```
 
 ### generated_ai_plans
+
 ```sql
 -- Włączenie RLS
 ALTER TABLE generated_ai_plans ENABLE ROW LEVEL SECURITY;
@@ -274,6 +288,7 @@ FOR DELETE USING (
 ## 5. Funkcje pomocnicze
 
 ### Funkcja do aktualizacji pola updated_at
+
 ```sql
 CREATE OR REPLACE FUNCTION trigger_set_updated_at()
 RETURNS TRIGGER AS $$
@@ -285,6 +300,7 @@ $$ LANGUAGE plpgsql;
 ```
 
 ### Funkcja do soft delete
+
 ```sql
 CREATE OR REPLACE FUNCTION soft_delete_plan()
 RETURNS TRIGGER AS $$
@@ -303,6 +319,7 @@ EXECUTE FUNCTION soft_delete_plan();
 ## 6. Inicjalizacja danych
 
 ### Predefiniowane tagi preferencji podróży
+
 ```sql
 INSERT INTO travel_preferences (name, description) VALUES
 ('zwiedzanie_zabytkow', 'Zwiedzanie zabytków i historycznych miejsc'),
@@ -321,6 +338,7 @@ INSERT INTO travel_preferences (name, description) VALUES
 
 1. **Struktura dokumentu JSON dla wygenerowanych planów AI**
    Rekomendowana struktura dokumentu JSON dla pola `content` w tabeli `generated_ai_plans`:
+
    ```json
    {
      "version": "1.0",
@@ -356,7 +374,7 @@ INSERT INTO travel_preferences (name, description) VALUES
    ```
 
 2. **Soft Delete**
-   Implementacja soft delete dla `generated_user_plans` poprzez kolumnę `deleted_at`. 
+   Implementacja soft delete dla `generated_user_plans` poprzez kolumnę `deleted_at`.
    Wszystkie zasady RLS uwzględniają warunek `deleted_at IS NULL` aby zapewnić, że "usunięte" plany nie są dostępne dla użytkowników.
 
 3. **Validacja dat**
@@ -366,6 +384,7 @@ INSERT INTO travel_preferences (name, description) VALUES
    Wszystkie tabele mają włączone Row Level Security (RLS) z odpowiednimi zasadami, które zapewniają, że użytkownicy mają dostęp tylko do własnych danych.
 
 5. **Optymalizacja**
+
    - Indeksy na kolumnach używanych w zapytaniach filtrujących i sortujących
    - Indeks GIN dla efektywnego wyszukiwania w strukturze JSON
    - Ograniczenie liczby miejsc na plan do 10, zgodnie z wymaganiami
@@ -374,4 +393,4 @@ INSERT INTO travel_preferences (name, description) VALUES
    - Użycie UUID jako kluczy głównych zamiast sekwencyjnych identyfikatorów zapewnia lepszą dystrybucję danych w przypadku dużych ilości rekordów
    - Przechowywanie URL-i dla zdjęć zamiast obrazów bezpośrednio w bazie danych
    - Generowanie PDF na żądanie zamiast przechowywania ich w bazie
-</rewritten_file> 
+     </rewritten_file>

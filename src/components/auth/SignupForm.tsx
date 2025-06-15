@@ -1,40 +1,28 @@
-import React, { useState } from 'react';
-import type { SignupFormProps, SignupFormData, FormState } from '../../types/auth';
-import { useForm, validationRules } from '../../hooks/useForm';
-import { FormField } from './FormField';
-import { ErrorMessage } from './ErrorMessage';
-import { SuccessMessage } from './SuccessMessage';
+import React, { useState } from "react";
+import type { SignupFormProps, SignupFormData, FormState } from "../../types/auth";
+import { useForm, validationRules } from "../../hooks/useForm";
+import { FormField } from "./FormField";
+import { ErrorMessage } from "./ErrorMessage";
+import { SuccessMessage } from "./SuccessMessage";
 
 /**
  * Formularz rejestracji
  */
-export const SignupForm: React.FC<SignupFormProps> = ({
-  onSubmit,
-  onLoginRedirect
-}) => {
+export const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, onLoginRedirect }) => {
   const [formState, setFormState] = useState<FormState>({
-    isLoading: false
+    isLoading: false,
   });
 
-  const initialValues: SignupFormData = { email: '', password: '' };
+  const initialValues: SignupFormData = { email: "", password: "" };
 
-  const {
-    values,
-    errors,
-    setValue,
-    markAsTouched,
-    validate
-  } = useForm<SignupFormData>(
-    initialValues,
-    {
-      email: validationRules.email,
-      password: validationRules.password
-    }
-  );
+  const { values, errors, setValue, markAsTouched, validate } = useForm<SignupFormData>(initialValues, {
+    email: validationRules.email,
+    password: validationRules.password,
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validate()) {
       return;
     }
@@ -43,14 +31,14 @@ export const SignupForm: React.FC<SignupFormProps> = ({
 
     try {
       await onSubmit(values);
-      setFormState({ 
-        isLoading: false, 
-        success: 'Account created successfully! Redirecting to your dashboard...' 
+      setFormState({
+        isLoading: false,
+        success: "Account created successfully! Redirecting to your dashboard...",
       });
     } catch (error) {
       setFormState({
         isLoading: false,
-        error: error instanceof Error ? error.message : 'Registration failed. Please try again.'
+        error: error instanceof Error ? error.message : "Registration failed. Please try again.",
       });
     }
   };
@@ -63,12 +51,8 @@ export const SignupForm: React.FC<SignupFormProps> = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Komunikaty */}
-      {formState.error && (
-        <ErrorMessage message={formState.error} />
-      )}
-      {formState.success && (
-        <SuccessMessage message={formState.success} />
-      )}
+      {formState.error && <ErrorMessage message={formState.error} />}
+      {formState.success && <SuccessMessage message={formState.success} />}
 
       {/* Pola formularza */}
       <FormField
@@ -76,8 +60,8 @@ export const SignupForm: React.FC<SignupFormProps> = ({
         type="email"
         name="email"
         value={values.email}
-        onChange={(value) => setValue('email', value)}
-        onBlur={() => markAsTouched('email')}
+        onChange={(value) => setValue("email", value)}
+        onBlur={() => markAsTouched("email")}
         error={errors.email}
         placeholder="Enter your email"
         required
@@ -89,8 +73,8 @@ export const SignupForm: React.FC<SignupFormProps> = ({
         type="password"
         name="password"
         value={values.password}
-        onChange={(value) => setValue('password', value)}
-        onBlur={() => markAsTouched('password')}
+        onChange={(value) => setValue("password", value)}
+        onBlur={() => markAsTouched("password")}
         error={errors.password}
         placeholder="Create a password"
         required
@@ -117,19 +101,23 @@ export const SignupForm: React.FC<SignupFormProps> = ({
           <div className="flex items-center">
             <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
             </svg>
             Creating account...
           </div>
         ) : (
-          'Create account'
+          "Create account"
         )}
       </button>
 
       {/* Link do logowania */}
       <div className="text-center">
         <p className="text-sm text-gray-600">
-          Already have an account?{' '}
+          Already have an account?{" "}
           <button
             type="button"
             onClick={handleLoginClick}
@@ -142,4 +130,4 @@ export const SignupForm: React.FC<SignupFormProps> = ({
       </div>
     </form>
   );
-}; 
+};

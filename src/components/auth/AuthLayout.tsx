@@ -1,17 +1,13 @@
-import React from 'react';
-import type { AuthLayoutProps } from '../../types/auth';
-import { Logo } from '../landing/Logo';
+import React from "react";
+import type { AuthLayoutProps } from "../../types/auth";
+import { Logo } from "../landing/Logo";
 
 /**
  * Wspólny layout dla stron uwierzytelniania
  */
-export const AuthLayout: React.FC<AuthLayoutProps> = ({
-  title,
-  description,
-  children
-}) => {
+export const AuthLayout: React.FC<AuthLayoutProps> = ({ title, description, children }) => {
   const handleLogoClick = () => {
-    window.location.href = '/';
+    window.location.href = "/";
   };
 
   return (
@@ -21,26 +17,18 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
         <div className="flex justify-center">
           <Logo onClick={handleLogoClick} />
         </div>
-        
+
         {/* Nagłówek */}
         <div className="mt-8 text-center">
-          <h1 className="text-2xl font-bold text-gray-900">
-            {title}
-          </h1>
-          {description && (
-            <p className="mt-2 text-sm text-gray-600">
-              {description}
-            </p>
-          )}
+          <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
+          {description && <p className="mt-2 text-sm text-gray-600">{description}</p>}
         </div>
       </div>
 
       {/* Kontener formularza */}
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          {children}
-        </div>
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">{children}</div>
       </div>
     </div>
   );
-}; 
+};

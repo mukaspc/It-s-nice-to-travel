@@ -11,15 +11,26 @@ import type {
   CreditInfo,
   Model,
   ConversationContext,
-  CacheOptions
+  CacheOptions,
 } from "./openrouter.types";
+
+// Internal types for API responses
+interface ModelApiResponse {
+  id: string;
+  name: string;
+  context_length: number;
+  pricing: {
+    prompt: number;
+    completion: number;
+  };
+}
 
 const MAX_RETRIES = 3;
 const INITIAL_RETRY_DELAY = 1000; // 1 second
 const DEFAULT_CACHE_OPTIONS: CacheOptions = {
   enabled: true,
   ttl: 3600, // 1 hour
-  maxSize: 100
+  maxSize: 100,
 };
 
 /**
@@ -55,7 +66,7 @@ export class OpenRouterService {
       "Content-Type": "application/json",
       Authorization: `Bearer ${this.apiKey}`,
       "HTTP-Referer": config.siteUrl,
-      "X-Title": config.siteName
+      "X-Title": config.siteName,
     };
     this.cacheOptions = { ...DEFAULT_CACHE_OPTIONS, ...config.cacheOptions };
     this.responseCache = new Map();
@@ -79,7 +90,7 @@ export class OpenRouterService {
       model,
       totalTokens: 0,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
     this.conversations.set(context.id, context);
     return context;
@@ -118,7 +129,7 @@ export class OpenRouterService {
       temperature: options.temperature,
       max_tokens: options.max_tokens,
       response_format: options.response_format,
-      stream: false
+      stream: false,
     };
 
     // Check cache if enabled
@@ -160,7 +171,7 @@ export class OpenRouterService {
       temperature: options.temperature,
       max_tokens: options.max_tokens,
       response_format: options.response_format,
-      stream: true
+      stream: true,
     };
 
     const response = await this.makeRequestWithRetry(async () => {
@@ -168,7 +179,7 @@ export class OpenRouterService {
         method: "POST",
         headers: this.defaultHeaders,
         body: JSON.stringify(data),
-        signal: options.signal
+        signal: options.signal,
       });
 
       if (!res.ok) {
@@ -221,7 +232,7 @@ export class OpenRouterService {
   public async getModelsList(): Promise<Model[]> {
     const response = await this.makeRequestWithRetry(async () => {
       const res = await fetch(`${this.baseUrl}/models`, {
-        headers: this.defaultHeaders
+        headers: this.defaultHeaders,
       });
 
       if (!res.ok) {
@@ -233,14 +244,14 @@ export class OpenRouterService {
     });
 
     const data = await response.json();
-    return data.data.map((model: any) => ({
+    return data.data.map((model: ModelApiResponse) => ({
       id: model.id,
       name: model.name,
       maxTokens: model.context_length,
       pricePerToken: {
         prompt: model.pricing.prompt,
-        completion: model.pricing.completion
-      }
+        completion: model.pricing.completion,
+      },
     }));
   }
 
@@ -251,7 +262,7 @@ export class OpenRouterService {
   public async getCredits(): Promise<CreditInfo> {
     const response = await this.makeRequestWithRetry(async () => {
       const res = await fetch(`${this.baseUrl}/credits`, {
-        headers: this.defaultHeaders
+        headers: this.defaultHeaders,
       });
 
       if (!res.ok) {
@@ -266,7 +277,7 @@ export class OpenRouterService {
     return {
       total: data.total,
       used: data.used,
-      remaining: data.remaining
+      remaining: data.remaining,
     };
   }
 
@@ -325,17 +336,13 @@ export class OpenRouterService {
    * @param signal AbortSignal for request cancellation
    * @returns Promise with response data
    */
-  private async makeRequest<T>(
-    endpoint: string, 
-    data: unknown, 
-    signal?: AbortSignal
-  ): Promise<T> {
+  private async makeRequest<T>(endpoint: string, data: unknown, signal?: AbortSignal): Promise<T> {
     const response = await this.makeRequestWithRetry(async () => {
       const res = await fetch(`${this.baseUrl}${endpoint}`, {
         method: "POST",
         headers: this.defaultHeaders,
         body: JSON.stringify(data),
-        signal
+        signal,
       });
 
       if (!res.ok) {
@@ -363,10 +370,12 @@ export class OpenRouterService {
         return await fn();
       } catch (error) {
         lastError = error as Error;
-        if (error instanceof Error && 
-            (error.message.includes("Rate limit") || error.message.includes("Server error"))) {
+        if (
+          error instanceof Error &&
+          (error.message.includes("Rate limit") || error.message.includes("Server error"))
+        ) {
           if (attempt === MAX_RETRIES) break;
-          await new Promise(resolve => setTimeout(resolve, delay));
+          await new Promise((resolve) => setTimeout(resolve, delay));
           delay *= 2; // Exponential backoff
         } else {
           throw error;
@@ -384,13 +393,11 @@ export class OpenRouterService {
    * @returns Error with appropriate message
    */
   private handleError(status: number, error: unknown): Error {
-    let errorMessage = 'Unknown error occurred';
-    
-    if (error && typeof error === 'object') {
-      if ('error' in error && error.error) {
-        errorMessage = typeof error.error === 'string' 
-          ? error.error 
-          : JSON.stringify(error.error);
+    let errorMessage = "Unknown error occurred";
+
+    if (error && typeof error === "object") {
+      if ("error" in error && error.error) {
+        errorMessage = typeof error.error === "string" ? error.error : JSON.stringify(error.error);
       } else {
         errorMessage = JSON.stringify(error);
       }
@@ -455,7 +462,7 @@ export class OpenRouterService {
 
     this.responseCache.set(key, {
       response,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
 
@@ -470,4 +477,4 @@ export class OpenRouterService {
       }
     }
   }
-} 
+}

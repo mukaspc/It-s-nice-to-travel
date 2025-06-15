@@ -1,12 +1,6 @@
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[]
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
-export type GenerationStatus = 'processing' | 'completed' | 'failed';
+export type GenerationStatus = "processing" | "completed" | "failed";
 
 export interface Database {
   public: {
@@ -120,8 +114,7 @@ export interface Database {
     Views: Record<never, never>;
     Functions: Record<never, never>;
     Enums: {
-      plan_status: 'draft' | 'generated';
+      plan_status: "draft" | "generated";
     };
   };
 }
-

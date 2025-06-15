@@ -6,7 +6,7 @@ import { GenerationProgress } from "../../../components/plans/GenerationProgress
 const { planId } = Astro.params;
 
 if (!planId) {
-  return Astro.redirect('/plans');
+  return Astro.redirect("/plans");
 }
 ---
 
@@ -14,4 +14,5 @@ if (!planId) {
   <PlansLayout>
     <GenerationProgress client:load planId={planId} />
   </PlansLayout>
-</Layout> 
+</Layout>
+

@@ -3,11 +3,11 @@ import type { APIRoute } from "astro";
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ request, locals, cookies }) => {
+export const GET: APIRoute = async ({ request, cookies }) => {
   try {
     const supabaseClient = createSupabaseServerInstance({
       headers: request.headers,
-      cookies
+      cookies,
     });
 
     const { data, error } = await supabaseClient
@@ -34,4 +34,4 @@ export const GET: APIRoute = async ({ request, locals, cookies }) => {
       headers: { "Content-Type": "application/json" },
     });
   }
-}; 
+};

@@ -74,4 +74,4 @@ export interface CacheOptions {
   enabled: boolean;
   ttl: number; // Time to live in seconds
   maxSize: number; // Maximum number of cached responses
-} 
+}

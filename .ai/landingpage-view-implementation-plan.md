@@ -36,6 +36,7 @@ LandingPage.astro
 ## 4. Szczegóły komponentów
 
 ### LandingPage.astro
+
 - **Opis**: Główny kontener widoku landing page w formacie Astro, łączący wszystkie sekcje strony
 - **Główne elementy**: Layout wrapper, Header, main content sections, SEO meta tags
 - **Obsługiwane interakcje**: Zarządzanie stanem uwierzytelnienia, przekazywanie props do komponentów React
@@ -44,6 +45,7 @@ LandingPage.astro
 - **Propsy**: Brak (główny widok Astro)
 
 ### Header.tsx
+
 - **Opis**: Nawigacja górna z logo i przyciskami, adaptująca się do stanu uwierzytelnienia użytkownika
 - **Główne elementy**: Container, Logo, warunkowa nawigacja (UnauthenticatedNav lub AuthenticatedNav)
 - **Obsługiwane interakcje**: Kliknięcie logo (scroll to top), przekazywanie eventów nawigacji
@@ -52,6 +54,7 @@ LandingPage.astro
 - **Propsy**: `authState: AuthState`, `onLogin: () => void`, `onSignup: () => void`, `onLogout: () => void`, `onNavigateToPlans: () => void`
 
 ### UnauthenticatedNav.tsx
+
 - **Opis**: Nawigacja dla niezalogowanych użytkowników z przyciskami logowania i rejestracji
 - **Główne elementy**: Nav container, LoginButton, SignupButton
 - **Obsługiwane interakcje**: Kliknięcie "Login", kliknięcie "Signup"
@@ -60,6 +63,7 @@ LandingPage.astro
 - **Propsy**: `onLogin: () => void`, `onSignup: () => void`
 
 ### AuthenticatedNav.tsx
+
 - **Opis**: Nawigacja dla zalogowanych użytkowników z dropdown menu
 - **Główne elementy**: Nav container, UserDropdown
 - **Obsługiwane interakcje**: Przekazywanie eventów do UserDropdown
@@ -68,6 +72,7 @@ LandingPage.astro
 - **Propsy**: `user: User`, `onNavigateToPlans: () => void`, `onLogout: () => void`
 
 ### UserDropdown.tsx
+
 - **Opis**: Dropdown menu z opcjami dla zalogowanego użytkownika
 - **Główne elementy**: UserIcon, DropdownMenu z opcjami "Moje plany" i "Wyloguj"
 - **Obsługiwane interakcje**: Otwieranie/zamykanie dropdown, kliknięcie "Moje plany", kliknięcie "Wyloguj"
@@ -76,6 +81,7 @@ LandingPage.astro
 - **Propsy**: `user: User`, `onNavigateToPlans: () => void`, `onLogout: () => void`
 
 ### HeroSection.tsx
+
 - **Opis**: Główna sekcja hero z nagłówkiem, opisem i przyciskiem CTA
 - **Główne elementy**: Section container, HeroTitle, HeroDescription, HeroCTA button
 - **Obsługiwane interakcje**: Kliknięcie przycisku CTA (przekierowanie do rejestracji)
@@ -84,6 +90,7 @@ LandingPage.astro
 - **Propsy**: `heroContent: HeroContent`, `onCTAClick: () => void`
 
 ### FeaturesSection.tsx
+
 - **Opis**: Sekcja z kartami przedstawiającymi zalety serwisu
 - **Główne elementy**: Section container, grid layout, array komponentów FeatureCard
 - **Obsługiwane interakcje**: Brak interakcji użytkownika
@@ -92,6 +99,7 @@ LandingPage.astro
 - **Propsy**: `features: FeatureItem[]`
 
 ### FeatureCard.tsx
+
 - **Opis**: Pojedyncza karta z zaletą serwisu
 - **Główne elementy**: Card container, FeatureIcon, FeatureTitle, FeatureDescription
 - **Obsługiwane interakcje**: Hover effects (animacje CSS)
@@ -100,6 +108,7 @@ LandingPage.astro
 - **Propsy**: `feature: FeatureItem`
 
 ### AIAdvantageSection.tsx
+
 - **Opis**: Sekcja z obrazem i opisem przewagi wykorzystania AI
 - **Główne elementy**: Section container, AIImage, AIDescription
 - **Obsługiwane interakcje**: Brak interakcji użytkownika
@@ -204,12 +213,14 @@ interface AIAdvantageSectionProps {
 Stan w widoku landing page będzie zarządzany przez:
 
 1. **useAuth** - Custom hook do zarządzania stanem uwierzytelnienia
+
    - Integracja z Supabase Auth
    - Sprawdzanie stanu logowania przy ładowaniu strony
    - Obsługa wylogowywania
    - Zwracanie: `{ authState, logout }`
 
 2. **useNavigation** - Custom hook do obsługi nawigacji
+
    - Przekierowania do różnych stron aplikacji
    - Zwracanie: `{ navigateToLogin, navigateToSignup, navigateToPlans }`
 
@@ -222,7 +233,7 @@ Stan w widoku landing page będzie zarządzany przez:
 const useAuth = () => {
   const [authState, setAuthState] = useState<AuthState>({
     isAuthenticated: false,
-    isLoading: true
+    isLoading: true,
   });
 
   useEffect(() => {
@@ -238,9 +249,9 @@ const useAuth = () => {
 
 // Custom hook useNavigation
 const useNavigation = () => {
-  const navigateToLogin = () => window.location.href = '/login';
-  const navigateToSignup = () => window.location.href = '/signup';
-  const navigateToPlans = () => window.location.href = '/plans';
+  const navigateToLogin = () => (window.location.href = "/login");
+  const navigateToSignup = () => (window.location.href = "/signup");
+  const navigateToPlans = () => (window.location.href = "/plans");
 
   return { navigateToLogin, navigateToSignup, navigateToPlans };
 };
@@ -251,6 +262,7 @@ const useNavigation = () => {
 Landing page nie wymaga bezpośrednich wywołań API. Jedyne integracje to:
 
 1. **Supabase Auth** - sprawdzenie stanu uwierzytelnienia
+
    - Typ żądania: Brak (SDK call)
    - Typ odpowiedzi: `User | null`
    - Implementacja w `useAuth` hook
@@ -273,16 +285,19 @@ Landing page nie wymaga bezpośrednich wywołań API. Jedyne integracje to:
 ## 9. Warunki i walidacja
 
 1. **Sprawdzenie stanu uwierzytelnienia**:
+
    - Komponent: Header.tsx
    - Warunek: `authState.isAuthenticated === true`
    - Wpływ: Wyświetlenie AuthenticatedNav zamiast UnauthenticatedNav
 
 2. **Loading state podczas sprawdzania auth**:
+
    - Komponent: Header.tsx
    - Warunek: `authState.isLoading === true`
    - Wpływ: Wyświetlenie skeleton/spinner w miejsce nawigacji
 
 3. **Walidacja danych treści**:
+
    - Komponent: FeaturesSection.tsx
    - Warunek: `features.length > 0`
    - Wpływ: Wyświetlenie sekcji lub fallback message
@@ -295,21 +310,25 @@ Landing page nie wymaga bezpośrednich wywołań API. Jedyne integracje to:
 ## 10. Obsługa błędów
 
 1. **Błąd podczas sprawdzania stanu auth**:
+
    - Strategia: Fallback do stanu niezalogowanego
    - Implementacja: Catch w `useAuth` hook
    - UI: Wyświetlenie UnauthenticatedNav
 
 2. **Błąd podczas wylogowywania**:
+
    - Strategia: Wyświetlenie toast z komunikatem błędu
    - Implementacja: Try-catch w funkcji logout
    - UI: Toast notification "Wystąpił błąd podczas wylogowywania"
 
 3. **Brak dostępu do Supabase**:
+
    - Strategia: Graceful degradation
    - Implementacja: Timeout w sprawdzaniu auth
    - UI: Wyświetlenie strony bez funkcji zalogowanych
 
 4. **Błędy ładowania obrazów**:
+
    - Strategia: Placeholder images
    - Implementacja: onError handlers na img tags
    - UI: Fallback image lub ikona
@@ -322,42 +341,50 @@ Landing page nie wymaga bezpośrednich wywołań API. Jedyne integracje to:
 ## 11. Kroki implementacji
 
 1. **Przygotowanie struktury plików**
+
    - Utworzenie `src/pages/index.astro`
    - Utworzenie folderu `src/components/landing/`
    - Utworzenie plików typów w `src/types/landing.ts`
 
 2. **Implementacja custom hooks**
+
    - Utworzenie `src/hooks/useAuth.ts`
    - Utworzenie `src/hooks/useNavigation.ts`
    - Integracja z Supabase Auth
 
 3. **Implementacja komponentów podstawowych**
+
    - Logo.tsx - prosty komponent z tekstem/obrazem
    - LoginButton.tsx i SignupButton.tsx - przyciski z linkami
    - UserIcon.tsx - ikona użytkownika
 
 4. **Implementacja nawigacji**
+
    - Header.tsx - główny kontener nawigacji
    - UnauthenticatedNav.tsx - nawigacja dla niezalogowanych
    - AuthenticatedNav.tsx - nawigacja dla zalogowanych
    - UserDropdown.tsx - dropdown menu z wykorzystaniem Shadcn/ui
 
 5. **Implementacja sekcji Hero**
+
    - HeroSection.tsx - layout sekcji hero
    - Dodanie responsywnego stylu z Tailwind
    - Implementacja CTA button z hover effects
 
 6. **Implementacja sekcji Features**
+
    - FeatureCard.tsx - pojedyncza karta funkcji
    - FeaturesSection.tsx - grid layout kart
    - Dodanie ikon z biblioteki (np. Lucide React)
 
 7. **Implementacja sekcji AI Advantage**
+
    - AIAdvantageSection.tsx - sekcja z obrazem i tekstem
    - Responsywny layout (obraz po lewej, tekst po prawej na desktop)
    - Optymalizacja obrazów
 
 8. **Integracja w głównym widoku Astro**
+
    - Połączenie wszystkich komponentów w index.astro
    - Konfiguracja SEO meta tags
    - Testowanie stanu uwierzytelnienia
@@ -366,4 +393,3 @@ Landing page nie wymaga bezpośrednich wywołań API. Jedyne integracje to:
    - Implementacja mobile-first design
    - Testowanie na różnych rozmiarach ekranów
    - Dodanie animacji i transitions
-

@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import type { GeneratedPlanDTO } from '../types';
+import { useEffect, useRef } from "react";
+import type { GeneratedPlanDTO } from "../types";
 
 interface Props {
   plan: GeneratedPlanDTO;
@@ -14,14 +14,14 @@ export function PlanView({ plan }: Props) {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const img = entry.target as HTMLImageElement;
-            img.src = img.dataset.src || '';
+            img.src = img.dataset.src || "";
             observer.unobserve(img);
           }
         });
       },
       {
-        rootMargin: '50px 0px',
-        threshold: 0.1
+        rootMargin: "50px 0px",
+        threshold: 0.1,
       }
     );
 
@@ -50,7 +50,7 @@ export function PlanView({ plan }: Props) {
           {place.days.map((day) => (
             <div key={day.date} className="mb-6 bg-white rounded-lg shadow-md p-6">
               <h3 className="text-xl font-semibold mb-4">{day.date}</h3>
-              
+
               <div className="space-y-4">
                 {day.schedule.map((item, index) => (
                   <div key={index} className="flex gap-4">
@@ -103,4 +103,4 @@ export function PlanView({ plan }: Props) {
       ))}
     </div>
   );
-} 
+}

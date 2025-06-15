@@ -1,9 +1,11 @@
 import type { UseFormReturn } from "react-hook-form";
+import { z } from "zod";
 import { Card, CardHeader, CardTitle, CardContent } from "../../ui/card";
 import { FormFieldComponent } from "../../ui/form-field";
+import { planFormSchema } from "./schema";
 
 interface BasicInfoSectionProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<z.infer<typeof planFormSchema>>;
 }
 
 export function BasicInfoSection({ form }: BasicInfoSectionProps) {
@@ -13,37 +15,15 @@ export function BasicInfoSection({ form }: BasicInfoSectionProps) {
         <CardTitle>Basic Information</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <FormFieldComponent
-          form={form}
-          name="name"
-          label="Plan Name"
-          placeholder="Enter plan name"
-        />
+        <FormFieldComponent form={form} name="name" label="Plan Name" placeholder="Enter plan name" />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormFieldComponent
-            form={form}
-            name="start_date"
-            label="Start Date"
-            type="date"
-          />
+          <FormFieldComponent form={form} name="start_date" label="Start Date" type="date" />
 
-          <FormFieldComponent
-            form={form}
-            name="end_date"
-            label="End Date"
-            type="date"
-          />
+          <FormFieldComponent form={form} name="end_date" label="End Date" type="date" />
         </div>
 
-        <FormFieldComponent
-          form={form}
-          name="people_count"
-          label="Number of People"
-          type="number"
-          min={1}
-          max={99}
-        />
+        <FormFieldComponent form={form} name="people_count" label="Number of People" type="number" min={1} max={99} />
 
         <FormFieldComponent
           form={form}
@@ -55,4 +35,4 @@ export function BasicInfoSection({ form }: BasicInfoSectionProps) {
       </CardContent>
     </Card>
   );
-} 
+}

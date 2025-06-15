@@ -3,25 +3,25 @@
  */
 export const useNavigation = () => {
   const navigateToLogin = () => {
-    window.location.href = '/login';
+    window.location.href = "/login";
   };
 
   const navigateToSignup = () => {
-    window.location.href = '/signup';
+    window.location.href = "/signup";
   };
 
   const navigateToPlans = () => {
-    window.location.href = '/plans';
+    window.location.href = "/plans";
   };
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  return { 
-    navigateToLogin, 
-    navigateToSignup, 
+  return {
+    navigateToLogin,
+    navigateToSignup,
     navigateToPlans,
-    scrollToTop
+    scrollToTop,
   };
-}; 
+};

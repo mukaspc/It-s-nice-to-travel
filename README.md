@@ -3,6 +3,7 @@
 A web application with mobile responsiveness that allows users to easily plan engaging and interesting trips with the help of LLMs. The app converts simple notes about places and travel goals into detailed plans, taking into account user preferences, time, number of people, and potential places and attractions.
 
 ## Table of Contents
+
 - [Project Description](#project-description)
 - [Tech Stack](#tech-stack)
 - [Getting Started](#getting-started)
@@ -14,12 +15,14 @@ A web application with mobile responsiveness that allows users to easily plan en
 ## Project Description
 
 "It's nice to travel" solves the main problem of difficulty in planning engaging and interesting trips. Trip planning often requires:
+
 - Time-consuming research on attractions and places worth visiting
 - Adapting plans to the number of people, length of travel, and personal preferences
 - Coordinating multiple places and activities into a logical and feasible route
 - Finding interesting but less known attractions outside the standard tourist routes
 
 The application offers:
+
 - Simple user account system
 - Ability to save tourist preferences in your profile
 - Creating, viewing, editing, and deleting travel plans
@@ -30,6 +33,7 @@ The application offers:
 ## Tech Stack
 
 ### Frontend
+
 - [Astro 5](https://astro.build/) for building fast, efficient websites and applications with minimal JavaScript
 - [React 19](https://react.dev/) for interactive components
 - [TypeScript 5](https://www.typescriptlang.org/) for static typing and better IDE support
@@ -37,6 +41,7 @@ The application offers:
 - [Shadcn/ui](https://ui.shadcn.com/) for a library of accessible React components
 
 ### Backend
+
 - [Supabase](https://supabase.io/) as a comprehensive backend solution:
   - PostgreSQL database
   - SDK in multiple languages that will serve as Backend-as-a-Service
@@ -44,11 +49,13 @@ The application offers:
   - Built-in user authentication
 
 ### AI
+
 - [Openrouter.ai](https://openrouter.ai/) for communication with AI models:
   - Access to a wide range of models (OpenAI, Anthropic, Google, and many others)
   - Allows setting financial limits on API keys
 
 ### Testing
+
 - [Vitest](https://vitest.dev/) for unit and integration testing
 - [@testing-library/react](https://testing-library.com/docs/react-testing-library/intro/) for testing React components
 - [@testing-library/jest-dom](https://testing-library.com/docs/ecosystem-jest-dom/) for additional DOM matchers
@@ -57,33 +64,39 @@ The application offers:
 - Code coverage reporting and automated test execution in CI/CD
 
 ### CI/CD and Hosting
+
 - Github Actions for creating CI/CD pipelines and automated testing
 - DigitalOcean for hosting the application via Docker image
 
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js **22.14.0** (we recommend using [nvm](https://github.com/nvm-sh/nvm) to manage Node.js versions)
 
 ### Installation
 
 1. Clone the repository
+
 ```bash
 git clone https://github.com/your-username/it-is-nice-to-travel.git
 cd it-is-nice-to-travel
 ```
 
 2. Use the correct Node.js version
+
 ```bash
 nvm use
 ```
 
 3. Install dependencies
+
 ```bash
 npm install
 ```
 
 4. Start the development server
+
 ```bash
 npm run dev
 ```
@@ -106,6 +119,7 @@ npm run dev
 ## Project Scope
 
 ### MVP Includes
+
 - User accounts system (registration, login, password recovery, profile editing)
 - Managing travel plans (viewing, editing, deleting, sorting)
 - Creating new travel plans with notes, details, and preferences
@@ -116,6 +130,7 @@ npm run dev
 - Tutorial for first-time users
 
 ### MVP Does Not Include
+
 - Sharing travel plans between user accounts
 - Rich multimedia handling and analysis
 - Advanced time and logistics planning

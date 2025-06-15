@@ -7,7 +7,7 @@ import { UnauthorizedError } from "../../../utils/errors";
 const { planId } = Astro.params;
 
 if (!planId) {
-  return Astro.redirect('/plans');
+  return Astro.redirect("/plans");
 }
 
 // Check if user is authenticated
@@ -15,7 +15,7 @@ try {
   const userId = getUserIdFromLocals(Astro.locals);
 } catch (error) {
   if (error instanceof UnauthorizedError) {
-    return Astro.redirect('/login');
+    return Astro.redirect("/login");
   }
   // Re-throw other errors
   throw error;
@@ -44,4 +44,5 @@ try {
       </div>
     </div>
   </PlansLayout>
-</Layout> 
+</Layout>
+

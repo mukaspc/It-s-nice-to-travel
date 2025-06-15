@@ -81,7 +81,7 @@ export interface AuthLayoutProps {
 // Props dla pola formularza
 export interface FormFieldProps {
   label: string;
-  type: 'text' | 'email' | 'password';
+  type: "text" | "email" | "password";
   name: string;
   value: string;
   onChange: (value: string) => void;
@@ -102,4 +102,4 @@ export interface ErrorMessageProps {
 export interface SuccessMessageProps {
   message: string;
   className?: string;
-} 
+}

@@ -1,15 +1,11 @@
-import { useState, useRef, useEffect } from 'react';
-import type { UserDropdownProps } from '../../types/landing';
-import { UserIcon } from './UserIcon';
+import { useState, useRef, useEffect } from "react";
+import type { UserDropdownProps } from "../../types/landing";
+import { UserIcon } from "./UserIcon";
 
 /**
  * Dropdown menu z opcjami dla zalogowanego użytkownika
  */
-export const UserDropdown: React.FC<UserDropdownProps> = ({
-  user,
-  onNavigateToPlans,
-  onLogout
-}) => {
+export const UserDropdown: React.FC<UserDropdownProps> = ({ user, onNavigateToPlans, onLogout }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -21,9 +17,9 @@ export const UserDropdown: React.FC<UserDropdownProps> = ({
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -71,4 +67,4 @@ export const UserDropdown: React.FC<UserDropdownProps> = ({
       )}
     </div>
   );
-}; 
+};

@@ -1,4 +1,4 @@
-import type { Page, Locator } from '@playwright/test';
+import type { Page } from "@playwright/test";
 
 export class BasePage {
   readonly page: Page;
@@ -7,18 +7,18 @@ export class BasePage {
     this.page = page;
   }
 
-  async goto(path: string = '/') {
+  async goto(path: string = "/") {
     await this.page.goto(path);
   }
 
   async waitForPageLoad() {
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState("networkidle");
   }
 
   async takeScreenshot(name: string) {
-    await this.page.screenshot({ 
+    await this.page.screenshot({
       path: `tests/screenshots/${name}.png`,
-      fullPage: true 
+      fullPage: true,
     });
   }
 
@@ -32,7 +32,7 @@ export class BasePage {
   }
 
   async getElementText(selector: string): Promise<string> {
-    return await this.page.textContent(selector) || '';
+    return (await this.page.textContent(selector)) || "";
   }
 
   async isElementVisible(selector: string): Promise<boolean> {
@@ -42,4 +42,4 @@ export class BasePage {
   async waitForElement(selector: string, timeout: number = 10000) {
     await this.page.waitForSelector(selector, { timeout });
   }
-} 
+}

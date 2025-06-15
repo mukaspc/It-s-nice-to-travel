@@ -1,6 +1,5 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import type { PlaceDTO } from "../../../../../types";
 import { createSupabaseServerInstance } from "../../../../../db/supabase.client";
 import { getUserIdFromLocals } from "../../../../../utils/auth";
 
@@ -22,10 +21,10 @@ export const GET: APIRoute = async ({ params, request, locals, cookies }) => {
     }
 
     const userId = getUserIdFromLocals(locals);
-    
+
     const supabaseClient = createSupabaseServerInstance({
       headers: request.headers,
-      cookies
+      cookies,
     });
 
     // First check if the plan exists and belongs to the user
@@ -83,10 +82,10 @@ export const POST: APIRoute = async ({ params, request, locals, cookies }) => {
     }
 
     const userId = getUserIdFromLocals(locals);
-    
+
     const supabaseClient = createSupabaseServerInstance({
       headers: request.headers,
-      cookies
+      cookies,
     });
 
     // First check if the plan exists and belongs to the user
@@ -132,13 +131,10 @@ export const POST: APIRoute = async ({ params, request, locals, cookies }) => {
     }
 
     if (startDate < planStartDate || endDate > planEndDate) {
-      return new Response(
-        JSON.stringify({ error: "Place dates must be within the plan's date range" }),
-        {
-          status: 422,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      return new Response(JSON.stringify({ error: "Place dates must be within the plan's date range" }), {
+        status: 422,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     // Create place
@@ -176,4 +172,4 @@ export const POST: APIRoute = async ({ params, request, locals, cookies }) => {
       headers: { "Content-Type": "application/json" },
     });
   }
-}; 
+};

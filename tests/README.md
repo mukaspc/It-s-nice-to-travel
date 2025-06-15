@@ -3,12 +3,14 @@
 ## Overview
 
 This project uses two main testing approaches:
+
 - **Unit Tests**: Using Vitest with React Testing Library
 - **End-to-End Tests**: Using Playwright
 
 ## Running Tests
 
 ### Unit Tests
+
 ```bash
 # Run all unit tests
 npm run test
@@ -24,6 +26,7 @@ npm run test -- --watch
 ```
 
 ### E2E Tests
+
 ```bash
 # Run all e2e tests
 npm run test:e2e
@@ -41,12 +44,14 @@ npm run test:e2e:headed
 ## Test Structure
 
 ### Unit Tests
+
 - **Location**: `src/**/*.{test,spec}.{ts,tsx}`
 - **Setup**: `src/test/setup.ts`
 - **Helpers**: `src/test/test-helpers.ts`
 - **Utils**: `src/test/test-utils.tsx`
 
 ### E2E Tests
+
 - **Location**: `tests/e2e/**/*.spec.ts`
 - **Page Objects**: `tests/e2e/pages/`
 - **Fixtures**: `tests/fixtures/`
@@ -69,7 +74,7 @@ describe('ComponentName', () => {
   it('should render correctly', () => {
     // Arrange
     render(<ComponentName />);
-    
+
     // Act & Assert
     expect(screen.getByText('Expected text')).toBeInTheDocument();
   });
@@ -77,11 +82,11 @@ describe('ComponentName', () => {
   it('should handle user interactions', async () => {
     const user = userEvent.setup();
     const mockHandler = vi.fn();
-    
+
     render(<ComponentName onAction={mockHandler} />);
-    
+
     await user.click(screen.getByRole('button'));
-    
+
     expect(mockHandler).toHaveBeenCalledOnce();
   });
 });
@@ -90,17 +95,17 @@ describe('ComponentName', () => {
 ### E2E Tests Best Practices
 
 ```typescript
-import { test, expect } from '@playwright/test';
-import { LoginPage } from './pages/LoginPage';
+import { test, expect } from "@playwright/test";
+import { LoginPage } from "./pages/LoginPage";
 
-test.describe('Feature Name', () => {
-  test('should perform user flow', async ({ page }) => {
+test.describe("Feature Name", () => {
+  test("should perform user flow", async ({ page }) => {
     const loginPage = new LoginPage(page);
-    
+
     await loginPage.gotoLogin();
-    await loginPage.login('user@example.com', 'password');
-    
-    await expect(page).toHaveURL('/dashboard');
+    await loginPage.login("user@example.com", "password");
+
+    await expect(page).toHaveURL("/dashboard");
   });
 });
 ```
@@ -111,8 +116,8 @@ E2E tests use the Page Object Model pattern for maintainability:
 
 ```typescript
 // tests/e2e/pages/PageName.ts
-import type { Page, Locator } from '@playwright/test';
-import { BasePage } from './BasePage';
+import type { Page, Locator } from "@playwright/test";
+import { BasePage } from "./BasePage";
 
 export class PageName extends BasePage {
   readonly element: Locator;
@@ -131,25 +136,27 @@ export class PageName extends BasePage {
 ## Mocking
 
 ### Vitest Mocks
+
 ```typescript
 // Mock external modules
-vi.mock('@supabase/supabase-js', () => ({
+vi.mock("@supabase/supabase-js", () => ({
   createClient: () => createMockSupabaseClient(),
 }));
 
 // Mock functions
 const mockFn = vi.fn();
-mockFn.mockReturnValue('mocked value');
-mockFn.mockResolvedValue(Promise.resolve('async value'));
+mockFn.mockReturnValue("mocked value");
+mockFn.mockResolvedValue(Promise.resolve("async value"));
 ```
 
 ### Playwright Mocks
+
 ```typescript
 // Mock API responses
-await page.route('**/api/auth/login', route => {
+await page.route("**/api/auth/login", (route) => {
   route.fulfill({
     status: 200,
-    contentType: 'application/json',
+    contentType: "application/json",
     body: JSON.stringify({ success: true }),
   });
 });
@@ -158,6 +165,7 @@ await page.route('**/api/auth/login', route => {
 ## Coverage Requirements
 
 The project maintains minimum coverage thresholds:
+
 - **Branches**: 80%
 - **Functions**: 80%
 - **Lines**: 80%
@@ -166,11 +174,13 @@ The project maintains minimum coverage thresholds:
 ## CI/CD Integration
 
 Tests run automatically on:
+
 - Pull requests
 - Push to main branch
 - Scheduled runs (nightly)
 
 ### GitHub Actions Workflow
+
 ```yaml
 - name: Run Unit Tests
   run: npm run test:coverage
@@ -182,11 +192,13 @@ Tests run automatically on:
 ## Debugging Tests
 
 ### Unit Tests
+
 - Use `test.only()` to run specific tests
 - Use `console.log()` for debugging (will be visible in test output)
 - Use VS Code debugger with breakpoints
 
 ### E2E Tests
+
 - Use `test.slow()` for tests that need more time
 - Use `page.pause()` to pause execution
 - Use `--debug` flag to step through tests
@@ -195,27 +207,29 @@ Tests run automatically on:
 ## Common Patterns
 
 ### Testing Hooks
-```typescript
-import { renderHook, act } from '@testing-library/react';
 
-test('should handle hook state', () => {
+```typescript
+import { renderHook, act } from "@testing-library/react";
+
+test("should handle hook state", () => {
   const { result } = renderHook(() => useCustomHook());
-  
+
   act(() => {
-    result.current.updateState('new value');
+    result.current.updateState("new value");
   });
-  
-  expect(result.current.state).toBe('new value');
+
+  expect(result.current.state).toBe("new value");
 });
 ```
 
 ### Testing Async Components
+
 ```typescript
 test('should handle async data loading', async () => {
   render(<AsyncComponent />);
-  
+
   expect(screen.getByText('Loading...')).toBeInTheDocument();
-  
+
   await waitFor(() => {
     expect(screen.getByText('Data loaded')).toBeInTheDocument();
   });
@@ -223,18 +237,19 @@ test('should handle async data loading', async () => {
 ```
 
 ### Testing Error Boundaries
+
 ```typescript
 test('should handle errors', () => {
   const ThrowError = () => {
     throw new Error('Test error');
   };
-  
+
   render(
     <ErrorBoundary>
       <ThrowError />
     </ErrorBoundary>
   );
-  
+
   expect(screen.getByText('Something went wrong')).toBeInTheDocument();
 });
 ```
@@ -260,4 +275,4 @@ test('should handle errors', () => {
 - [Vitest Documentation](https://vitest.dev/)
 - [Testing Library Documentation](https://testing-library.com/)
 - [Playwright Documentation](https://playwright.dev/)
-- [Testing Best Practices](https://kentcdodds.com/blog/common-mistakes-with-react-testing-library) 
+- [Testing Best Practices](https://kentcdodds.com/blog/common-mistakes-with-react-testing-library)
