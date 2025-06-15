@@ -42,8 +42,7 @@ export function PlaceList({ places, isLoading, error, onEdit, onDelete }: PlaceL
           <CardContent className="py-3">
             <div className="text-sm text-muted-foreground">
               <div>
-                {format(new Date(place.start_date), "MMM d, yyyy")} -{" "}
-                {format(new Date(place.end_date), "MMM d, yyyy")}
+                {format(new Date(place.start_date), "MMM d, yyyy")} - {format(new Date(place.end_date), "MMM d, yyyy")}
               </div>
               {place.note && <div className="mt-2">{place.note}</div>}
             </div>
@@ -52,4 +51,4 @@ export function PlaceList({ places, isLoading, error, onEdit, onDelete }: PlaceL
       ))}
     </div>
   );
-} 
+}

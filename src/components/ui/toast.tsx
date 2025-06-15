@@ -17,16 +17,15 @@ export function Toaster() {
         >
           <div className="flex items-start">
             <div className="flex-1">
-              <h3 className={cn(
-                "text-sm font-medium",
-                toast.variant === "destructive" ? "text-red-800" : "text-gray-900"
-              )}>
+              <h3
+                className={cn(
+                  "text-sm font-medium",
+                  toast.variant === "destructive" ? "text-red-800" : "text-gray-900"
+                )}
+              >
                 {toast.title}
               </h3>
-              <p className={cn(
-                "mt-1 text-sm",
-                toast.variant === "destructive" ? "text-red-700" : "text-gray-500"
-              )}>
+              <p className={cn("mt-1 text-sm", toast.variant === "destructive" ? "text-red-700" : "text-gray-500")}>
                 {toast.description}
               </p>
             </div>
@@ -35,4 +34,4 @@ export function Toaster() {
       ))}
     </div>
   );
-} 
+}

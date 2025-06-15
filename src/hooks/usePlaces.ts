@@ -106,4 +106,4 @@ export function usePlaces({ planId }: UsePlacesProps) {
     updatePlace,
     deletePlace,
   };
-} 
+}

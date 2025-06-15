@@ -16,16 +16,22 @@ export function TravelPreferencesSection({ form }: TravelPreferencesSectionProps
     fetchPreferences();
   }, [fetchPreferences]);
 
-  const options: Option[] = useMemo(() => 
-    preferences.map((pref) => ({
-      value: pref.description,
-      label: pref.description,
-    })), 
+  const options: Option[] = useMemo(
+    () =>
+      preferences.map((pref) => ({
+        value: pref.description,
+        label: pref.description,
+      })),
     [preferences]
   );
 
   const selectedPreferences = form.watch("travel_preferences") || "";
-  const selectedValues = selectedPreferences ? selectedPreferences.split(",").map((p: string) => p.trim()).filter(Boolean) : [];
+  const selectedValues = selectedPreferences
+    ? selectedPreferences
+        .split(",")
+        .map((p: string) => p.trim())
+        .filter(Boolean)
+    : [];
 
   const handleChange = (values: string[]) => {
     form.setValue("travel_preferences", values.join(", "), { shouldValidate: true });
@@ -59,4 +65,4 @@ export function TravelPreferencesSection({ form }: TravelPreferencesSectionProps
       </CardContent>
     </Card>
   );
-} 
+}

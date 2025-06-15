@@ -74,4 +74,4 @@ export function PlanForm({ initialData, onSubmit, onCancel }: PlanFormProps) {
       </div>
     </form>
   );
-} 
+}

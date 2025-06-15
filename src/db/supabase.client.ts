@@ -1,11 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
-import type { AstroCookies } from 'astro';
-import { createServerClient, type CookieOptionsWithName } from '@supabase/ssr';
+import type { AstroCookies } from "astro";
+import { createServerClient, type CookieOptionsWithName } from "@supabase/ssr";
 
 import type { Database } from "./database.types";
 
 // Sprawdź czy jesteśmy po stronie serwera czy klienta
-const isServer = typeof window === 'undefined';
+const isServer = typeof window === "undefined";
 
 // Server-side environment variables (dostępne tylko po stronie serwera)
 const getServerSupabaseConfig = () => {
@@ -27,33 +27,33 @@ export const initializeSupabaseClient = (url: string, key: string) => {
     // Używamy createServerClient również po stronie klienta dla synchronizacji cookies
     clientSupabase = createServerClient<Database>(url, key, {
       cookieOptions: {
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
         httpOnly: false, // Musi być false po stronie klienta
-        sameSite: 'lax',
+        sameSite: "lax",
         maxAge: 60 * 60 * 24 * 7, // 7 dni
       },
       cookies: {
         getAll() {
           // Po stronie klienta pobieramy cookies z document.cookie
           return document.cookie
-            .split(';')
-            .map(cookie => {
-              const [name, ...rest] = cookie.trim().split('=');
-              return { name, value: rest.join('=') };
+            .split(";")
+            .map((cookie) => {
+              const [name, ...rest] = cookie.trim().split("=");
+              return { name, value: rest.join("=") };
             })
-            .filter(cookie => cookie.name && cookie.value);
+            .filter((cookie) => cookie.name && cookie.value);
         },
         setAll(cookiesToSet) {
           // Po stronie klienta ustawiamy cookies przez document.cookie
           cookiesToSet.forEach(({ name, value, options }) => {
             let cookieString = `${name}=${value}`;
-            
+
             if (options?.path) cookieString += `; Path=${options.path}`;
             if (options?.maxAge) cookieString += `; Max-Age=${options.maxAge}`;
             if (options?.sameSite) cookieString += `; SameSite=${options.sameSite}`;
             if (options?.secure) cookieString += `; Secure`;
-            
+
             document.cookie = cookieString;
           });
         },
@@ -69,13 +69,13 @@ export const getSupabaseClient = () => {
     // Po stronie serwera nie używamy client-side klienta
     return null;
   }
-  
+
   if (!clientSupabase) {
     // Jeśli klient nie został zainicjalizowany, zwróć null
     // Będzie zainicjalizowany przez komponent Astro
     return null;
   }
-  
+
   return clientSupabase;
 };
 
@@ -84,53 +84,46 @@ export { getSupabaseClient as supabase };
 
 // Server-side Supabase client configuration
 export const cookieOptions: CookieOptionsWithName = {
-  path: '/',
-  secure: process.env.NODE_ENV === 'production',
+  path: "/",
+  secure: process.env.NODE_ENV === "production",
   httpOnly: true,
-  sameSite: 'lax',
+  sameSite: "lax",
   maxAge: 60 * 60 * 24 * 7, // 7 dni
 };
 
 function parseCookieHeader(cookieHeader: string): { name: string; value: string }[] {
-  return cookieHeader.split(';').map((cookie) => {
-    const [name, ...rest] = cookie.trim().split('=');
-    return { name, value: rest.join('=') };
+  return cookieHeader.split(";").map((cookie) => {
+    const [name, ...rest] = cookie.trim().split("=");
+    return { name, value: rest.join("=") };
   });
 }
 
 // Server-side instance creator for SSR
-export const createSupabaseServerInstance = (context: {
-  headers: Headers;
-  cookies: AstroCookies;
-}) => {
+export const createSupabaseServerInstance = (context: { headers: Headers; cookies: AstroCookies }) => {
   const { supabaseUrl, supabaseKey } = getServerSupabaseConfig();
-  
-  const supabase = createServerClient<Database>(
-    supabaseUrl,
-    supabaseKey,
-    {
-      cookieOptions,
-      cookies: {
-        getAll() {
-          return parseCookieHeader(context.headers.get('Cookie') ?? '');
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            try {
-              context.cookies.set(name, value, options);
-            } catch (error) {
-              // Ignoruj błędy związane z próbą ustawienia cookies po wysłaniu response
-              if (error instanceof Error && error.message.includes('response has already been sent')) {
-                console.warn(`Cannot set cookie ${name}: response already sent`);
-              } else {
-                console.error(`Error setting cookie ${name}:`, error);
-              }
+
+  const supabase = createServerClient<Database>(supabaseUrl, supabaseKey, {
+    cookieOptions,
+    cookies: {
+      getAll() {
+        return parseCookieHeader(context.headers.get("Cookie") ?? "");
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          try {
+            context.cookies.set(name, value, options);
+          } catch (error) {
+            // Ignoruj błędy związane z próbą ustawienia cookies po wysłaniu response
+            if (error instanceof Error && error.message.includes("response has already been sent")) {
+              console.warn(`Cannot set cookie ${name}: response already sent`);
+            } else {
+              console.error(`Error setting cookie ${name}:`, error);
             }
-          });
-        },
+          }
+        });
       },
     },
-  );
+  });
 
   return supabase;
 };

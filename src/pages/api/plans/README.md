@@ -101,7 +101,7 @@ GET /api/plans?limit=5&offset=5
 - Endpoint wykorzystuje Supabase jako bazę danych i zapewnia filtrowanie według `user_id` oraz `deleted_at IS NULL`.
 - Obsługa paginacji jest zaimplementowana za pomocą parametrów `limit` i `offset`.
 - Metadane paginacji zawierają całkowitą liczbę wyników (`total_count`) oraz liczbę stron (`page_count`).
-- Pole `places_count` dla każdego planu jest obliczane jako liczba miejsc powiązanych z danym planem. 
+- Pole `places_count` dla każdego planu jest obliczane jako liczba miejsc powiązanych z danym planem.
 
 # API Endpoint: POST /api/plans
 
@@ -222,4 +222,4 @@ Content-Type: application/json
 - Endpoint wymaga uwierzytelnienia użytkownika poprzez Supabase Auth.
 - Podczas tworzenia planu, status jest automatycznie ustawiany na `draft`.
 - Endpoint zwraca pełny obiekt utworzonego planu, zgodnie z typem `PlanDTO`.
-- Implementacja obsługuje różne rodzaje błędów bazy danych, zwracając odpowiednie kody HTTP. 
+- Implementacja obsługuje różne rodzaje błędów bazy danych, zwracając odpowiednie kody HTTP.

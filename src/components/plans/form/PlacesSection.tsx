@@ -121,4 +121,4 @@ export function PlacesSection({ planId, planStartDate, planEndDate }: PlacesSect
       </CardContent>
     </Card>
   );
-} 
+}

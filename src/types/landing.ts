@@ -86,4 +86,4 @@ export interface FeatureCardProps {
 
 export interface AIAdvantageSectionProps {
   aiAdvantage: AIAdvantageContent;
-} 
+}

@@ -2,13 +2,13 @@
 
 ## 1. Resources
 
-| Resource | Database Table | Description |
-|----------|----------------|-------------|
-| Users | auth.users | Managed by Supabase Auth, contains user information |
-| Plans | generated_user_plans | Travel plans created by users |
-| Places | places | Locations included in travel plans |
-| GeneratedPlans | generated_ai_plans | AI-generated detailed travel plans |
-| TravelPreferences | travel_preferences | Predefined travel preference tags |
+| Resource          | Database Table       | Description                                         |
+| ----------------- | -------------------- | --------------------------------------------------- |
+| Users             | auth.users           | Managed by Supabase Auth, contains user information |
+| Plans             | generated_user_plans | Travel plans created by users                       |
+| Places            | places               | Locations included in travel plans                  |
+| GeneratedPlans    | generated_ai_plans   | AI-generated detailed travel plans                  |
+| TravelPreferences | travel_preferences   | Predefined travel preference tags                   |
 
 ## 2. Endpoints
 
@@ -107,7 +107,7 @@ The application will utilize Supabase's built-in authentication system. The fron
     "end_date": "date",
     "people_count": "integer",
     "note": "string",
-    "travel_preferences": "string",
+    "travel_preferences": "string"
   }
   ```
 - **Response Body:**
@@ -431,11 +431,13 @@ The application will utilize Supabase's built-in authentication system. The fron
 The application will use Supabase Authentication which provides:
 
 1. **JWT-based Authentication**
+
    - JWT tokens issued upon successful login
    - Tokens include user ID and role information
    - Frontend stores token securely and includes it in API requests
 
 2. **Authorization using Row Level Security (RLS)**
+
    - Supabase RLS policies ensure users can only access their own data
    - All API endpoints that interact with the database will respect RLS policies
    - Examples of RLS policies:
@@ -453,6 +455,7 @@ The application will use Supabase Authentication which provides:
 ### Validation Rules
 
 #### Plans
+
 - `name`: Required, max 100 characters
 - `people_count`: Required, between 1-99
 - `start_date`: Required, valid date
@@ -460,6 +463,7 @@ The application will use Supabase Authentication which provides:
 - `note`: Optional, max 2500 characters
 
 #### Places
+
 - `name`: Required, max 100 characters
 - `start_date`: Required, must be within plan date range
 - `end_date`: Required, must be >= start_date and within plan date range
@@ -469,24 +473,28 @@ The application will use Supabase Authentication which provides:
 ### Business Logic Implementation
 
 1. **Soft Delete**
+
    - Plans are soft-deleted by setting deleted_at timestamp
    - GET requests filter out plans with deleted_at not null
 
 2. **Plan Status Management**
+
    - When a plan is created or updated, status is set to 'draft'
    - After successful AI generation, status is updated to 'generated'
    - When a plan with generated content is modified, status returns to 'draft'
 
 3. **AI Plan Generation**
+
    - Generation process is asynchronous due to potentially long processing time
    - Status endpoint allows frontend to poll for completion
    - Maximum generation time is limited to 90 seconds
    - Generation fails if plan doesn't have required data
 
 4. **Date Validation**
+
    - Places' date ranges must be within the plan's date range
    - End date must always be equal to or after start date
 
 5. **PDF Export**
    - PDF is generated on-demand, not stored in the database
-   - Export fails if no generated plan exists for the specified plan 
+   - Export fails if no generated plan exists for the specified plan

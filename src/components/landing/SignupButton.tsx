@@ -6,10 +6,7 @@ interface SignupButtonProps {
 /**
  * Przycisk rejestracji - z większym akcentem wizualnym
  */
-export const SignupButton: React.FC<SignupButtonProps> = ({ 
-  onClick, 
-  className = "" 
-}) => {
+export const SignupButton: React.FC<SignupButtonProps> = ({ onClick, className = "" }) => {
   return (
     <button
       onClick={onClick}
@@ -18,4 +15,4 @@ export const SignupButton: React.FC<SignupButtonProps> = ({
       Sign up
     </button>
   );
-}; 
+};

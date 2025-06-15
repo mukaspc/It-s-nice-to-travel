@@ -55,14 +55,14 @@ export function PlanCard({ plan, onEdit, onDelete, onGenerate, onExplore, onEdit
           </div>
           <div className="flex items-center text-sm text-muted-foreground">
             <MapPin className="h-4 w-4 mr-2" />
-            <span>{plan.places_count} {plan.places_count === 1 ? 'place' : 'places'}</span>
+            <span>
+              {plan.places_count} {plan.places_count === 1 ? "place" : "places"}
+            </span>
           </div>
           {plan.note && <p className="text-sm text-muted-foreground line-clamp-2 mt-2">{plan.note}</p>}
           {hasNoPlaces && plan.status === "draft" && (
             <div className="bg-amber-50 border border-amber-200 rounded-md p-2 mt-2">
-              <p className="text-xs text-amber-700">
-                Add places to your travel plan to enable AI generation
-              </p>
+              <p className="text-xs text-amber-700">Add places to your travel plan to enable AI generation</p>
             </div>
           )}
         </div>
@@ -82,10 +82,10 @@ export function PlanCard({ plan, onEdit, onDelete, onGenerate, onExplore, onEdit
             Explore plan
           </Button>
         ) : (
-          <Button 
-            variant="default" 
-            size="sm" 
-            className="gap-1" 
+          <Button
+            variant="default"
+            size="sm"
+            className="gap-1"
             onClick={onGenerate}
             disabled={!canGenerate}
             title={hasNoPlaces ? "Add places to your plan before generating" : "Generate AI travel plan"}

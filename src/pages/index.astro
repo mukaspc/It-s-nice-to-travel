@@ -1,12 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { getSupabaseConfig } from "../db/supabase.client";
-import type { 
-  LandingPageViewModel, 
-  FeatureItem, 
-  HeroContent, 
-  AIAdvantageContent 
-} from "../types/landing";
+import type { LandingPageViewModel, FeatureItem, HeroContent, AIAdvantageContent } from "../types/landing";
 
 // Pobierz konfigurację Supabase po stronie serwera
 const supabaseConfig = getSupabaseConfig();
@@ -14,48 +9,52 @@ const supabaseConfig = getSupabaseConfig();
 // Mockowe dane dla landing page
 const heroContent: HeroContent = {
   title: "Plan trips with AI",
-  description: "Create engaging and interesting trip plans effortlessly with artificial intelligence. Transform simple notes about places and travel goals into detailed itineraries.",
-  ctaText: "Start planning"
+  description:
+    "Create engaging and interesting trip plans effortlessly with artificial intelligence. Transform simple notes about places and travel goals into detailed itineraries.",
+  ctaText: "Start planning",
 };
 
 const features: FeatureItem[] = [
   {
     id: "1",
     title: "AI-Powered Planning",
-    description: "Let artificial intelligence create personalized travel itineraries based on your preferences and interests.",
-    icon: "brain"
+    description:
+      "Let artificial intelligence create personalized travel itineraries based on your preferences and interests.",
+    icon: "brain",
   },
   {
-    id: "2", 
+    id: "2",
     title: "Smart Recommendations",
     description: "Discover hidden gems and must-visit attractions tailored to your travel style and duration.",
-    icon: "star"
+    icon: "star",
   },
   {
     id: "3",
     title: "Time Optimization",
     description: "Optimize your travel time with intelligent route planning and scheduling suggestions.",
-    icon: "clock"
+    icon: "clock",
   },
   {
     id: "4",
     title: "Interactive Maps",
     description: "Visualize your journey with detailed maps showing attractions, restaurants, and points of interest.",
-    icon: "map"
+    icon: "map",
   },
   {
     id: "5",
-    title: "Personalized Experience", 
+    title: "Personalized Experience",
     description: "Save your travel preferences and get recommendations that match your unique travel style.",
-    icon: "heart"
-  }
+    icon: "heart",
+  },
 ];
 
 const aiAdvantage: AIAdvantageContent = {
   title: "Why AI makes travel planning better",
-  description: "Traditional travel planning can be time-consuming and overwhelming. Our AI-powered approach saves you hours of research while ensuring you don't miss the best experiences your destination has to offer.",
-  imageUrl: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80",
-  imageAlt: "Travel planning with maps and guides"
+  description:
+    "Traditional travel planning can be time-consuming and overwhelming. Our AI-powered approach saves you hours of research while ensuring you don't miss the best experiences your destination has to offer.",
+  imageUrl:
+    "https://images.unsplash.com/photo-1488646953014-85cb44e25828?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80",
+  imageAlt: "Travel planning with maps and guides",
 };
 
 const viewModel: LandingPageViewModel = {
@@ -63,38 +62,51 @@ const viewModel: LandingPageViewModel = {
     isAuthenticated: false,
     isLoading: false,
     error: undefined,
-    user: undefined
+    user: undefined,
   },
   features,
   heroContent,
-  aiAdvantage
+  aiAdvantage,
 };
 ---
 
 <Layout title="It's nice to travel - AI-powered trip planning">
   <Fragment slot="head">
-    <meta name="description" content="Plan amazing trips with AI assistance. Create personalized itineraries, discover hidden gems, and optimize your travel experience with artificial intelligence." />
-    <meta name="keywords" content="travel planning, AI travel, trip planner, itinerary generator, travel recommendations, vacation planning" />
+    <meta
+      name="description"
+      content="Plan amazing trips with AI assistance. Create personalized itineraries, discover hidden gems, and optimize your travel experience with artificial intelligence."
+    />
+    <meta
+      name="keywords"
+      content="travel planning, AI travel, trip planner, itinerary generator, travel recommendations, vacation planning"
+    />
     <meta property="og:title" content="It's nice to travel - AI-powered trip planning" />
-    <meta property="og:description" content="Create engaging and interesting trip plans effortlessly with artificial intelligence." />
+    <meta
+      property="og:description"
+      content="Create engaging and interesting trip plans effortlessly with artificial intelligence."
+    />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="/og-image.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="It's nice to travel - AI-powered trip planning" />
-    <meta name="twitter:description" content="Create engaging and interesting trip plans effortlessly with artificial intelligence." />
+    <meta
+      name="twitter:description"
+      content="Create engaging and interesting trip plans effortlessly with artificial intelligence."
+    />
   </Fragment>
 
   <main>
-    <div 
-      id="landing-page" 
+    <div
+      id="landing-page"
       data-view-model={JSON.stringify(viewModel)}
       data-supabase-url={supabaseConfig?.supabaseUrl}
       data-supabase-key={supabaseConfig?.supabaseKey}
-    ></div>
+    >
+    </div>
   </main>
 </Layout>
 
 <script>
   // Import będzie realizowany przez Astro
-  import '../components/landing/LandingPageApp.ts';
+  import "../components/landing/LandingPageApp.ts";
 </script>

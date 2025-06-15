@@ -4,6 +4,7 @@
 Na podstawie analizy PRD, specyfikacji autentykacji i istniejącego codebase zidentyfikowano następujące przepływy autentykacji:
 
 **Główne przepływy autentykacji:**
+
 1. **Rejestracja użytkownika** - email + hasło (bez weryfikacji emaila)
 2. **Logowanie użytkownika** - email + hasło z opcją "Remember me"
 3. **Reset hasła** - dwuetapowy proces (żądanie + reset z tokenem)
@@ -12,27 +13,31 @@ Na podstawie analizy PRD, specyfikacji autentykacji i istniejącego codebase zid
 6. **Odświeżanie tokenów** - automatyczne dla aktywnych sesji
 
 **Główni aktorzy i ich interakcje:**
+
 1. **Przeglądarka** - interfejs użytkownika, formularze React, przechowywanie tokenów w localStorage
 2. **Middleware** - weryfikacja tokenów, ochrona chronionych tras, przekierowania
-3. **Astro API** - endpointy auth (/api/auth/*), walidacja danych, obsługa błędów
+3. **Astro API** - endpointy auth (/api/auth/\*), walidacja danych, obsługa błędów
 4. **Supabase Auth** - usługa uwierzytelnienia, JWT tokeny, zarządzanie sesjami
 
 **Procesy weryfikacji i odświeżania tokenów:**
+
 - Middleware sprawdza token w każdym żądaniu do chronionej trasy
 - Supabase automatycznie odświeża tokeny 5 minut przed wygaśnięciem
 - useAuth hook nasłuchuje zmian stanu autentykacji
 - Session cookies ustawiane opcjonalnie dla "Remember me"
 
 **Opis kroków autentykacji:**
+
 1. **Sprawdzenie stanu auth**: useAuth hook sprawdza istniejącą sesję przy załadowaniu
 2. **Logowanie**: formularz → API endpoint → Supabase → zwrócenie tokenu → aktualizacja stanu
 3. **Middleware protection**: żądanie → sprawdzenie tokenu → przekierowanie lub kontynuacja
 4. **Token refresh**: automatyczne odświeżanie przed wygaśnięciem
 5. **Wylogowanie**: czyszczenie lokalnego stanu i cookie sesji
 6. **Reset hasła**: email → token → nowe hasło → aktualizacja w Supabase
-</authentication_analysis>
+   </authentication_analysis>
 
 <mermaid_diagram>
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -46,7 +51,7 @@ sequenceDiagram
     Browser->>Browser: Załadowanie strony (useAuth hook)
     Browser->>Supabase: Sprawdzenie istniejącej sesji
     Supabase-->>Browser: Stan sesji (token lub null)
-    
+
     alt Użytkownik ma ważną sesję
         Browser->>Browser: Ustawienie stanu zalogowanego
         Browser->>Browser: Renderowanie AuthenticatedNav
@@ -59,11 +64,11 @@ sequenceDiagram
     Note over Browser,Supabase: Proces rejestracji
     Browser->>Browser: Kliknięcie "Signup" / Wypełnienie formularza
     Browser->>AstroAPI: POST /api/auth/signup (email, password)
-    
+
     activate AstroAPI
     AstroAPI->>AstroAPI: Walidacja danych (Zod schema)
     AstroAPI->>Supabase: signUp(email, password)
-    
+
     alt Rejestracja pomyślna
         Supabase-->>AstroAPI: { user, session }
         AstroAPI-->>Browser: Sukces + dane użytkownika
@@ -80,18 +85,18 @@ sequenceDiagram
     Note over Browser,Supabase: Proces logowania
     Browser->>Browser: Kliknięcie "Login" / Wypełnienie formularza
     Browser->>AstroAPI: POST /api/auth/login (email, password, rememberMe?)
-    
+
     activate AstroAPI
     AstroAPI->>AstroAPI: Walidacja danych
     AstroAPI->>Supabase: signInWithPassword(email, password)
-    
+
     alt Logowanie pomyślne
         Supabase-->>AstroAPI: { user, session, access_token }
-        
+
         alt RememberMe = true
             AstroAPI->>AstroAPI: Ustawienie session cookie
         end
-        
+
         AstroAPI-->>Browser: Sukces + token + dane użytkownika
         Browser->>Browser: Zapisanie tokenu (localStorage)
         Browser->>Browser: Aktualizacja stanu auth (zalogowany)
@@ -106,14 +111,14 @@ sequenceDiagram
     %% Ochrona chronionych tras
     Note over Browser,Supabase: Dostęp do chronionej strony
     Browser->>Middleware: Żądanie GET /plans
-    
+
     activate Middleware
     Middleware->>Middleware: Sprawdzenie czy trasa chroniona
     Middleware->>Middleware: Pobranie tokenu (cookie lub header)
-    
+
     alt Token jest obecny
         Middleware->>Supabase: Weryfikacja tokenu (getUser)
-        
+
         alt Token ważny
             Supabase-->>Middleware: Dane użytkownika
             Middleware->>Middleware: Zapisanie user w context.locals
@@ -130,10 +135,10 @@ sequenceDiagram
     %% Proces odświeżania tokenu
     Note over Browser,Supabase: Automatyczne odświeżanie tokenu
     Browser->>Browser: useAuth hook sprawdza wygaśnięcie (co 5 min)
-    
+
     alt Token wygasa za < 5 minut
         Browser->>Supabase: refreshSession(refresh_token)
-        
+
         alt Refresh pomyślny
             Supabase-->>Browser: Nowy access_token + refresh_token
             Browser->>Browser: Aktualizacja tokenów w storage
@@ -150,7 +155,7 @@ sequenceDiagram
     Browser->>Browser: Kliknięcie "Forgot Password"
     Browser->>Browser: Wypełnienie formularza (email)
     Browser->>AstroAPI: POST /api/auth/forgot-password (email)
-    
+
     activate AstroAPI
     AstroAPI->>Supabase: resetPasswordForEmail(email, redirectTo)
     Supabase-->>Supabase: Wysłanie emaila z tokenem reset
@@ -165,11 +170,11 @@ sequenceDiagram
     Browser->>Browser: Przekierowanie /password-reset?token=xyz
     Browser->>Browser: Wypełnienie formularza (nowe hasło)
     Browser->>AstroAPI: POST /api/auth/reset-password (token, password)
-    
+
     activate AstroAPI
     AstroAPI->>AstroAPI: Walidacja tokenu i hasła
     AstroAPI->>Supabase: updateUser(password) z tokenem
-    
+
     alt Reset pomyślny
         Supabase-->>AstroAPI: Sukces aktualizacji
         AstroAPI-->>Browser: Komunikat sukcesu
@@ -185,7 +190,7 @@ sequenceDiagram
     Note over Browser,Supabase: Proces wylogowania
     Browser->>Browser: Kliknięcie "Logout" w UserDropdown
     Browser->>AstroAPI: POST /api/auth/logout
-    
+
     activate AstroAPI
     AstroAPI->>Supabase: signOut()
     Supabase-->>AstroAPI: Potwierdzenie wylogowania
@@ -198,13 +203,13 @@ sequenceDiagram
 
     %% Obsługa błędów API
     Note over Browser,Supabase: Obsługa błędów i przekierowań
-    
+
     alt Użytkownik zalogowany próbuje /login
         Browser->>Middleware: GET /login
         Middleware->>Middleware: Sprawdzenie auth + isAuthRoute
         Middleware-->>Browser: Przekierowanie 302 /plans
     end
-    
+
     alt Wygaśnięcie sesji podczas działania
         Browser->>AstroAPI: Żądanie API z nieważnym tokenem
         AstroAPI->>Supabase: Weryfikacja tokenu
@@ -215,4 +220,5 @@ sequenceDiagram
         Browser->>Browser: Przekierowanie do /login
     end
 ```
-</mermaid_diagram> 
+
+</mermaid_diagram>

@@ -1,7 +1,7 @@
-import type { HeaderProps } from '../../types/landing';
-import { Logo } from './Logo';
-import { UnauthenticatedNav } from './UnauthenticatedNav';
-import { AuthenticatedNav } from './AuthenticatedNav';
+import type { HeaderProps } from "../../types/landing";
+import { Logo } from "./Logo";
+import { UnauthenticatedNav } from "./UnauthenticatedNav";
+import { AuthenticatedNav } from "./AuthenticatedNav";
 
 /**
  * Główna nawigacja górna z logo i przyciskami
@@ -13,14 +13,14 @@ export const Header: React.FC<HeaderProps> = ({
   onSignup,
   onLogout,
   onNavigateToPlans,
-  onLogoClick
+  onLogoClick,
 }) => {
   const handleLogoClick = () => {
     if (onLogoClick) {
       onLogoClick();
     } else {
       // Domyślne zachowanie - scroll do góry
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -35,21 +35,10 @@ export const Header: React.FC<HeaderProps> = ({
     }
 
     if (authState.isAuthenticated && authState.user) {
-      return (
-        <AuthenticatedNav
-          user={authState.user}
-          onNavigateToPlans={onNavigateToPlans}
-          onLogout={onLogout}
-        />
-      );
+      return <AuthenticatedNav user={authState.user} onNavigateToPlans={onNavigateToPlans} onLogout={onLogout} />;
     }
 
-    return (
-      <UnauthenticatedNav
-        onLogin={onLogin}
-        onSignup={onSignup}
-      />
-    );
+    return <UnauthenticatedNav onLogin={onLogin} onSignup={onSignup} />;
   };
 
   return (
@@ -62,4 +51,4 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
     </header>
   );
-}; 
+};

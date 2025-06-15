@@ -5,6 +5,7 @@
 "It's nice to travel" to aplikacja webowa z responsywnością dla urządzeń mobilnych, która umożliwia użytkownikom łatwe planowanie angażujących i interesujących wycieczek przy pomocy sztucznej inteligencji (AI). Aplikacja pozwala na konwersję prostych notatek o miejscach i celach podróży w szczegółowe plany, uwzględniając preferencje użytkownika, czas, liczbę osób oraz potencjalne miejsca i atrakcje.
 
 Aplikacja oferuje:
+
 - Prosty system kont użytkowników
 - Możliwość zapisywania preferencji turystycznych w profilu
 - Tworzenie, przeglądanie, edycję i usuwanie planów o planowanych wycieczkach
@@ -17,6 +18,7 @@ Rozwój MVP zaplanowano na okres jednego miesiąca, a wszystkie funkcje będą d
 ## 2. Problem użytkownika
 
 Głównym problemem, który rozwiązuje "It's nice to travel", jest trudność w planowaniu angażujących i interesujących wycieczek. Planowanie podróży często wymaga:
+
 - Czasochłonnych badań nad atrakcjami i miejscami wartymi odwiedzenia
 - Dostosowania planów do liczby osób, długości podróży i osobistych preferencji
 - Koordynacji wielu miejsc i działań w logiczną i wykonalną trasę
@@ -27,27 +29,31 @@ Głównym problemem, który rozwiązuje "It's nice to travel", jest trudność w
 ## 3. Wymagania funkcjonalne
 
 ### 3.1 System kont użytkowników
+
 - Rejestracja użytkownika wymagająca podania adresu e-mail, hasła
 - Logowanie użytkownika
 - Przywracanie hasła
 - Edycja profilu użytkownika
 
 ### 3.2 Zarządzanie listą planów podróży
+
 - Przeglądanie istniejących planów
 - Edycja planów
 - Usuwanie planów
 - Sortowanie planów po dacie utworzenia (od najnowszego do najstarszego)
 
 ### 3.2 Tworzenie nowego planu podróży
+
 - Dodawanie nowej notatki o podróży (tekst do 2500 znaków)
 - Dodawanie szczegółów podróży: liczba osób, przedział czasowy
 - Dodawanie wielu miejsc z datami pobytu (np. Rzym, od 12.04.2025 do 13.04.2025)
 - Dodawanie preferencji użytkownika dotyczących podróży:
--- Ustawianie preferencji podróży za pomocą systemu tagów
--- Predefiniowana lista tagów (zwiedzanie zabytków, muzeów, ciekawe miejsca, puby, restauracje, odpoczynek)
--- Możliwość dodawania własnych tagów
+  -- Ustawianie preferencji podróży za pomocą systemu tagów
+  -- Predefiniowana lista tagów (zwiedzanie zabytków, muzeów, ciekawe miejsca, puby, restauracje, odpoczynek)
+  -- Możliwość dodawania własnych tagów
 
 ### 3.4 Generowanie planów wycieczek przez AI
+
 - Konwersja notatek na szczegółowe plany podróży
 - Uwzględnianie preferencji użytkownika przy generowaniu planu
 - Wyświetlanie wskaźnika postępu podczas generowania (limit 90 sekund)
@@ -58,6 +64,7 @@ Głównym problemem, który rozwiązuje "It's nice to travel", jest trudność w
 - Eksport wygenerowanego planu do PDF
 
 ### 3.5 Interfejs użytkownika
+
 - Responsywny design z priorytetem dla urządzeń mobilnych
 - Nowoczesna, pobudzająca kolorystyka zachęcająca do podróży
 - Prosty i czytelny UI z ciekawym UX
@@ -82,8 +89,9 @@ MVP projektu "It's nice to travel" NIE będzie zawierać następujących funkcjo
 ### Landingpage
 
 ## US-000:
+
 - Tytuł: Strona głowna
-- Opis: Ścieżka główna serwisu ze stroną typu landingpage opisującą możliwości i zalety serwisu. 
+- Opis: Ścieżka główna serwisu ze stroną typu landingpage opisującą możliwości i zalety serwisu.
 - Kryteria akceptacji:
   - Sekcja hero z nagłówkiem zachęcającym do korzystania
   - Sekcja cards z zaletami serwisu
@@ -110,6 +118,7 @@ MVP projektu "It's nice to travel" NIE będzie zawierać następujących funkcjo
   - Odzyskiwanie hasła powinno być możliwe.
 
 #### US-001
+
 - Tytuł: Rejestracja nowego użytkownika
 - Opis: Jako nowy użytkownik, chcę się zarejestrować w aplikacji, aby móc korzystać z funkcji planowania podróży.
 - Kryteria akceptacji:
@@ -121,6 +130,7 @@ MVP projektu "It's nice to travel" NIE będzie zawierać następujących funkcjo
   - Komunikat błędu w przypadku, gdy adres e-mail jest już zajęty
 
 #### US-002
+
 - Tytuł: Logowanie do aplikacji
 - Opis: Jako zarejestrowany użytkownik, chcę się zalogować do aplikacji, aby uzyskać dostęp do moich zapisanych planów podróży i preferencji.
 - Kryteria akceptacji:
@@ -131,6 +141,7 @@ MVP projektu "It's nice to travel" NIE będzie zawierać następujących funkcjo
   - Opcja "Zapamiętaj mnie" dla utrzymania sesji
 
 #### US-003
+
 - Tytuł: Odzyskiwanie hasła
 - Opis: Jako użytkownik, który zapomniał hasła, chcę je zresetować, aby odzyskać dostęp do mojego konta.
 - Kryteria akceptacji:
@@ -141,6 +152,7 @@ MVP projektu "It's nice to travel" NIE będzie zawierać następujących funkcjo
   - Możliwość zalogowania się przy użyciu nowego hasła
 
 #### US-004
+
 - Tytuł: Edycja profilu użytkownika
 - Opis: Jako zalogowany użytkownik, chcę edytować informacje w moim profilu, aby je zaktualizować.
 - Kryteria akceptacji:
@@ -148,10 +160,10 @@ MVP projektu "It's nice to travel" NIE będzie zawierać następujących funkcjo
   - Przycisk zapisania zmian
   - Komunikat o pomyślnym zaktualizowaniu profilu
 
-
 ### Zarządzanie planami podróży
 
 #### US-005
+
 - Tytuł: Tworzenie nowego planu podróży
 - Opis: Jako użytkownik, chcę stworzyć plan podróży, aby zapisać moje pomysły i cele.
 - Kryteria akceptacji:
@@ -165,6 +177,7 @@ MVP projektu "It's nice to travel" NIE będzie zawierać następujących funkcjo
   - Komunikat potwierdzający zapisanie planu
 
 #### US-006
+
 - Tytuł: Dodawanie miejsc do planu podróży
 - Opis: Jako użytkownik, chcę dodać konkretne miejsca z datami pobytu do mojego planu podróży.
 - Kryteria akceptacji:
@@ -176,6 +189,7 @@ MVP projektu "It's nice to travel" NIE będzie zawierać następujących funkcjo
   - Walidacja, że daty pobytu w miejscach mieszczą się w przedziale czasowym całej podróży
 
 #### US-007
+
 - Tytuł: Przeglądanie zapisanych planów podróży
 - Opis: Jako użytkownik, chcę przeglądać moje zapisane plany o podróżach, aby do nich wrócić.
 - Kryteria akceptacji:
@@ -185,6 +199,7 @@ MVP projektu "It's nice to travel" NIE będzie zawierać następujących funkcjo
   - Widok szczegółowy planu po kliknięciu
 
 #### US-008
+
 - Tytuł: Edycja planu podróży
 - Opis: Jako użytkownik, chcę edytować istniejący plan podróży, aby zaktualizować informacje.
 - Kryteria akceptacji:
@@ -195,6 +210,7 @@ MVP projektu "It's nice to travel" NIE będzie zawierać następujących funkcjo
   - Zachowanie oryginalnej daty utworzenia planu
 
 #### US-009
+
 - Tytuł: Usuwanie planu podróży
 - Opis: Jako użytkownik, chcę usunąć plan podróży, którego już nie potrzebuję.
 - Kryteria akceptacji:
@@ -206,6 +222,7 @@ MVP projektu "It's nice to travel" NIE będzie zawierać następujących funkcjo
 ### Generowanie szczegółowych planów wycieczek
 
 #### US-010
+
 - Tytuł: Generowanie planu podróży na podstawie miejsc, dat, notatek i preferencji
 - Opis: Jako użytkownik, chcę wygenerować szczegółowy plan podróży na podstawie dancyh podstawowych mojego planu.
 - Kryteria akceptacji:
@@ -217,6 +234,7 @@ MVP projektu "It's nice to travel" NIE będzie zawierać następujących funkcjo
   - Komunikat błędu w przypadku niepowodzenia generowania
 
 #### US-011
+
 - Tytuł: Przeglądanie wygenerowanego planu podróży
 - Opis: Jako użytkownik, chcę przeglądać szczegóły wygenerowanego planu podróży.
 - Kryteria akceptacji:
@@ -227,6 +245,7 @@ MVP projektu "It's nice to travel" NIE będzie zawierać następujących funkcjo
   - Możliwość przełączania się między różnymi miejscami podróży
 
 #### US-012
+
 - Tytuł: Ponowne generowanie planu po edycji planu
 - Opis: Jako użytkownik, chcę wygenerować nowy szczegółowy plan po wprowadzeniu zmian w planie o podróży.
 - Kryteria akceptacji:
@@ -236,6 +255,7 @@ MVP projektu "It's nice to travel" NIE będzie zawierać następujących funkcjo
   - Możliwość porównania starej i nowej wersji planu
 
 #### US-013
+
 - Tytuł: Eksport planu podróży
 - Opis: Jako użytkownik, chcę wyeksportować wygenerowany plan podróży do formatu PDF.
 - Kryteria akceptacji:
@@ -247,6 +267,7 @@ MVP projektu "It's nice to travel" NIE będzie zawierać następujących funkcjo
 ### Interfejs użytkownika i UX
 
 #### US-014
+
 - Tytuł: Samouczek dla nowych użytkowników
 - Opis: Jako nowy użytkownik, chcę przejść przez samouczek, który pokaże mi, jak korzystać z aplikacji.
 - Kryteria akceptacji:
@@ -257,6 +278,7 @@ MVP projektu "It's nice to travel" NIE będzie zawierać następujących funkcjo
   - Wyróżnienie elementów interfejsu, o których mowa w samouczku
 
 #### US-015
+
 - Tytuł: Responsywność interfejsu na różnych urządzeniach
 - Opis: Jako użytkownik, chcę korzystać z aplikacji na różnych urządzeniach (desktop, tablet, telefon).
 - Kryteria akceptacji:
@@ -266,6 +288,7 @@ MVP projektu "It's nice to travel" NIE będzie zawierać następujących funkcjo
   - Szybkie ładowanie strony na urządzeniach mobilnych
 
 #### US-016
+
 - Tytuł: Obsługa błędów w przypadku niedostępności AI
 - Opis: Jako użytkownik, chcę otrzymać jasną informację i alternatywne rozwiązanie, gdy usługa AI jest niedostępna.
 - Kryteria akceptacji:
@@ -277,22 +300,26 @@ MVP projektu "It's nice to travel" NIE będzie zawierać następujących funkcjo
 ## 6. Metryki sukcesu
 
 ### 6.1 Metryki główne
+
 - Liczba wygenerowanych planów podróży (główna metryka sukcesu)
 - 90% użytkowników posiada 1 uzupełniony, niekoniecznie wygenerowany plan wycieczki
 - 75% użytkowników generuje 3 lub więcej planów wycieczek na rok
 
 ### 6.2 Metryki techniczne
+
 - Maksymalny czas odpowiedzi AI: 90 sekund
 - Dostępność aplikacji: 99.5%
 - Średni czas ładowania strony: poniżej 2 sekund
 
 ### 6.3 Metryki użytkownika
+
 - Wskaźnik ukończenia samouczka: minimum 80%
 - Wskaźnik ponownego generowania planów po edycji planów: minimum 50%
 - Wskaźnik eksportu wygenerowanych planów: minimum 30%
 - Współczynnik retencji po 30 dniach: minimum 40%
 
 ### 6.4 Metryki zadowolenia
+
 - Średnia ocena użyteczności wygenerowanych planów: minimum 4/5
 - Wskaźnik polecenia (NPS): minimum 30
-- Wskaźnik zadowolenia z interfejsu użytkownika: minimum 4/5 
+- Wskaźnik zadowolenia z interfejsu użytkownika: minimum 4/5

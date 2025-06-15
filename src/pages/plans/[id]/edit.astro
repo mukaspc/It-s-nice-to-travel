@@ -17,20 +17,22 @@ try {
 
   // Use the Supabase client directly instead of fetch to avoid authentication issues
   const userId = getUserIdFromLocals(Astro.locals);
-  
+
   const supabaseClient = createSupabaseServerInstance({
     headers: Astro.request.headers,
-    cookies: Astro.cookies
+    cookies: Astro.cookies,
   });
 
   // Fetch plan with places and check access
   const { data: planData, error: fetchError } = await supabaseClient
     .from("generated_user_plans")
-    .select(`
+    .select(
+      `
       *,
       places(*),
       has_generated_plan:generated_ai_plans(id)
-    `)
+    `
+    )
     .eq("id", id)
     .eq("user_id", userId)
     .single();
@@ -59,7 +61,8 @@ try {
   <PlansLayout>
     <div class="space-y-6">
       {error && <div class="bg-destructive/15 text-destructive p-4 rounded-md">{error}</div>}
-      {!error && <div id="plan-form-wrapper" data-mode="edit" data-initial-data={JSON.stringify(plan)}></div>}
+      {!error && <div id="plan-form-wrapper" data-mode="edit" data-initial-data={JSON.stringify(plan)} />}
     </div>
   </PlansLayout>
-</Layout> 
+</Layout>
+

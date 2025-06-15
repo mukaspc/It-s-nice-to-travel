@@ -7,7 +7,7 @@ export const GET: APIRoute = async ({ request, locals, cookies }) => {
   try {
     const supabaseClient = createSupabaseServerInstance({
       headers: request.headers,
-      cookies
+      cookies,
     });
 
     const { data, error } = await supabaseClient
@@ -34,4 +34,4 @@ export const GET: APIRoute = async ({ request, locals, cookies }) => {
       headers: { "Content-Type": "application/json" },
     });
   }
-}; 
+};

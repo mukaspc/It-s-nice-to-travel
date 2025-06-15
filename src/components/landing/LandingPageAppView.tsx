@@ -1,11 +1,11 @@
-import React from 'react';
-import type { LandingPageViewModel } from '../../types/landing';
-import { useAuth } from '../../hooks/useAuth';
-import { useNavigation } from '../../hooks/useNavigation';
-import { Header } from './Header';
-import { HeroSection } from './HeroSection';
-import { FeaturesSection } from './FeaturesSection';
-import { AIAdvantageSection } from './AIAdvantageSection';
+import React from "react";
+import type { LandingPageViewModel } from "../../types/landing";
+import { useAuth } from "../../hooks/useAuth";
+import { useNavigation } from "../../hooks/useNavigation";
+import { Header } from "./Header";
+import { HeroSection } from "./HeroSection";
+import { FeaturesSection } from "./FeaturesSection";
+import { AIAdvantageSection } from "./AIAdvantageSection";
 
 interface LandingPageAppViewProps {
   viewModel: LandingPageViewModel;
@@ -32,7 +32,7 @@ export const LandingPageAppView: React.FC<LandingPageAppViewProps> = ({ viewMode
       // Opcjonalnie: odświeżenie strony lub przekierowanie
       window.location.reload();
     } catch (error) {
-      console.error('Błąd podczas wylogowywania:', error);
+      console.error("Błąd podczas wylogowywania:", error);
       // Tutaj można dodać toast notification
     }
   };
@@ -59,20 +59,12 @@ export const LandingPageAppView: React.FC<LandingPageAppViewProps> = ({ viewMode
         onLogout={handleLogout}
         onNavigateToPlans={handleNavigateToPlans}
       />
-      
-      <HeroSection
-        heroContent={viewModel.heroContent}
-        onCTAClick={handleCTAClick}
-        authState={authState}
-      />
-      
-      <FeaturesSection 
-        features={viewModel.features}
-      />
-      
-      <AIAdvantageSection 
-        aiAdvantage={viewModel.aiAdvantage}
-      />
+
+      <HeroSection heroContent={viewModel.heroContent} onCTAClick={handleCTAClick} authState={authState} />
+
+      <FeaturesSection features={viewModel.features} />
+
+      <AIAdvantageSection aiAdvantage={viewModel.aiAdvantage} />
     </div>
   );
-}; 
+};

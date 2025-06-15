@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import type { FieldErrors } from '../types/auth';
+import { useState } from "react";
+import type { FieldErrors } from "../types/auth";
 
 /**
  * Custom hook do obsługi formularzy z walidacją
@@ -14,23 +14,23 @@ export const useForm = <T extends Record<string, any>>(
 
   // Ustawienie wartości pola
   const setValue = (name: keyof T, value: any) => {
-    setValues(prev => ({ ...prev, [name]: value }));
-    
+    setValues((prev) => ({ ...prev, [name]: value }));
+
     // Walidacja przy zmianie wartości jeśli pole było już dotknięte
     if (touched[name] && validationRules?.[name]) {
       const error = validationRules[name]!(value);
-      setErrors(prev => ({ ...prev, [name]: error }));
+      setErrors((prev) => ({ ...prev, [name]: error }));
     }
   };
 
   // Oznaczenie pola jako dotknięte
   const markAsTouched = (name: keyof T) => {
-    setTouched(prev => ({ ...prev, [name]: true }));
-    
+    setTouched((prev) => ({ ...prev, [name]: true }));
+
     // Walidacja przy opuszczeniu pola
     if (validationRules?.[name]) {
       const error = validationRules[name]!(values[name]);
-      setErrors(prev => ({ ...prev, [name]: error }));
+      setErrors((prev) => ({ ...prev, [name]: error }));
     }
   };
 
@@ -41,7 +41,7 @@ export const useForm = <T extends Record<string, any>>(
     const newErrors: Partial<Record<keyof T, string>> = {};
     let isValid = true;
 
-    Object.keys(validationRules).forEach(key => {
+    Object.keys(validationRules).forEach((key) => {
       const fieldName = key as keyof T;
       const rule = validationRules[fieldName];
       if (rule) {
@@ -72,34 +72,34 @@ export const useForm = <T extends Record<string, any>>(
     markAsTouched,
     validate,
     reset,
-    isValid: Object.keys(errors).length === 0
+    isValid: Object.keys(errors).length === 0,
   };
 };
 
 // Reguły walidacji dla pól email i hasła
 export const validationRules = {
   email: (value: string): string | undefined => {
-    if (!value) return 'Email is required';
+    if (!value) return "Email is required";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-      return 'Please enter a valid email address';
+      return "Please enter a valid email address";
     }
     return undefined;
   },
-  
+
   password: (value: string): string | undefined => {
-    if (!value) return 'Password is required';
-    if (value.length < 8) return 'Password must be at least 8 characters long';
-    if (!/(?=.*[a-z])/.test(value)) return 'Password must contain at least one lowercase letter';
-    if (!/(?=.*[A-Z])/.test(value)) return 'Password must contain at least one uppercase letter';
-    if (!/(?=.*\d)/.test(value)) return 'Password must contain at least one number';
+    if (!value) return "Password is required";
+    if (value.length < 8) return "Password must be at least 8 characters long";
+    if (!/(?=.*[a-z])/.test(value)) return "Password must contain at least one lowercase letter";
+    if (!/(?=.*[A-Z])/.test(value)) return "Password must contain at least one uppercase letter";
+    if (!/(?=.*\d)/.test(value)) return "Password must contain at least one number";
     return undefined;
   },
-  
+
   confirmPassword: (value: string, originalPassword?: string): string | undefined => {
-    if (!value) return 'Please confirm your password';
+    if (!value) return "Please confirm your password";
     if (originalPassword && value !== originalPassword) {
-      return 'Passwords do not match';
+      return "Passwords do not match";
     }
     return undefined;
-  }
-}; 
+  },
+};

@@ -37,13 +37,11 @@ export function PlanFormWrapper({ initialData, onSubmit }: PlanFormWrapperProps)
     try {
       setIsSubmitting(true);
       const result = await onSubmit(data);
-      
+
       if (result.success) {
         toast({
           title: "Success",
-          description: initialData 
-            ? "Travel plan updated successfully" 
-            : "Travel plan created successfully",
+          description: initialData ? "Travel plan updated successfully" : "Travel plan created successfully",
         });
         navigate("/plans");
       } else {
@@ -70,14 +68,9 @@ export function PlanFormWrapper({ initialData, onSubmit }: PlanFormWrapperProps)
         <BasicInfoSection form={form} />
         <TravelPreferencesSection form={form} />
         <PlacesSection form={form} />
-        
+
         <div className="flex justify-end space-x-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => navigate("/plans")}
-            disabled={isSubmitting}
-          >
+          <Button type="button" variant="outline" onClick={() => navigate("/plans")} disabled={isSubmitting}>
             Cancel
           </Button>
           <Button type="submit" disabled={isSubmitting}>
@@ -86,12 +79,14 @@ export function PlanFormWrapper({ initialData, onSubmit }: PlanFormWrapperProps)
                 <span className="loading loading-spinner loading-sm mr-2"></span>
                 {initialData ? "Updating..." : "Creating..."}
               </>
+            ) : initialData ? (
+              "Update Plan"
             ) : (
-              initialData ? "Update Plan" : "Create Plan"
+              "Create Plan"
             )}
           </Button>
         </div>
       </form>
     </Form>
   );
-} 
+}

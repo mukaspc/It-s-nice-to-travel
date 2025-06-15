@@ -6,13 +6,7 @@ import { Button } from "../../ui/button";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "../../ui/form";
 import { Input } from "../../ui/input";
 import { Textarea } from "../../ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "../../ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../ui/dialog";
 import { useState, useEffect } from "react";
 
 const placeFormSchema = z.object({
@@ -127,12 +121,7 @@ export function PlaceFormDialog({
                 <FormItem>
                   <FormLabel>Start Date</FormLabel>
                   <FormControl>
-                    <Input
-                      type="date"
-                      {...field}
-                      min={planStartDate}
-                      max={form.watch("end_date") || planEndDate}
-                    />
+                    <Input type="date" {...field} min={planStartDate} max={form.watch("end_date") || planEndDate} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -146,12 +135,7 @@ export function PlaceFormDialog({
                 <FormItem>
                   <FormLabel>End Date</FormLabel>
                   <FormControl>
-                    <Input
-                      type="date"
-                      {...field}
-                      min={form.watch("start_date") || planStartDate}
-                      max={planEndDate}
-                    />
+                    <Input type="date" {...field} min={form.watch("start_date") || planStartDate} max={planEndDate} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -178,19 +162,19 @@ export function PlaceFormDialog({
           )}
 
           <DialogFooter>
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 onClose();
-              }} 
+              }}
               disabled={isSubmitting}
             >
               Cancel
             </Button>
-            <Button 
+            <Button
               type="submit"
               onClick={(e) => {
                 e.stopPropagation();
@@ -204,4 +188,4 @@ export function PlaceFormDialog({
       </DialogContent>
     </Dialog>
   );
-} 
+}

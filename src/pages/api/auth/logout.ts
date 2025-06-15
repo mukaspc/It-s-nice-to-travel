@@ -1,14 +1,14 @@
-import type { APIRoute } from 'astro';
-import { createSupabaseServerInstance } from '../../../db/supabase.client';
-import { handleAuthError } from '../../../utils/auth-helpers';
+import type { APIRoute } from "astro";
+import { createSupabaseServerInstance } from "../../../db/supabase.client";
+import { handleAuthError } from "../../../utils/auth-helpers";
 
 export const prerender = false;
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
-    const supabase = createSupabaseServerInstance({ 
-      cookies, 
-      headers: request.headers 
+    const supabase = createSupabaseServerInstance({
+      cookies,
+      headers: request.headers,
     });
 
     // Wylogowanie użytkownika
@@ -19,15 +19,17 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     }
 
     // Sukces - wylogowanie zakończone
-    return new Response(JSON.stringify({ 
-      success: true,
-      message: 'Logged out successfully' 
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
-
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: "Logged out successfully",
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   } catch (error) {
     return handleAuthError(error);
   }
-}; 
+};

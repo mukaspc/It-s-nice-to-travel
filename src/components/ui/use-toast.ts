@@ -26,11 +26,7 @@ export function useToast() {
 
     // Auto-hide after 5 seconds
     setTimeout(() => {
-      setToasts((prev) =>
-        prev.map((t) =>
-          t.id === id ? { ...t, visible: false } : t
-        )
-      );
+      setToasts((prev) => prev.map((t) => (t.id === id ? { ...t, visible: false } : t)));
 
       // Remove from state after animation
       setTimeout(() => {
@@ -43,4 +39,4 @@ export function useToast() {
     toast,
     toasts,
   };
-} 
+}

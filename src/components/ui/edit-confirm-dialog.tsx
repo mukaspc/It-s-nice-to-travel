@@ -23,11 +23,13 @@ export function EditConfirmDialog({ isOpen, planName, onConfirm, onCancel }: Edi
         <AlertDialogHeader>
           <AlertDialogTitle>Edit Generated Plan</AlertDialogTitle>
           <AlertDialogDescription>
-            You are about to edit the plan <span className="font-medium text-foreground">"{planName}"</span>. 
-            This will change the plan status back to draft and remove the currently generated itinerary.
-            <br /><br />
+            You are about to edit the plan <span className="font-medium text-foreground">"{planName}"</span>. This will
+            change the plan status back to draft and remove the currently generated itinerary.
+            <br />
+            <br />
             <strong>Are you sure you want to continue?</strong>
-            <br /><br />
+            <br />
+            <br />
             <span className="text-sm text-muted-foreground">
               Note: You will need to generate the plan again after making your changes.
             </span>
@@ -40,4 +42,4 @@ export function EditConfirmDialog({ isOpen, planName, onConfirm, onCancel }: Edi
       </AlertDialogContent>
     </AlertDialog>
   );
-} 
+}

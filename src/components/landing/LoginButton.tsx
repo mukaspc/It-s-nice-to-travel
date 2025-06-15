@@ -6,10 +6,7 @@ interface LoginButtonProps {
 /**
  * Przycisk logowania
  */
-export const LoginButton: React.FC<LoginButtonProps> = ({ 
-  onClick, 
-  className = "" 
-}) => {
+export const LoginButton: React.FC<LoginButtonProps> = ({ onClick, className = "" }) => {
   return (
     <button
       onClick={onClick}
@@ -18,4 +15,4 @@ export const LoginButton: React.FC<LoginButtonProps> = ({
       Sign in
     </button>
   );
-}; 
+};

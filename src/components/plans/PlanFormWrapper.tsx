@@ -44,4 +44,4 @@ export function PlanFormWrapper({ initialData, mode }: PlanFormWrapperProps) {
       <PlanForm initialData={initialData} onSubmit={handleSubmit} onCancel={handleCancel} />
     </>
   );
-} 
+}

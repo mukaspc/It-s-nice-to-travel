@@ -1,9 +1,9 @@
-import { useState, useLayoutEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Button } from '../ui/button';
-import { ArrowLeft, MapPin, Clock, Utensils } from 'lucide-react';
-import { useNavigation } from '../../hooks/useNavigation';
-import type { GeneratedPlanDTO } from '../../types';
+import { useState, useLayoutEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Button } from "../ui/button";
+import { ArrowLeft, MapPin, Clock, Utensils } from "lucide-react";
+import { useNavigation } from "../../hooks/useNavigation";
+import type { GeneratedPlanDTO } from "../../types";
 
 interface GeneratedPlanViewProps {
   planId: string;
@@ -20,34 +20,34 @@ export function GeneratedPlanView({ planId }: GeneratedPlanViewProps) {
     setPlan(null);
     setError(null);
     setIsLoading(true);
-    
+
     const fetchPlan = async () => {
       try {
         const response = await fetch(`/api/plans/${planId}/generated`);
-        
+
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to fetch plan');
+          throw new Error(errorData.error || "Failed to fetch plan");
         }
-        
+
         const data = await response.json();
-        
+
         // Check if data has the expected structure
         if (!data.content) {
-          throw new Error('Plan data is missing content field');
+          throw new Error("Plan data is missing content field");
         }
-        
+
         if (!data.content.places || !Array.isArray(data.content.places)) {
-          throw new Error('Plan content is missing places array');
+          throw new Error("Plan content is missing places array");
         }
-        
+
         if (data.content.places.length === 0) {
-          throw new Error('Plan has no places data');
+          throw new Error("Plan has no places data");
         }
-        
+
         setPlan(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+        setError(err instanceof Error ? err.message : "An unexpected error occurred");
       } finally {
         setIsLoading(false);
       }
@@ -136,16 +136,18 @@ export function GeneratedPlanView({ planId }: GeneratedPlanViewProps) {
       {plan.content.places.map((place) => (
         <div key={place.name} className="space-y-4">
           <h2 className="text-2xl font-bold">{place.name}</h2>
-          
+
           {place.days.map((day) => (
             <Card key={day.date}>
               <CardHeader>
-                <CardTitle>{new Date(day.date).toLocaleDateString('en-US', { 
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })}</CardTitle>
+                <CardTitle>
+                  {new Date(day.date).toLocaleDateString("en-US", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
@@ -166,8 +168,8 @@ export function GeneratedPlanView({ planId }: GeneratedPlanViewProps) {
                           </p>
                           <p className="text-sm">{item.description}</p>
                           {item.image_url && (
-                            <img 
-                              src={item.image_url} 
+                            <img
+                              src={item.image_url}
                               alt={item.activity}
                               className="rounded-md w-full max-w-lg h-48 object-cover mt-2"
                             />
@@ -196,8 +198,8 @@ export function GeneratedPlanView({ planId }: GeneratedPlanViewProps) {
                               </p>
                               <p className="text-sm">{recommendation.description}</p>
                               {recommendation.image_url && (
-                                <img 
-                                  src={recommendation.image_url} 
+                                <img
+                                  src={recommendation.image_url}
                                   alt={recommendation.name}
                                   className="rounded-md w-full h-32 object-cover mt-2"
                                 />
@@ -216,4 +218,4 @@ export function GeneratedPlanView({ planId }: GeneratedPlanViewProps) {
       ))}
     </div>
   );
-} 
+}

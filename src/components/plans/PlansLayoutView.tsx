@@ -1,7 +1,7 @@
-import React from 'react';
-import { useAuth } from '../../hooks/useAuth';
-import { useNavigation } from '../../hooks/useNavigation';
-import { Header } from '../landing/Header';
+import React from "react";
+import { useAuth } from "../../hooks/useAuth";
+import { useNavigation } from "../../hooks/useNavigation";
+import { Header } from "../landing/Header";
 
 interface PlansLayoutViewProps {
   children: React.ReactNode;
@@ -28,7 +28,7 @@ export const PlansLayoutView: React.FC<PlansLayoutViewProps> = ({ children }) =>
       // Opcjonalnie: odświeżenie strony lub przekierowanie
       window.location.reload();
     } catch (error) {
-      console.error('Błąd podczas wylogowywania:', error);
+      console.error("Błąd podczas wylogowywania:", error);
       // Tutaj można dodać toast notification
     }
   };
@@ -39,7 +39,7 @@ export const PlansLayoutView: React.FC<PlansLayoutViewProps> = ({ children }) =>
 
   const handleLogoClick = () => {
     // Na stronach planów kliknięcie logo przekierowuje na stronę główną
-    window.location.href = '/';
+    window.location.href = "/";
   };
 
   return (
@@ -52,12 +52,10 @@ export const PlansLayoutView: React.FC<PlansLayoutViewProps> = ({ children }) =>
         onNavigateToPlans={handleNavigateToPlans}
         onLogoClick={handleLogoClick}
       />
-      
+
       <main className="py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {children}
-        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">{children}</div>
       </main>
     </div>
   );
-}; 
+};

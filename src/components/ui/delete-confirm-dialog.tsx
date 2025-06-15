@@ -32,4 +32,4 @@ export function DeleteConfirmDialog({ isOpen, title, description, onConfirm, onC
       </AlertDialogContent>
     </AlertDialog>
   );
-} 
+}

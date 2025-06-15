@@ -37,9 +37,7 @@ export function MultiSelect({
 
   // Tworzymy mapę wszystkich opcji (predefiniowanych i własnych)
   const allOptions = React.useMemo(() => {
-    const customOptions = value
-      .filter(v => !options.some(o => o.value === v))
-      .map(v => ({ value: v, label: v }));
+    const customOptions = value.filter((v) => !options.some((o) => o.value === v)).map((v) => ({ value: v, label: v }));
     return [...options, ...customOptions];
   }, [options, value]);
 
@@ -57,7 +55,7 @@ export function MultiSelect({
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     e.stopPropagation();
-    
+
     const input = inputRef.current;
     if (input) {
       if (e.key === "Delete" || e.key === "Backspace") {
@@ -86,19 +84,12 @@ export function MultiSelect({
     setTimeout(() => setOpen(false), 200);
   };
 
-  const filteredOptions = options.filter((option) => 
-    !value.includes(option.value) &&
-    option.label.toLowerCase().includes(inputValue.toLowerCase())
+  const filteredOptions = options.filter(
+    (option) => !value.includes(option.value) && option.label.toLowerCase().includes(inputValue.toLowerCase())
   );
 
   return (
-    <Command
-      onKeyDown={handleKeyDown}
-      className={cn(
-        "overflow-visible bg-transparent",
-        className
-      )}
-    >
+    <Command onKeyDown={handleKeyDown} className={cn("overflow-visible bg-transparent", className)}>
       <div
         className={cn(
           "group rounded-md border border-input px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
@@ -112,10 +103,7 @@ export function MultiSelect({
               <Badge
                 key={item}
                 variant="secondary"
-                className={cn(
-                  "hover:bg-secondary/80",
-                  disabled && "hover:bg-secondary"
-                )}
+                className={cn("hover:bg-secondary/80", disabled && "hover:bg-secondary")}
               >
                 {option?.label || item}
                 {!disabled && (
@@ -171,12 +159,7 @@ export function MultiSelect({
                   }}
                   className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
                 >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value.includes(option.value) ? "opacity-100" : "opacity-0"
-                    )}
-                  />
+                  <Check className={cn("mr-2 h-4 w-4", value.includes(option.value) ? "opacity-100" : "opacity-0")} />
                   {option.label}
                 </div>
               ))}
@@ -196,4 +179,4 @@ export function MultiSelect({
       )}
     </Command>
   );
-} 
+}

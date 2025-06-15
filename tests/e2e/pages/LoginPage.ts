@@ -1,5 +1,5 @@
-import type { Page, Locator } from '@playwright/test';
-import { BasePage } from './BasePage';
+import type { Page, Locator } from "@playwright/test";
+import { BasePage } from "./BasePage";
 
 export class LoginPage extends BasePage {
   readonly emailInput: Locator;
@@ -20,7 +20,7 @@ export class LoginPage extends BasePage {
   }
 
   async gotoLogin() {
-    await this.goto('/login');
+    await this.goto("/login");
     await this.waitForPageLoad();
   }
 
@@ -31,13 +31,15 @@ export class LoginPage extends BasePage {
   }
 
   async getErrorMessage(): Promise<string> {
-    return await this.errorMessage.textContent() || '';
+    return (await this.errorMessage.textContent()) || "";
   }
 
   async isLoginFormVisible(): Promise<boolean> {
-    return await this.emailInput.isVisible() && 
-           await this.passwordInput.isVisible() && 
-           await this.loginButton.isVisible();
+    return (
+      (await this.emailInput.isVisible()) &&
+      (await this.passwordInput.isVisible()) &&
+      (await this.loginButton.isVisible())
+    );
   }
 
   async clickForgotPassword() {
@@ -47,4 +49,4 @@ export class LoginPage extends BasePage {
   async clickRegisterLink() {
     await this.registerLink.click();
   }
-} 
+}
