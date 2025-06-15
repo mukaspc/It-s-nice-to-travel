@@ -48,8 +48,16 @@ The application offers:
   - Access to a wide range of models (OpenAI, Anthropic, Google, and many others)
   - Allows setting financial limits on API keys
 
+### Testing
+- [Vitest](https://vitest.dev/) for unit and integration testing
+- [@testing-library/react](https://testing-library.com/docs/react-testing-library/intro/) for testing React components
+- [@testing-library/jest-dom](https://testing-library.com/docs/ecosystem-jest-dom/) for additional DOM matchers
+- [Playwright](https://playwright.dev/) for end-to-end testing and cross-browser compatibility
+- [ESLint](https://eslint.org/) for static code analysis
+- Code coverage reporting and automated test execution in CI/CD
+
 ### CI/CD and Hosting
-- Github Actions for creating CI/CD pipelines
+- Github Actions for creating CI/CD pipelines and automated testing
 - DigitalOcean for hosting the application via Docker image
 
 ## Getting Started
@@ -91,6 +99,9 @@ npm run dev
 - `npm run lint` - Run ESLint to check for code issues
 - `npm run lint:fix` - Run ESLint and automatically fix issues
 - `npm run format` - Format code with Prettier
+- `npm run test` - Run unit and integration tests with Vitest
+- `npm run test:coverage` - Run tests with coverage reporting
+- `npm run test:e2e` - Run end-to-end tests with Playwright
 
 ## Project Scope
 
